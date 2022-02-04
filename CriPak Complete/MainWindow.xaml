@@ -1,7 +1,11 @@
-﻿<Window x:Class="CriPak.MainWindow"
+﻿<Window x:Class="CriPakComplete.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Criware CriPak GUI" Height="360" Width="640" ResizeMode="CanResizeWithGrip" SizeToContent="WidthAndHeight" MinWidth="640" MinHeight="358" Icon="Resources/1.ico" MaxHeight="640">
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:CriPakComplete"
+        mc:Ignorable="d"
+        Title="CriPak Complete" Height="360" Width="640" ResizeMode="CanResizeWithGrip" SizeToContent="WidthAndHeight" MinWidth="640" MinHeight="358" Icon="Resources/1.ico" MaxHeight="640">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="0*"/>
@@ -89,7 +93,7 @@
         <Grid Grid.ColumnSpan="3" Height="37" Margin="0,25,0,0" VerticalAlignment="Top" Background="{DynamicResource {x:Static SystemColors.MenuBarBrushKey}}">
             <Button x:Name="button_importassets" Content="Patch CPK" HorizontalAlignment="Left" Margin="142,10,0,0" VerticalAlignment="Top" Width="86" IsEnabled="False" Click="button_importassets_Click"/>
             <Button x:Name="button_extract" Content="Extract me!" HorizontalAlignment="Left" Margin="37,10,0,0" VerticalAlignment="Top" Width="86" IsEnabled="False" Click="button_extract_Click"/>
-            
+
         </Grid>
     </Grid>
 </Window>

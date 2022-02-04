@@ -1,7 +1,7 @@
-﻿<Window x:Class="CriPak.CpkPatcher"
+﻿<Window x:Class="CriPakComplete.CpkPatcher"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Patch CPK" Height="336" Width="564" Icon="Resources/importAssets.ico">
+        Title="Patch CPK" Height="336" Width="564" ResizeMode="NoResize" Icon="Resources/importAssets.ico">
     <Grid>
         <TextBox x:Name="textbox_patchDir" HorizontalAlignment="Left" Height="23" Margin="26,35,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="372"/>
         <Button x:Name="button_selPatchPath" Content="..." HorizontalAlignment="Left" Margin="403,35,0,0" VerticalAlignment="Top" Width="37" Height="23" Click="button_selPatchPath_Click"/>

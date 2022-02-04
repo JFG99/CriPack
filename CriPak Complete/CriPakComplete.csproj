@@ -1,0 +1,46 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <RootNamespace>CriPak_Complete</RootNamespace>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Resources\1.ico" />
+    <None Remove="Resources\importAssets.ico" />
+    <None Remove="Resources\openFile.ico" />
+    <None Remove="Resources\saveFiles.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Autofac" Version="6.3.0" />
+    <PackageReference Include="Ookii.Dialogs.Wpf" Version="5.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CriPackLibrary\CriPakInterfaces.csproj" />
+    <ProjectReference Include="..\CriPackRepository\CriPakRepository.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\1.ico" />
+    <Resource Include="Resources\importAssets.ico" />
+    <Resource Include="Resources\openFile.ico" />
+    <Resource Include="Resources\saveFiles.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update=".xaml.cs">
+      <DependentUpon>CpkPatcher.xaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="CpkPatcher.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+
+</Project>

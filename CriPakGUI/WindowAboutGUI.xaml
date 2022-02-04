@@ -1,4 +1,4 @@
-﻿<Window x:Class="CriPakGUI.WindowAboutGUI"
+﻿<Window x:Class="CriPak.WindowAboutGUI"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="About GUI" Height="300" Width="395" WindowStyle="ToolWindow" ResizeMode="NoResize" Icon="Resources/1.ico">

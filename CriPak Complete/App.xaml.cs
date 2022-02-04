@@ -1,11 +1,11 @@
 ﻿using Autofac;
-using CriPak.App_Start;
+using CriPakComplete.App_Start;
 using System.Windows;
 
-namespace CriPak
+namespace CriPakComplete
 {
     /// <summary>
-    /// App.xaml 的交互逻辑
+    /// Interaction logic for App.xaml
     /// </summary>
     public partial class App : Application
     {
@@ -17,9 +17,9 @@ namespace CriPak
 
         public void Execute()
         {
-            if(Container != null)
+            if (Container != null)
             {
-                using(var scope = Container.BeginLifetimeScope())
+                using (var scope = Container.BeginLifetimeScope())
                 {
                     Run();
                 }

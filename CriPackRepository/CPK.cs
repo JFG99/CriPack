@@ -4,11 +4,13 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using System.Runtime.InteropServices;
-namespace LibCPK
+
+
+namespace CriPakRepository
 {
     public class CPK
     {
-       
+
 
         private bool ReadDataRows(Encoding encoding = null, bool isLittleEndian = false)
         {
@@ -106,7 +108,7 @@ namespace LibCPK
                 {
                     FileEntry entry = CreateFileEntry("ETOC_HDR", EtocOffset, typeof(ulong), ETocOffsetPos, "CPK", "HDR", false);
                     FileTable.Add(entry);
-                    
+
                     if (!ReadETOC(br, EtocOffset))
                         return false;
                 }
@@ -211,7 +213,7 @@ namespace LibCPK
                 {
                     encrypted = packet;
                 }
-                 
+
                 cpk.Write(Encoding.ASCII.GetBytes(ID));
                 cpk.Write((Int32)0xff);
                 cpk.Write((UInt64)encrypted.Length);
@@ -377,9 +379,9 @@ namespace LibCPK
                     byte[] arr = new byte[destLength];
                     Marshal.Copy((IntPtr)dst, arr, 0, destLength);
                     return arr;
-                } 
+                }
             }
-            
+
             /*unsafe
             {
 
@@ -426,15 +428,15 @@ namespace LibCPK
 
             while (bytes_output < uncompressed_size)
             {
-                if (get_next_bits(input, ref input_offset, ref  bit_pool, ref bits_left, 1) > 0)
+                if (get_next_bits(input, ref input_offset, ref bit_pool, ref bits_left, 1) > 0)
                 {
-                    int backreference_offset = output_end - bytes_output + get_next_bits(input, ref input_offset, ref  bit_pool, ref bits_left, 13) + 3;
+                    int backreference_offset = output_end - bytes_output + get_next_bits(input, ref input_offset, ref bit_pool, ref bits_left, 13) + 3;
                     int backreference_length = 3;
                     int vle_level;
 
                     for (vle_level = 0; vle_level < vle_lens.Length; vle_level++)
                     {
-                        int this_level = get_next_bits(input, ref input_offset, ref  bit_pool, ref bits_left, vle_lens[vle_level]);
+                        int this_level = get_next_bits(input, ref input_offset, ref bit_pool, ref bits_left, vle_lens[vle_level]);
                         backreference_length += this_level;
                         if (this_level != ((1 << vle_lens[vle_level]) - 1)) break;
                     }
@@ -444,7 +446,7 @@ namespace LibCPK
                         int this_level;
                         do
                         {
-                            this_level = get_next_bits(input, ref input_offset, ref  bit_pool, ref bits_left, 8);
+                            this_level = get_next_bits(input, ref input_offset, ref bit_pool, ref bits_left, 8);
                             backreference_length += this_level;
                         } while (this_level == 255);
                     }
@@ -458,7 +460,7 @@ namespace LibCPK
                 else
                 {
                     // verbatim byte
-                    result[output_end - bytes_output] = (byte)get_next_bits(input, ref input_offset, ref  bit_pool, ref bits_left, 8);
+                    result[output_end - bytes_output] = (byte)get_next_bits(input, ref input_offset, ref bit_pool, ref bits_left, 8);
                     bytes_output++;
                 }
             }
@@ -494,15 +496,15 @@ namespace LibCPK
 
             while (bytes_output < uncompressed_size)
             {
-                if (get_next_bits(input, ref input_offset, ref  bit_pool, ref bits_left, 1) > 0)
+                if (get_next_bits(input, ref input_offset, ref bit_pool, ref bits_left, 1) > 0)
                 {
-                    int backreference_offset = output_end - bytes_output + get_next_bits(input, ref input_offset, ref  bit_pool, ref bits_left, 13) + 3;
+                    int backreference_offset = output_end - bytes_output + get_next_bits(input, ref input_offset, ref bit_pool, ref bits_left, 13) + 3;
                     int backreference_length = 3;
                     int vle_level;
 
                     for (vle_level = 0; vle_level < vle_lens.Length; vle_level++)
                     {
-                        int this_level = get_next_bits(input, ref input_offset, ref  bit_pool, ref bits_left, vle_lens[vle_level]);
+                        int this_level = get_next_bits(input, ref input_offset, ref bit_pool, ref bits_left, vle_lens[vle_level]);
                         backreference_length += this_level;
                         if (this_level != ((1 << vle_lens[vle_level]) - 1)) break;
                     }
@@ -512,7 +514,7 @@ namespace LibCPK
                         int this_level;
                         do
                         {
-                            this_level = get_next_bits(input, ref input_offset, ref  bit_pool, ref bits_left, 8);
+                            this_level = get_next_bits(input, ref input_offset, ref bit_pool, ref bits_left, 8);
                             backreference_length += this_level;
                         } while (this_level == 255);
                     }
@@ -526,7 +528,7 @@ namespace LibCPK
                 else
                 {
                     // verbatim byte
-                    result[output_end - bytes_output] = (byte)get_next_bits(input, ref input_offset, ref  bit_pool, ref bits_left, 8);
+                    result[output_end - bytes_output] = (byte)get_next_bits(input, ref input_offset, ref bit_pool, ref bits_left, 8);
                     bytes_output++;
                 }
             }
@@ -794,16 +796,5 @@ namespace LibCPK
         }
 
     }
-
-    public class UTF
-    {
-       
-        
-
-      
-    }
-
-    
-   
-
+}
     

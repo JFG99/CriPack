@@ -1,25 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using System.IO;
-using System.Windows.Navigation;
 using System.Diagnostics;
 using Ookii.Dialogs.Wpf;
 using System.Threading;
-using System.Windows.Threading;
-using LibCPK;
+using CriPakInterfaces.Models.Components;
+using CriPakRepository.Helpers;
 
-namespace CriPakGUI
+namespace CriPakComplete
 {
     /// <summary>
     /// CpkPatcher.xaml 的交互逻辑
@@ -136,12 +126,12 @@ namespace CriPakGUI
 
             BinaryWriter newCPK = new BinaryWriter(File.OpenWrite(outputName));
 
-            List<FileEntry> entries = cpk.FileTable.OrderBy(x => x.FileOffset).ToList();
+            List<CriFile> entries = cpk.FileTable.OrderBy(x => x.FileOffset).ToList();
 
             Tools tool = new Tools();
 
             int id;
-            bool bFileRepeated = Tools.CheckListRedundant(entries);
+            bool bFileRepeated = entries.CheckListRedundant();
             for (int i = 0; i < entries.Count; i++)
             {
                 this.UI_SetProgess((float)i / (float)entries.Count * 100f);

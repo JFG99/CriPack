@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using LibCPK;
 using System.IO;
+using CriPakInterfaces.Models.Components;
+using CriPakRepository.Helpers;
+using CriPakRepository;
 
-namespace CriPak
+namespace CriPakComplete
 {
     public enum packageEncodings
     {
@@ -44,14 +46,14 @@ namespace CriPak
         {
             string cpk_name = inFile;
             table = new List<CPKTable>();
-            myPackage.cpk = new CPK(new Tools());
+            myPackage.cpk = new CPK();
             myPackage.cpk.ReadCPK(cpk_name, myPackage.encoding);
             myPackage.cpk_name = cpk_name;
 
             BinaryReader oldFile = new BinaryReader(File.OpenRead(cpk_name));
-            List<FileEntry> entries = myPackage.cpk.FileTable.OrderBy(x => x.FileOffset).ToList();
+            List<CriFile> entries = myPackage.cpk.FileTable.OrderBy(x => x.FileOffset).ToList();
             int i = 0;
-            bool bFileRepeated = Tools.CheckListRedundant(entries);
+            bool bFileRepeated = entries.CheckListRedundant();
             while (i < entries.Count)
             {
                 /*

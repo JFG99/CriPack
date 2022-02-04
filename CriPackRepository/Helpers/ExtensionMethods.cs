@@ -1,24 +1,14 @@
-﻿using System;
+﻿using CriPakInterfaces;
+using CriPakInterfaces.Models.Components;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.IO;
-using System.Runtime.InteropServices;
 
-namespace LibCPK
+namespace CriPakRepository.Helpers
 {
-    public class Tools
+    public static class ExtensionMethods
     {
-
-        [DllImport("msvcrt.dll", CallingConvention = CallingConvention.Cdecl)]
-        static extern int memcmp(byte[] b1, byte[] b2, long count);
-
-        public Tools()
-        {
-
-        }
-
-        public static bool CheckListRedundant(List<FileEntry> input)
+        //CriFile method?
+        public static bool CheckListRedundant(this List<CriFile> input)
         {
 
             bool result = false;
@@ -40,37 +30,8 @@ namespace LibCPK
             return result;
         }
 
-        public Dictionary<string, string> ReadBatchScript(string batch_script_name)
-        {
-            //---------------------
-            // TXT内部
-            // original_file_name(in cpk),patch_file_name(in folder)
-            // /HD_font_a.ftx,patch/BOOT.cpk_unpacked/HD_font_a.ftx
-            // OTHER/ICON0.PNG,patch/BOOT.cpk_unpacked/OTHER/ICON0.PNG
-
-            Dictionary<string, string> flist = new Dictionary<string, string>();
-
-            StreamReader sr = new StreamReader(batch_script_name, Encoding.Default);
-            String line;
-            while ((line = sr.ReadLine()) != null)
-            {
-                if (line.IndexOf(",") > -1)
-                //只读取格式正确的行
-                {
-                    line = line.Replace("\n", "");
-                    line = line.Replace("\r", "");
-                    string[] currentValue = line.Split(',');
-                    flist.Add(currentValue[0], currentValue[1]);
-                }
-
-
-            }
-            sr.Close();
-
-            return flist;
-        }
-
-        public string ReadCString(BinaryReader br, int MaxLength = -1, long lOffset = -1, Encoding enc = null)
+        //method on Endian Reader?
+        public static string ReadCString(this IEndianReader br, int MaxLength = -1, long lOffset = -1, Encoding enc = null)
         {
             int Max;
             if (MaxLength == -1)
@@ -126,18 +87,7 @@ namespace LibCPK
             return result;
         }
 
-        public void DeleteFileIfExists(string sPath)
-        {
-            if (File.Exists(sPath))
-                File.Delete(sPath);
-        }
-
-        public string GetPath(string input)
-        {
-            return Path.GetDirectoryName(input) + "\\" + Path.GetFileNameWithoutExtension(input);
-        }
-
-        public byte[] GetData(BinaryReader br, long offset, int size)
+        public static byte[] GetData(this IEndianReader br, long offset, int size)
         {
             byte[] result = null;
             long backup = br.BaseStream.Position;
@@ -147,10 +97,9 @@ namespace LibCPK
             return result;
         }
 
-        public static string GetSafePath(string filename)
+        public static string GetSafePath(this string filename)
         {
             return string.Join("_", filename.Split(Path.GetInvalidFileNameChars()));
         }
-
     }
 }

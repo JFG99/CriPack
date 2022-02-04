@@ -5,6 +5,7 @@ using System.Text;
 using System.IO;
 using System.Runtime.InteropServices;
 using LibCPK;
+
 namespace CriPakTools
 {
     public class SystemEncoding
@@ -28,7 +29,7 @@ namespace CriPakTools
 
                 Console.WriteLine("error: no args\n");
                 Console.WriteLine("====================");
-                Console.WriteLine("This tool has been redesigned, please use CriPakGUI.exe ");
+                Console.WriteLine("This tool has been redesigned, please use CriPak.exe ");
                 Console.WriteLine("====================");
                 Console.WriteLine("This tool is based on the codes by Falo , Nanashi3 ,esperknight and uyjulian");
                 Console.WriteLine("I forked and added batch reimport and compress code .");
@@ -226,7 +227,7 @@ namespace CriPakTools
                     }
 
                     string dstpath = outDir + "/" + ((entries[i].DirName != null) ? entries[i].DirName + "/" : "") + entries[i].FileName.ToString();
-                    dstpath = Tools.GetSafePath(dstpath);
+                    dstpath = dstpath.GetSafePath();
                     string dstdir = Path.GetDirectoryName(dstpath);
                     if (!Directory.Exists(dstdir))
                     {
@@ -249,7 +250,7 @@ namespace CriPakTools
                 List<FileEntry> entries = cpk.FileTable.OrderBy(x => x.FileOffset).ToList();
 
                 Tools tool = new Tools();
-                Dictionary<string, string> batch_file_list = tool.ReadBatchScript(batch_text_name);
+                Dictionary<string, string> batch_file_list = batch_text_name.ReadBatchScript();
                 for (int i = 0; i < entries.Count; i++)
                 {
                     if (entries[i].FileType != "CONTENT")

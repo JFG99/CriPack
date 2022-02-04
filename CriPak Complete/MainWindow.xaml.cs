@@ -4,24 +4,20 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Diagnostics;
-using System.Windows.Shapes;
 using System.IO;
 using Ookii.Dialogs.Wpf;
 using System.Threading;
 using System.Windows.Threading;
-using LibCPK;
+using CriPakRepository.Helpers;
+using CriPakInterfaces.Models.Components;
 
-namespace CriPak
+namespace CriPakComplete
 {
     /// <summary>
-    /// MainWindow.xaml 的交互逻辑
+    /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
     {
@@ -56,7 +52,7 @@ namespace CriPak
                 beginLoadCPK(fName);
                 button_extract.IsEnabled = true;
                 button_importassets.IsEnabled = true;
-                
+
             }
         }
 
@@ -77,9 +73,9 @@ namespace CriPak
                         myPackage.basePath = System.IO.Path.GetDirectoryName(fName);
                         myPackage.baseName = System.IO.Path.GetFileName(fName);
                         myPackage.fileName = fName;
-                    } )
+                    })
                );
-            });  
+            });
         }
 
 
@@ -114,7 +110,7 @@ namespace CriPak
             {
                 Debug.Print(saveFilesDialog.SelectedPath + "/" + myPackage.baseName + "_unpacked");
                 ThreadPool.QueueUserWorkItem(new WaitCallback(beginExtractCPK), saveFilesDialog.SelectedPath);
-                
+
             }
 
         }
@@ -130,7 +126,7 @@ namespace CriPak
                     Directory.CreateDirectory(outDir);
                 }
                 BinaryReader oldFile = new BinaryReader(File.OpenRead(myPackage.cpk_name));
-                List<FileEntry> entries = null;
+                List<CriFile> entries = null;
 
                 entries = myPackage.cpk.FileTable.Where(x => x.FileType == "FILE").ToList();
 
@@ -144,7 +140,7 @@ namespace CriPak
                 int i = 0;
                 int id;
                 string currentName;
-                bool bFileRepeated = Tools.CheckListRedundant(entries);
+                bool bFileRepeated = entries.CheckListRedundant();
                 this.Dispatcher.Invoke(new datagridDelegate(updateDatagrid), new object[] { (bool)false });
 
                 while (i < entries.Count)
@@ -157,7 +153,7 @@ namespace CriPak
                     }
 
                     id = Convert.ToInt32(entries[i].ID);
-                    if (id > 0 &&　bFileRepeated)
+                    if (id > 0 && bFileRepeated)
                     {
                         currentName = (((entries[i].DirName != null) ?
                                         entries[i].DirName + "/" : "") + string.Format("[{0}]", id.ToString()) + entries[i].FileName);
@@ -193,7 +189,7 @@ namespace CriPak
                                                                 entries[i].FileSize,
                                                                 ((float)i / (float)entries.Count) * 100f);
                     string dstpath = outDir + "/" + currentName;
-                    dstpath = Tools.GetSafePath(dstpath);
+                    dstpath = dstpath.GetSafePath();
                     string dstdir = System.IO.Path.GetDirectoryName(dstpath);
                     if (!Directory.Exists(dstdir))
                     {
@@ -252,14 +248,14 @@ namespace CriPak
         }
         private void dgitem1_Click(object sender, RoutedEventArgs e)
         {
-            
+
             CPKTable t = this.datagrid_cpk.SelectedItem as CPKTable;
             if (t != null)
             {
                 if (t.FileSize > 0 && t.FileType == "FILE")
                 {
                     VistaSaveFileDialog saveFilesDialog = new VistaSaveFileDialog();
-                    saveFilesDialog.InitialDirectory = myPackage.basePath ;
+                    saveFilesDialog.InitialDirectory = myPackage.basePath;
                     saveFilesDialog.FileName = myPackage.basePath + "/" + t._localName;
                     if (saveFilesDialog.ShowDialog().Value)
                     {
@@ -268,10 +264,10 @@ namespace CriPak
                         File.WriteAllBytes(saveFilesDialog.FileName, chunk);
                         MessageBox.Show(String.Format("Decompress to :{0}", saveFilesDialog.FileName));
                     }
-                    
-                } 
+
+                }
             }
-            
+
         }
 
         private void dgitem2_Click(object sender, RoutedEventArgs e)
@@ -347,8 +343,8 @@ namespace CriPak
                 }
 
             }
-            
-            
+
+
 
         }
     }
