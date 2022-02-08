@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <RootNamespace>CriPak_Complete</RootNamespace>
+    <RootNamespace>CriPak</RootNamespace>
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
@@ -20,8 +20,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CriPackLibrary\CriPakInterfaces.csproj" />
-    <ProjectReference Include="..\CriPackRepository\CriPakRepository.csproj" />
+    <ProjectReference Include="..\CriPakInterfaces\CriPakInterfaces.csproj" />
+    <ProjectReference Include="..\CriPakRepository\CriPakRepository.csproj" />
   </ItemGroup>
 
   <ItemGroup>

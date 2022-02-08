@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CriPakInterfaces", "CriPakI
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CriPakRepository", "CriPakRepository\CriPakRepository.csproj", "{E53D3C9E-B91A-49FB-8304-1E9046491F54}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CriPakComplete", "CriPak\CriPakComplete.csproj", "{6C0ADB3D-F9F3-4C4C-9C4B-E7DB05F27EEB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CriPak", "CriPak\CriPak.csproj", "{6C0ADB3D-F9F3-4C4C-9C4B-E7DB05F27EEB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CriPackLibrary\CriPakInterfaces.csproj" />
+    <ProjectReference Include="..\CriPakInterfaces\CriPakInterfaces.csproj" />
   </ItemGroup>
 
 </Project>
