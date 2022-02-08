@@ -23,8 +23,6 @@ namespace CriPakComplete.App_Start
                 typeof(GtocParser)
             ).As<IParser<IEndian>>().InstancePerRequest();
 
-
-
         }
     }
 }

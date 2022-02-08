@@ -1,5 +1,6 @@
 ﻿using CriPakInterfaces.Models.Components;
 using System.Collections.Generic;
+using System.Text;
 
 namespace CriPakInterfaces.Models
 {
@@ -13,6 +14,7 @@ namespace CriPakInterfaces.Models
         private IEndianReader Reader { get; }
         public List<CriFile> CriFileList { get; set; }
         public Dictionary<string, object> CpkData { get; set; }
+        public Encoding encoding { get; set; }
         public UTF Utf { get; set; }
         public bool IsUtfEncrypted { get; set; }
         public int Unk1 { get; set; }

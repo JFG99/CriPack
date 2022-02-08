@@ -9,12 +9,7 @@ using CriPakRepository;
 
 namespace CriPakComplete
 {
-    public enum packageEncodings
-    {
-        UTF_8 = 65001,
-        SHIFT_JIS = 932,
-        
-    }
+
     public static class myPackage
     {
         public static CPK cpk { get; set; }

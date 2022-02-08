@@ -19,8 +19,7 @@ namespace CriPakInterfaces.Models.Components
         public float ufloat { get; set; }
         public string str { get; set; }
         public byte[] data { get; set; }
-        public long position { get; set; }
-
+        public long Position { get; set; }
         public object GetValue()
         {
             switch (Type)
@@ -64,6 +63,5 @@ namespace CriPakInterfaces.Models.Components
                 default: return null;
             }
         }
-
     }
 }

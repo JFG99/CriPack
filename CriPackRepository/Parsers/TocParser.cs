@@ -1,5 +1,7 @@
 ﻿using CriPakInterfaces;
+using CriPakInterfaces.Models.Components;
 using CriPakRepository.Helpers;
+using System;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -53,36 +55,36 @@ namespace CriPakRepository.Parsers
             {
                 return false;
             }
+            //This is involved in ReadDataRows and the GetColumnar methods below.  must be resolved.  
+            var files = new UTF();
 
-
-            FileEntry temp;
-            for (int i = 0; i < files.num_rows; i++)
+            for (int i = 0; i < files.NumRows; i++)
             {
-                temp = new FileEntry();
+                var temp = new CriFile();
 
                 temp.TOCName = "TOC";
 
-                temp.DirName = GetColumnData(files, i, "DirName");
-                temp.FileName = GetColumnData(files, i, "FileName");
+                temp.DirName = files.GetRow("DirName")?.GetValue().ToString();
+                temp.FileName = files.GetRow("FileName")?.GetValue().ToString();
 
-                temp.FileSize = GetColumnData(files, i, "FileSize");
-                temp.FileSizePos = GetColumnPostion(files, i, "FileSize");
-                temp.FileSizeType = GetColumnType(files, i, "FileSize");
+                temp.FileSize = int.TryParse(files.GetRow("FileSize")?.GetValue().ToString(), out var num) ? num : 0;
+                temp.FileSizePos = files.GetPostion("FileSize");
+                temp.FileSizeType = files.GetRow("FileSize")?.GetType();
 
-                temp.ExtractSize = GetColumnData(files, i, "ExtractSize");
-                temp.ExtractSizePos = GetColumnPostion(files, i, "ExtractSize");
-                temp.ExtractSizeType = GetColumnType(files, i, "ExtractSize");
+                temp.ExtractSize = int.TryParse(files.GetRow("ExtractSize")?.GetValue().ToString(), out num) ? num : 0;
+                temp.ExtractSizePos = files.GetPostion("ExtractSize");
+                temp.ExtractSizeType = files.GetRow("ExtractSize")?.GetType();
 
-                temp.FileOffset = ((ulong)GetColumnData(files, i, "FileOffset") + (ulong)add_offset);
-                temp.FileOffsetPos = GetColumnPostion(files, i, "FileOffset");
-                temp.FileOffsetType = GetColumnType(files, i, "FileOffset");
+                temp.FileOffset = (ulong)files.GetRow("FileOffset")?.GetValue() + add_offset;
+                temp.FileOffsetPos = files.GetPostion("FileOffset");
+                temp.FileOffsetType = files.GetRow("FileOffset")?.GetType();
 
                 temp.FileType = "FILE";
 
                 temp.Offset = add_offset;
 
-                temp.ID = GetColumnData(files, i, "ID");
-                temp.UserString = GetColumnData(files, i, "UserString");
+                temp.ID = int.TryParse(files.GetRow("ID")?.GetValue().ToString(), out num) ? num : 0;
+                temp.UserString = files.GetRow("UserString")?.GetValue().ToString();
 
                 FileTable.Add(temp);
             }

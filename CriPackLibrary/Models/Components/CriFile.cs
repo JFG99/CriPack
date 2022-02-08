@@ -6,6 +6,8 @@ namespace CriPakInterfaces.Models.Components
 {
     public class CriFile
     {
+        public CriFile(){ }
+
         public CriFile(string fileName, ulong fileOffset, Type fileOffsetType, long fileOffsetPos, string tocName, string fileType, bool encrypted)
         {
             FileName = fileName;

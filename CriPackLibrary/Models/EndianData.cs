@@ -1,8 +1,9 @@
-﻿using LibCPK.Interfaces;
+﻿using CriPakInterfaces;
+using LibCPK.Interfaces;
 using System.IO;
 using System.Text;
 
-namespace LibCPK.Models
+namespace CriPakInterfaces.Models
 {
     public class EndianData : IEndian
     {
