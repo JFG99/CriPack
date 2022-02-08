@@ -7,11 +7,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CriPakTools", "CriPakTools\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LibCRIComp", "LibCRIComp\LibCRIComp.vcxproj", "{E5829A5B-E121-41AA-A84B-E7B4C8DBDF30}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CriPakInterfaces", "CriPackLibrary\CriPakInterfaces.csproj", "{F5989F1F-DD38-485C-9E71-C49C6D29C192}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CriPakInterfaces", "CriPakInterfaces\CriPakInterfaces.csproj", "{F5989F1F-DD38-485C-9E71-C49C6D29C192}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CriPakRepository", "CriPackRepository\CriPakRepository.csproj", "{E53D3C9E-B91A-49FB-8304-1E9046491F54}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CriPakRepository", "CriPakRepository\CriPakRepository.csproj", "{E53D3C9E-B91A-49FB-8304-1E9046491F54}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CriPakComplete", "CriPak Complete\CriPakComplete.csproj", "{6C0ADB3D-F9F3-4C4C-9C4B-E7DB05F27EEB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CriPakComplete", "CriPak\CriPakComplete.csproj", "{6C0ADB3D-F9F3-4C4C-9C4B-E7DB05F27EEB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
