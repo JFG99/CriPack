@@ -8,10 +8,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="CpkPatcher.xaml.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="Resources\1.ico" />
     <None Remove="Resources\importAssets.ico" />
     <None Remove="Resources\openFile.ico" />
     <None Remove="Resources\saveFiles.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Remove="CpkPatcher.xaml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -29,18 +37,6 @@
     <Resource Include="Resources\importAssets.ico" />
     <Resource Include="Resources\openFile.ico" />
     <Resource Include="Resources\saveFiles.ico" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Update=".xaml.cs">
-      <DependentUpon>CpkPatcher.xaml</DependentUpon>
-    </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Page Update="CpkPatcher.xaml">
-      <SubType>Designer</SubType>
-    </Page>
   </ItemGroup>
 
 </Project>

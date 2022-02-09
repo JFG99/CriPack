@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using CriPakInterfaces;
 using CriPakRepository.Parsers;
+using CriPakRepository.Repositories;
 
 namespace CriPakComplete.App_Start
 {
@@ -15,13 +16,13 @@ namespace CriPakComplete.App_Start
 
         private static void RegisterTypes(ContainerBuilder builder)
         {
-            builder.RegisterGeneric(typeof(Parser<>)).As(typeof(IParser<>)).InstancePerRequest();
-            builder.RegisterType<TocParser>().As<ITocParser<IEndian>>().InstancePerRequest(); 
-            builder.RegisterType<ItocParser>().As<IItocParser<IEndian>>().InstancePerRequest();
-            builder.RegisterTypes(
-                typeof(EtocParser),
-                typeof(GtocParser)
-            ).As<IParser<IEndian>>().InstancePerRequest();
+            //builder.RegisterType(typeof(ParserRepository)).As(typeof(IParserRepository)).InstancePerRequest();
+            //builder.RegisterTypes(
+            //    typeof(EtocParser),
+            //    typeof(GtocParser),
+            //    typeof(ItocParser),
+            //    typeof(TocParser)
+            //).As<IParserRepository>().InstancePerRequest();
 
         }
     }

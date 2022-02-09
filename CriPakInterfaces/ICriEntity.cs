@@ -4,8 +4,8 @@ using System.Text;
 
 namespace CriPakInterfaces
 {
-    public interface ICpkParser : IParser<IEndian>
+    public interface ICriEntity
     {
-        bool Parse(string path, Encoding encoding = null);
+        int? FileId { get; set; }
     }
 }

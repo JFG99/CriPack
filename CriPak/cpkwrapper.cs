@@ -5,19 +5,22 @@ using System.Text;
 using System.IO;
 using CriPakInterfaces.Models.Components;
 using CriPakRepository.Helpers;
-using CriPakRepository;
+using CriPakRepository.Parsers;
+using CriPakInterfaces;
 
 namespace CriPakComplete
 {
 
-    public static class myPackage
+    public class myPackage
     {
-        public static CPK cpk { get; set; }
-        public static string basePath { get; set; }
-        public static string cpk_name { get; set; }
-        public static string baseName { get; set; }
-        public static string fileName { get; set; }
-        public static Encoding encoding = Encoding.GetEncoding(65001);
+        //public CPK cpk { get; set; }
+        public string BaseName { get; set; }
+        public string baseName { get; set; }
+        public string basePath { get; set; }
+        public string BasePath { get; set; }
+        public string CpkName { get; set; }
+        public string cpk_Name { get; set; }
+        public string fileName { get; set; }
     }
     public class CPKTable
     {
@@ -34,77 +37,73 @@ namespace CriPakComplete
 
     public class cpkwrapper
     {
-
+        //File Counts....  Just get from CriPak list.
         public int nums = 0;
-        public List<CPKTable> table;
+        public List<PackagedFile> tablePkgFiles;
         public cpkwrapper(string inFile)
         {
-            string cpk_name = inFile;
-            table = new List<CPKTable>();
-            myPackage.cpk = new CPK();
-            myPackage.cpk.ReadCPK(cpk_name, myPackage.encoding);
-            myPackage.cpk_name = cpk_name;
+            tablePkgFiles = new List<PackagedFile>();
+            var CriPak = new CriPakInterfaces.Models.CriPak
+            {   
+                CpkName = inFile,
+                Encoding = Encoding.GetEncoding(65001)
+            };
 
-            BinaryReader oldFile = new BinaryReader(File.OpenRead(cpk_name));
-            List<CriFile> entries = myPackage.cpk.FileTable.OrderBy(x => x.FileOffset).ToList();
-            int i = 0;
+            var parser = new CpkParser();
+            parser.Parse(CriPak);
+
+            var entries = CriPak.CriFileList.OrderBy(x => x.FileOffset).ToList();
             bool bFileRepeated = entries.CheckListRedundant();
-            while (i < entries.Count)
+            
+            foreach (var entry in entries)
             {
                 /*
-                Console.WriteLine("FILE ID:{0},File Name:{1},File Type:{5},FileOffset:{2:x8},Extract Size:{3:x8},Chunk Size:{4:x8}", entries[i].ID,
-                                                            (((entries[i].DirName != null) ? entries[i].DirName + "/" : "") + entries[i].FileName),
-                                                            entries[i].FileOffset,
-                                                            entries[i].ExtractSize,
-                                                            entries[i].FileSize,
-                                                            entries[i].FileType);
-                */
+                Console.WriteLine("FILE ID:{0},File Name:{1},File Type:{5},FileOffset:{2:x8},Extract Size:{3:x8},Chunk Size:{4:x8}", entry.ID,
+                                                            (((entry.DirName != null) ? entry.DirName + "/" : "") + entry.FileName),
+                                                            entry.FileOffset,
+                                                            entry.ExtractSize,
+                                                            entry.FileSize,
+                                                            entry.FileType);
+                */                
                 
-                
-                if (entries[i].FileType != null)
+                if (entry.FileType != null)
                 {
                     nums += 1;
 
-                    CPKTable t = new CPKTable();
-                    if (entries[i].ID == null)
+                    var t = new PackagedFile();
+                    if (entry.FileId == null)
                     {
-                        t.id = -1;
+                        t.FileId = -1;
                     }
                     else
                     {
-                        t.id = Convert.ToInt32(entries[i].ID);
+                        t.FileId = Convert.ToInt32(entry.FileId);
                     }
-                    if (t.id >= 0 && bFileRepeated)
+                    if (t.FileId >= 0 && bFileRepeated)
                     {
-                        t.FileName = (((entries[i].DirName != null) ? 
-                                        entries[i].DirName + "/" : "") + string.Format("[{0}]",t.id.ToString()) + entries[i].FileName);
+                        t.FileName = ((entry.DirName != null) ? entry.DirName + "/" : "") + string.Format("[{0}]",t.FileId.ToString()) + entry.FileName;
                     }
                     else
                     {
-                        t.FileName = (((entries[i].DirName != null) ?
-                                        entries[i].DirName + "/" : "") +  entries[i].FileName);
+                        t.FileName = ((entry.DirName != null) ? entry.DirName + "/" : "") +  entry.FileName;
                     }
-                    t._localName = entries[i].FileName.ToString();
+                    t.LocalName = entry.FileName.ToString();
 
-                    t.FileOffset = Convert.ToUInt64(entries[i].FileOffset);
-                    t.FileSize = Convert.ToInt32(entries[i].FileSize);
-                    t.ExtractSize = Convert.ToInt32(entries[i].ExtractSize);
-                    t.FileType = entries[i].FileType;
-                    if (entries[i].FileType == "FILE")
+                    t.FileOffset = Convert.ToUInt64(entry.FileOffset);
+                    t.CompressedFileSize = Convert.ToInt32(entry.CompressedFileSize);
+                    t.ExtractedFileSize = Convert.ToInt32(entry.ExtractedFileSize);
+                    t.FileType = entry.FileType;
+                    if (entry.FileType == "FILE")
                     {
-                        t.Pt = (float)Math.Round((float)t.FileSize / (float)t.ExtractSize, 2) * 100f;
+                        t.CompressionPercentage = (float)Math.Round(t.CompressedFileSize / (float)t.ExtractedFileSize, 2) * 100f;
                     }
                     else
                     {
-                        t.Pt = (float)1f * 100f;
+                        t.CompressionPercentage = (float)1f * 100f;
                     }
-                    table.Add(t);
+                    tablePkgFiles.Add(t);
                 }
-                i += 1;
-
             }
-            oldFile.Close();
-
         }
     }
 }

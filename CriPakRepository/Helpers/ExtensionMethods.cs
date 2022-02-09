@@ -1,10 +1,12 @@
 ﻿using CriPakInterfaces;
 using CriPakInterfaces.Models;
 using CriPakInterfaces.Models.Components;
+using CriPakRepository.Parsers;
 using CriPakRepository.Repository;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace CriPakRepository.Helpers
@@ -90,16 +92,18 @@ namespace CriPakRepository.Helpers
             return result;
         }
         //TODO: Fix utf_packet var.
-        public static bool ReadDataRows(Encoding encoding = null, bool isLittleEndian = false)
+        public static bool ReadDataRows(this CriPak package)
         {
-            using (var utfr = new EndianReader<MemoryStream, EndianData>(new MemoryStream(utf_packet), new EndianData(isLittleEndian)))
+            using (var utfr = new EndianReader<MemoryStream, EndianData>(new MemoryStream(package.UtfPacket), new EndianData(package.Reader.IsLittleEndian)))
             {
-                var utf = new UTF();
-                if (!utf.ReadUTF(utfr, encoding))
-                {
-                    br.Close();
-                    return false;
-                }
+                //var utf = new UTF();
+                //if (!utf.ReadUTF(utfr, encoding))
+                //var parser = new UtfParser();
+                //if(!parser.Parse(package))
+                //{
+                //    package.Reader.Close();
+                //    return false;
+                //}
             }
             return true;
         }
@@ -166,22 +170,22 @@ namespace CriPakRepository.Helpers
 
             return result;
         }
-        public static void ReadUTFData(this IEndianReader br)
+        public static void ReadUTFData(this CriPak package)
         {
-            isUtfEncrypted = false;
-            br.IsLittleEndian = true;
+            package.IsUtfEncrypted = false;
+            package.Reader.IsLittleEndian = true;
 
-            unk1 = br.ReadInt32();
-            utf_size = br.ReadInt64();
-            utf_packet = br.ReadBytes((int)utf_size);
+            package.Unk1 = package.Reader.ReadInt32();
+            package.UtfSize = package.Reader.ReadInt64();
+            package.UtfPacket = package.Reader.ReadBytes((int)package.UtfSize);
 
-            if (utf_packet[0] != 0x40 && utf_packet[1] != 0x55 && utf_packet[2] != 0x54 && utf_packet[3] != 0x46) //@UTF
+            if (package.UtfPacket[0] != 0x40 && package.UtfPacket[1] != 0x55 && package.UtfPacket[2] != 0x54 && package.UtfPacket[3] != 0x46) //@UTF
             {
-                utf_packet = utf_packet.DecryptUTF();
-                isUtfEncrypted = true;
+                package.UtfPacket = package.UtfPacket.DecryptUTF();
+                package.IsUtfEncrypted = true;
             }
 
-            br.IsLittleEndian = false;
+            package.Reader.IsLittleEndian = false;
         }
         unsafe public static int UnsafeCRICompress(byte* dest, int* destLen, byte* src, int srcLen)
         {
@@ -301,7 +305,8 @@ namespace CriPakRepository.Helpers
                     //Move cricompress to CLR
                     int destLength = (int)input.Length;
 
-                    int result = LibCRIComp.CriCompression.CRIcompress(dst, &destLength, src, input.Length);
+                    int result = UnsafeCRICompress(dst, &destLength, src, input.Length);
+                    //int result = LibCRIComp.CriCompression.CRIcompress(dst, &destLength, src, input.Length);
                     byte[] arr = new byte[destLength];
                     Marshal.Copy((IntPtr)dst, arr, 0, destLength);
                     return arr;
@@ -460,7 +465,7 @@ namespace CriPakRepository.Helpers
             br.Close();
             return result;
         }
-        public static void UpdateCriFile(CriFile file)
+        public static void UpdateCriFile(CriPak package, CriFile file)
         {
             if (file.FileType == "FILE" || file.FileType == "HDR")
             {
@@ -468,19 +473,19 @@ namespace CriPakRepository.Helpers
                 switch (file.TOCName)
                 {
                     case "CPK":
-                        updateMe = CPK_packet;
+                        updateMe = package.CpkPacket;
                         break;
                     case "TOC":
-                        updateMe = TOC_packet;
+                        updateMe = package.TocPacket;
                         break;
                     case "ITOC":
-                        updateMe = ITOC_packet;
-                        break;
-                    case "ETOC":
-                        updateMe = ETOC_packet;
-                        break;
-                    case "GTOC":
-                        updateMe = GTOC_packet;
+                        updateMe = package.ItocPacket;
+                        break;              
+                    case "ETOC":            
+                        updateMe = package.EtocPacket;
+                        break;              
+                    case "GTOC":            
+                        updateMe = package.GtocPacket;
                         break;
                     default:
                         throw new Exception("I need to implement this TOC!");
@@ -490,17 +495,17 @@ namespace CriPakRepository.Helpers
 
                 //Update ExtractSize
                 if (file.ExtractSizePos > 0)
-                    UpdateValue(ref updateMe, file.ExtractSize, file.ExtractSizePos, file.ExtractSizeType);
+                    UpdateValue(ref updateMe, file.ExtractedFileSize, file.ExtractSizePos, file.ExtractSizeType);
 
                 //Update FileSize
                 if (file.FileSizePos > 0)
-                    UpdateValue(ref updateMe, file.FileSize, file.FileSizePos, file.FileSizeType);
+                    UpdateValue(ref updateMe, file.ExtractedFileSize, file.FileSizePos, file.FileSizeType);
 
                 //Update FileOffset
                 if (file.FileOffsetPos > 0)
                     if (file.TOCName == "TOC")
                     {
-                        UpdateValue(ref updateMe, file.FileOffset - (ulong)TocOffset, file.FileOffsetPos, file.FileOffsetType);
+                        UpdateValue(ref updateMe, file.FileOffset - package.TocOffset, file.FileOffsetPos, file.FileOffsetType);
                     }
                     else
                     {
@@ -510,19 +515,19 @@ namespace CriPakRepository.Helpers
                 switch (file.TOCName)
                 {
                     case "CPK":
-                        CPK_packet = updateMe;
+                       package.CpkPacket = updateMe;
                         break;
                     case "TOC":
-                        TOC_packet = updateMe;
+                        package.TocPacket = updateMe;
                         break;
                     case "ITOC":
-                        ITOC_packet = updateMe;
+                        package.ItocPacket = updateMe;
                         break;
                     case "ETOC":
-                        updateMe = ETOC_packet;
+                        updateMe = package.EtocPacket;
                         break;
                     case "GTOC":
-                        updateMe = GTOC_packet;
+                        updateMe = package.GtocPacket;
                         break;
                     default:
                         throw new Exception("I need to implement this TOC!");

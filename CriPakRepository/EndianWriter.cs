@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using CriPakInterfaces.Models.Components;
 
-namespace LibCPK.Repository
+namespace CriPakRepository
 {   
 
     public class EndianWriter : BinaryWriter
@@ -29,27 +30,27 @@ namespace LibCPK.Repository
             base.Write(someBytes);
         }
 
-        public void Write(FileEntry entry)
+        public void Write(CriFile entry)
         {
             if (entry.ExtractSizeType == typeof(Byte))
             {
-                Write((Byte)entry.ExtractSize);
+                Write((Byte)entry.ExtractedFileSize);
             }
             else if (entry.ExtractSizeType == typeof(UInt16))
             {
-                Write((UInt16)entry.ExtractSize);
+                Write((UInt16)entry.ExtractedFileSize);
             }
             else if (entry.ExtractSizeType == typeof(UInt32))
             {
-                Write((UInt32)entry.ExtractSize);
+                Write((UInt32)entry.ExtractedFileSize);
             }
             else if (entry.ExtractSizeType == typeof(UInt64))
             {
-                Write((UInt64)entry.ExtractSize);
+                Write((UInt64)entry.ExtractedFileSize);
             }
             else if (entry.ExtractSizeType == typeof(Single))
             {
-                Write((Single)entry.ExtractSize);
+                Write((Single)entry.ExtractedFileSize);
             }
             else
             {

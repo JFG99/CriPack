@@ -21,8 +21,11 @@ namespace CriPakComplete
     /// </summary>
     public partial class MainWindow : Window
     {
+        public myPackage package { get; set; }
+
         public MainWindow()
         {
+            package = new myPackage();
             InitializeComponent();
             SetBasicPrefs();
         }
@@ -32,7 +35,7 @@ namespace CriPakComplete
             menu_savefiles.IsEnabled = false;
             menu_importAssets.IsEnabled = false;
             progressbar0.Maximum = 100;
-            myPackage.basePath = @"C:/";
+            package.basePath = @"C:/";
         }
         private void menu_openfile_Click(object sender, RoutedEventArgs e)
         {
@@ -66,13 +69,13 @@ namespace CriPakComplete
                     {
                         cpkwrapper cpk = new cpkwrapper(fName);
                         status_cpkmsg.Content = string.Format("{0} file(s) registered.", cpk.nums);
-                        datagrid_cpk.ItemsSource = cpk.table;
+                        datagrid_cpk.ItemsSource = cpk.tablePkgFiles;
 
                         menu_importAssets.IsEnabled = true;
                         menu_savefiles.IsEnabled = true;
-                        myPackage.basePath = System.IO.Path.GetDirectoryName(fName);
-                        myPackage.baseName = System.IO.Path.GetFileName(fName);
-                        myPackage.fileName = fName;
+                        package.basePath = System.IO.Path.GetDirectoryName(fName);
+                        package.baseName = System.IO.Path.GetFileName(fName);
+                        package.fileName = fName;
                     })
                );
             });
@@ -81,8 +84,8 @@ namespace CriPakComplete
 
         private void menu_importAssets_Click(object sender, RoutedEventArgs e)
         {
-            CpkPatcher patcherWindow = new CpkPatcher(this.Top, this.Left);
-            patcherWindow.ShowDialog();
+            //CpkPatcher patcherWindow = new CpkPatcher(this.Top, this.Left);
+            //patcherWindow.ShowDialog();
         }
 
 
@@ -105,10 +108,10 @@ namespace CriPakComplete
         private void menu_savefiles_Click(object sender, RoutedEventArgs e)
         {
             VistaFolderBrowserDialog saveFilesDialog = new VistaFolderBrowserDialog();
-            saveFilesDialog.SelectedPath = myPackage.basePath;
+            saveFilesDialog.SelectedPath = package.basePath;
             if (saveFilesDialog.ShowDialog().Value)
             {
-                Debug.Print(saveFilesDialog.SelectedPath + "/" + myPackage.baseName + "_unpacked");
+                Debug.Print(saveFilesDialog.SelectedPath + "/" + package.baseName + "_unpacked");
                 ThreadPool.QueueUserWorkItem(new WaitCallback(beginExtractCPK), saveFilesDialog.SelectedPath);
 
             }
@@ -118,102 +121,102 @@ namespace CriPakComplete
         private void beginExtractCPK(object foutDir)
         {
             string outDir;
-            outDir = (string)(foutDir + "/" + myPackage.baseName + "_unpacked");
-            if (myPackage.cpk != null)
-            {
-                if (!Directory.Exists(outDir))
-                {
-                    Directory.CreateDirectory(outDir);
-                }
-                BinaryReader oldFile = new BinaryReader(File.OpenRead(myPackage.cpk_name));
-                List<CriFile> entries = null;
+            outDir = (string)(foutDir + "/" + package.baseName + "_unpacked");
+            //if (package.cpk != null)
+            //{
+            //    if (!Directory.Exists(outDir))
+            //    {
+            //        Directory.CreateDirectory(outDir);
+            //    }
+            //    BinaryReader oldFile = new BinaryReader(File.OpenRead(myPackage.cpk_name));
+            //    List<CriFile> entries = null;
 
-                entries = myPackage.cpk.FileTable.Where(x => x.FileType == "FILE").ToList();
+            //    entries = myPackage.cpk.FileTable.Where(x => x.FileType == "FILE").ToList();
 
-                if (entries.Count == 0)
-                {
-                    Debug.Print("err while extracting.");
-                    oldFile.Close();
-                    return;
-                }
+            //    if (entries.Count == 0)
+            //    {
+            //        Debug.Print("err while extracting.");
+            //        oldFile.Close();
+            //        return;
+            //    }
 
-                int i = 0;
-                int id;
-                string currentName;
-                bool bFileRepeated = entries.CheckListRedundant();
-                this.Dispatcher.Invoke(new datagridDelegate(updateDatagrid), new object[] { (bool)false });
+            //    int i = 0;
+            //    int id;
+            //    string currentName;
+            //    bool bFileRepeated = entries.CheckListRedundant();
+            //    this.Dispatcher.Invoke(new datagridDelegate(updateDatagrid), new object[] { (bool)false });
 
-                while (i < entries.Count)
-                {
-                    this.Dispatcher.Invoke(new progressbarDelegate(updateprogressbar), new object[] { (float)i / (float)entries.Count * 100f });//异步委托
+            //    while (i < entries.Count)
+            //    {
+            //        this.Dispatcher.Invoke(new progressbarDelegate(updateprogressbar), new object[] { (float)i / (float)entries.Count * 100f });//异步委托
 
-                    if (!String.IsNullOrEmpty((string)entries[i].DirName))
-                    {
-                        Directory.CreateDirectory(outDir + "/" + entries[i].DirName.ToString());
-                    }
+            //        if (!String.IsNullOrEmpty((string)entries[i].DirName))
+            //        {
+            //            Directory.CreateDirectory(outDir + "/" + entries[i].DirName.ToString());
+            //        }
 
-                    id = Convert.ToInt32(entries[i].ID);
-                    if (id > 0 && bFileRepeated)
-                    {
-                        currentName = (((entries[i].DirName != null) ?
-                                        entries[i].DirName + "/" : "") + string.Format("[{0}]", id.ToString()) + entries[i].FileName);
-                        currentName = currentName.TrimStart('/');
-                    }
-                    else
-                    {
-                        currentName = ((entries[i].DirName != null) ? entries[i].DirName + "/" : "") + entries[i].FileName;
-                        currentName = currentName.TrimStart('/');
-                    }
+            //        id = Convert.ToInt32(entries[i].ID);
+            //        if (id > 0 && bFileRepeated)
+            //        {
+            //            currentName = (((entries[i].DirName != null) ?
+            //                            entries[i].DirName + "/" : "") + string.Format("[{0}]", id.ToString()) + entries[i].FileName);
+            //            currentName = currentName.TrimStart('/');
+            //        }
+            //        else
+            //        {
+            //            currentName = ((entries[i].DirName != null) ? entries[i].DirName + "/" : "") + entries[i].FileName;
+            //            currentName = currentName.TrimStart('/');
+            //        }
 
-                    oldFile.BaseStream.Seek((long)entries[i].FileOffset, SeekOrigin.Begin);
+            //        oldFile.BaseStream.Seek((long)entries[i].FileOffset, SeekOrigin.Begin);
 
-                    string isComp = Encoding.ASCII.GetString(oldFile.ReadBytes(8));
-                    oldFile.BaseStream.Seek((long)entries[i].FileOffset, SeekOrigin.Begin);
+            //        string isComp = Encoding.ASCII.GetString(oldFile.ReadBytes(8));
+            //        oldFile.BaseStream.Seek((long)entries[i].FileOffset, SeekOrigin.Begin);
 
-                    byte[] chunk = oldFile.ReadBytes(Int32.Parse(entries[i].FileSize.ToString()));
+            //        byte[] chunk = oldFile.ReadBytes(Int32.Parse(entries[i].FileSize.ToString()));
 
-                    if (isComp == "CRILAYLA")
-                    {
-                        int size = Int32.Parse((entries[i].ExtractSize ?? entries[i].FileSize).ToString());
+            //        if (isComp == "CRILAYLA")
+            //        {
+            //            int size = Int32.Parse((entries[i].ExtractedFileSize?? entries[i].FileSize).ToString());
 
-                        if (size != 0)
-                        {
-                            chunk = myPackage.cpk.DecompressLegacyCRI(chunk, size);
-                        }
-                    }
+            //            if (size != 0)
+            //            {
+            //                chunk = myPackage.cpk.DecompressLegacyCRI(chunk, size);
+            //            }
+            //        }
 
-                    Debug.WriteLine(" FileName :{0}\n    FileOffset:{1:x8}    ExtractSize:{2:x8}   ChunkSize:{3:x8} {4}",
-                                                                entries[i].FileName.ToString(),
-                                                                (long)entries[i].FileOffset,
-                                                                entries[i].ExtractSize,
-                                                                entries[i].FileSize,
-                                                                ((float)i / (float)entries.Count) * 100f);
-                    string dstpath = outDir + "/" + currentName;
-                    dstpath = dstpath.GetSafePath();
-                    string dstdir = System.IO.Path.GetDirectoryName(dstpath);
-                    if (!Directory.Exists(dstdir))
-                    {
-                        Directory.CreateDirectory(dstdir);
-                    }
-                    File.WriteAllBytes(dstpath, chunk);
-                    i += 1;
-                }
-                oldFile.Close();
-                this.Dispatcher.Invoke(new progressbarDelegate(updateprogressbar), new object[] { 100f });
-                this.Dispatcher.Invoke(new datagridDelegate(updateDatagrid), new object[] { (bool)true });
-                MessageBox.Show("Extraction Complete.");
+            //        Debug.WriteLine(" FileName :{0}\n    FileOffset:{1:x8}    ExtractSize:{2:x8}   ChunkSize:{3:x8} {4}",
+            //                                                    entries[i].FileName.ToString(),
+            //                                                    (long)entries[i].FileOffset,
+            //                                                    entries[i].ExtractSize,
+            //                                                    entries[i].FileSize,
+            //                                                    ((float)i / (float)entries.Count) * 100f);
+            //        string dstpath = outDir + "/" + currentName;
+            //        dstpath = dstpath.GetSafePath();
+            //        string dstdir = System.IO.Path.GetDirectoryName(dstpath);
+            //        if (!Directory.Exists(dstdir))
+            //        {
+            //            Directory.CreateDirectory(dstdir);
+            //        }
+            //        File.WriteAllBytes(dstpath, chunk);
+            //        i += 1;
+            //    }
+            //    oldFile.Close();
+            //    this.Dispatcher.Invoke(new progressbarDelegate(updateprogressbar), new object[] { 100f });
+            //    this.Dispatcher.Invoke(new datagridDelegate(updateDatagrid), new object[] { (bool)true });
+            //    MessageBox.Show("Extraction Complete.");
 
-            }
+            //}
 
         }
 
         private void button_extract_Click(object sender, RoutedEventArgs e)
         {
             VistaFolderBrowserDialog saveFilesDialog = new VistaFolderBrowserDialog();
-            saveFilesDialog.SelectedPath = myPackage.basePath + "/";
+            saveFilesDialog.SelectedPath = package.basePath + "/";
             if (saveFilesDialog.ShowDialog().Value)
             {
-                Debug.Print(saveFilesDialog.SelectedPath + "/" + myPackage.baseName + "_unpacked");
+                Debug.Print(saveFilesDialog.SelectedPath + "/" + package.baseName + "_unpacked");
                 ThreadPool.QueueUserWorkItem(new WaitCallback(beginExtractCPK), saveFilesDialog.SelectedPath);
 
             }
@@ -221,16 +224,14 @@ namespace CriPakComplete
 
         private void button_importassets_Click(object sender, RoutedEventArgs e)
         {
-            CpkPatcher patcherWindow = new CpkPatcher(this.Top, this.Left);
-            patcherWindow.ShowDialog();
-
-
+            //CpkPatcher patcherWindow = new CpkPatcher(this.Top, this.Left);
+            //patcherWindow.ShowDialog();
         }
 
         private void menu_aboutgui_Click(object sender, RoutedEventArgs e)
         {
-            WindowAboutGUI aboutwindow = new WindowAboutGUI(this.Top, this.Left);
-            aboutwindow.ShowDialog();
+            //WindowAboutGUI aboutwindow = new WindowAboutGUI(this.Top, this.Left);
+            //aboutwindow.ShowDialog();
         }
 
         private void dgmenu1_Cilck(object sender, MouseButtonEventArgs e)
@@ -255,8 +256,8 @@ namespace CriPakComplete
                 if (t.FileSize > 0 && t.FileType == "FILE")
                 {
                     VistaSaveFileDialog saveFilesDialog = new VistaSaveFileDialog();
-                    saveFilesDialog.InitialDirectory = myPackage.basePath;
-                    saveFilesDialog.FileName = myPackage.basePath + "/" + t._localName;
+                    saveFilesDialog.InitialDirectory = package.basePath;
+                    saveFilesDialog.FileName = package.basePath + "/" + t._localName;
                     if (saveFilesDialog.ShowDialog().Value)
                     {
                         byte[] chunk = ExtractItem(t);
@@ -278,7 +279,7 @@ namespace CriPakComplete
         private byte[] ExtractItem(CPKTable t)
         {
             CPKTable entries = t as CPKTable;
-            BinaryReader oldFile = new BinaryReader(File.OpenRead(myPackage.cpk_name));
+            BinaryReader oldFile = new BinaryReader(File.OpenRead(package.CpkName));
             oldFile.BaseStream.Seek((long)entries.FileOffset, SeekOrigin.Begin);
 
             string isComp = Encoding.ASCII.GetString(oldFile.ReadBytes(8));
@@ -300,7 +301,7 @@ namespace CriPakComplete
 
                 if (size != 0)
                 {
-                    chunk = myPackage.cpk.DecompressLegacyCRI(chunk, size);
+                    //chunk = myPackage.cpk.DecompressLegacyCRI(chunk, size);
                 }
             }
             oldFile.Close();
@@ -333,16 +334,16 @@ namespace CriPakComplete
                     break;
 
             }
-            if (current_codepage != myPackage.encoding)
-            {
-                myPackage.encoding = current_codepage;
-                if (myPackage.fileName != null)
-                {
+            //if (current_codepage != package.encoding)
+            //{
+            //    myPackage.encoding = current_codepage;
+            //    if (myPackage.fileName != null)
+            //    {
 
-                    beginLoadCPK(myPackage.fileName);
-                }
+            //        beginLoadCPK(myPackage.fileName);
+            //    }
 
-            }
+            //}
 
 
 

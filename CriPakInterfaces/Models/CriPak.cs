@@ -11,11 +11,12 @@ namespace CriPakInterfaces.Models
             CriFileList = new List<CriFile>();
         }
 
-        private IEndianReader Reader { get; }
+        public IEndianReader Reader { get; set; }
         public List<CriFile> CriFileList { get; set; }
         public Dictionary<string, object> CpkData { get; set; }
-        public Encoding encoding { get; set; }
+        public Encoding Encoding { get; set; }
         public UTF Utf { get; set; }
+        public string CpkName { get; set; }
         public bool IsUtfEncrypted { get; set; }
         public int Unk1 { get; set; }
         public long UtfSize { get; set; }

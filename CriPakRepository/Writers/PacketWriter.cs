@@ -14,19 +14,19 @@ namespace CriPakRepository.Writers
             {
                 cpk.BaseStream.Seek((long)position, SeekOrigin.Begin);
                 byte[] encrypted;
-                if (isUtfEncrypted == true)
-                {
-                    encrypted = packet.DecryptUTF(); // Yes it says decrypt...
-                }
-                else
-                {
-                    encrypted = packet;
-                }
+                //if (isUtfEncrypted == true)
+                //{
+                //    encrypted = packet.DecryptUTF(); // Yes it says decrypt...
+                //}
+                //else
+                //{
+                //    encrypted = packet;
+                //}
 
                 cpk.Write(Encoding.ASCII.GetBytes(ID));
                 cpk.Write((Int32)0xff);
-                cpk.Write((UInt64)encrypted.Length);
-                cpk.Write(encrypted);
+                //cpk.Write((UInt64)encrypted.Length);
+                //cpk.Write(encrypted);
             }
         }
     }
