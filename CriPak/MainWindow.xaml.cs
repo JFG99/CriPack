@@ -250,14 +250,14 @@ namespace CriPakComplete
         private void dgitem1_Click(object sender, RoutedEventArgs e)
         {
 
-            CPKTable t = this.datagrid_cpk.SelectedItem as CPKTable;
+            var t = this.datagrid_cpk.SelectedItem as PackagedFile;
             if (t != null)
             {
-                if (t.FileSize > 0 && t.FileType == "FILE")
+                if (t.CompressedFileSize > 0 && t.FileType == "FILE")
                 {
                     VistaSaveFileDialog saveFilesDialog = new VistaSaveFileDialog();
                     saveFilesDialog.InitialDirectory = package.basePath;
-                    saveFilesDialog.FileName = package.basePath + "/" + t._localName;
+                    saveFilesDialog.FileName = package.basePath + "/" + t.LocalName;
                     if (saveFilesDialog.ShowDialog().Value)
                     {
                         byte[] chunk = ExtractItem(t);
@@ -276,9 +276,8 @@ namespace CriPakComplete
             MessageBox.Show("Currently not supported");
         }
 
-        private byte[] ExtractItem(CPKTable t)
+        private byte[] ExtractItem(PackagedFile entries)
         {
-            CPKTable entries = t as CPKTable;
             BinaryReader oldFile = new BinaryReader(File.OpenRead(package.CpkName));
             oldFile.BaseStream.Seek((long)entries.FileOffset, SeekOrigin.Begin);
 
@@ -290,13 +289,13 @@ namespace CriPakComplete
             if (isComp == "CRILAYLA")
             {
                 int size;
-                if (entries.ExtractSize == 0)
+                if (entries.ExtractedFileSize == 0)
                 {
-                    size = entries.FileSize;
+                    size = entries.CompressedFileSize;
                 }
                 else
                 {
-                    size = entries.ExtractSize;
+                    size = entries.ExtractedFileSize;
                 }
 
                 if (size != 0)

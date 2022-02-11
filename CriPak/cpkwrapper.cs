@@ -90,7 +90,7 @@ namespace CriPakComplete
                     t.LocalName = entry.FileName.ToString();
 
                     t.FileOffset = Convert.ToUInt64(entry.FileOffset);
-                    t.CompressedFileSize = Convert.ToInt32(entry.CompressedFileSize);
+                    t.CompressedFileSize = Convert.ToInt32(entry.FileSize);
                     t.ExtractedFileSize = Convert.ToInt32(entry.ExtractedFileSize);
                     t.FileType = entry.FileType;
                     if (entry.FileType == "FILE")

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace CriPakInterfaces.Models.Components
 {
-    public enum CriType : int
+    public enum CRITYPE : int
     {
         MASK = 0x0f,
         DATA = 0x0b,

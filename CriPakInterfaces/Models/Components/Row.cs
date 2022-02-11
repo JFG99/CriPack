@@ -10,8 +10,9 @@ namespace CriPakInterfaces.Models.Components
         {
             Type = -1;
         }
-
+        public int Id { get; set; }
         public int Type { get; set; }
+        public string Name { get; set; }
         public byte uint8 { get; set; }
         public ushort uint16 { get; set; }
         public uint uint32 { get; set; }
@@ -35,7 +36,7 @@ namespace CriPakInterfaces.Models.Components
                 case 8: return ufloat;
                 case 0xA: return str;
                 case 0xB: return data;
-                default: return null;
+                default: return GetNullValue();
             }
         }
         public new System.Type GetType()
@@ -61,6 +62,20 @@ namespace CriPakInterfaces.Models.Components
                 case 0xB: return data.GetType();
 
                 default: return null;
+            }
+        }
+        public object GetNullValue()
+        {
+            switch (Type)
+            {
+                case 0: // byte
+                    return (byte)0xFF;
+                case 1: // short
+                    return (ushort)0xFFFF;
+                case 2: // int
+                    return 0xFFFFFFFF;
+                default: // long
+                    return 0xFFFFFFFFFFFFFFFF;
             }
         }
     }

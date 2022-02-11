@@ -1,148 +1,120 @@
-﻿using CriPakInterfaces;
-using CriPakInterfaces.Models;
+﻿using CriPakInterfaces.Models;
+using CriPakInterfaces.Models.Components;
 using CriPakRepository.Helpers;
 using CriPakRepository.Repositories;
-using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.IO;
-using System.Text;
+using System;
 
 namespace CriPakRepository.Parsers
 {
-    //public class UtfParser : ParserRepository
-    //{
-    //    public override bool Parse(CriPak package) //, Encoding encoding = null)
-    //    {
-    //        long offset = package.Reader.BaseStream.Position;
+    public class UtfParser : ParserRepository
+    {
+        public override bool Parse(CriPak package) //, Encoding encoding = null)
+        {
+            package.Utf = new UTF();
+            long offset = package.SubReader.BaseStream.Position;
 
-    //        if (package.Reader.ReadCString(4) != "@UTF")
-    //        {
-    //            return false;
-    //        }
+            if (package.SubReader.ReadCString(4) != "@UTF")
+            {
+                return false;
+            }
 
-    //        table_size = package.Reader.ReadInt32();
-    //        rows_offset = package.Reader.ReadInt32();
-    //        strings_offset = package.Reader.ReadInt32();
-    //        data_offset = package.Reader.ReadInt32();
+            package.Utf.TableSize = package.SubReader.ReadInt32();
+            package.Utf.RowsOffeset = package.SubReader.ReadInt32();
+            package.Utf.StringsOffset = package.SubReader.ReadInt32();
+            package.Utf.DataOffset = package.SubReader.ReadInt32();
 
-    //        // CPK Header & UTF Header are ignored, so add 8 to each offset
-    //        rows_offset += (offset + 8);
-    //        strings_offset += (offset + 8);
-    //        data_offset += (offset + 8);
+            // CPK Header & UTF Header are ignored, so add 8 to each offset
+            package.Utf.RowsOffeset += (offset + 8);
+            package.Utf.StringsOffset += (offset + 8);
+            package.Utf.DataOffset += (offset + 8);
 
-    //        table_name = package.Reader.ReadInt32();
-    //        num_columns = package.Reader.ReadInt16();
-    //        row_length = package.Reader.ReadInt16();
-    //        num_rows = package.Reader.ReadInt32();
+            package.Utf.TableName = package.SubReader.ReadInt32();
+            package.Utf.NumColumns = package.SubReader.ReadInt16();
+            package.Utf.RowLength = package.SubReader.ReadInt16();
+            package.Utf.NumRows = package.SubReader.ReadInt32();
 
-    //        //read Columns
-    //        columns = new List<COLUMN>();
-    //        COLUMN column;
+            //read Columns
+            for (int i = 0; i < package.Utf.NumColumns; i++)
+            {
+                var column = new Column();
+                column.Flags = package.SubReader.ReadByte();
+                if (column.Flags == 0)
+                {
+                    package.SubReader.BaseStream.Seek(3, SeekOrigin.Current);
+                    column.Flags = package.SubReader.ReadByte();
+                }
 
-    //        for (int i = 0; i < num_columns; i++)
-    //        {
-    //            column = new COLUMN();
-    //            column.flags = package.Reader.ReadByte();
-    //            if (column.flags == 0)
-    //            {
-    //                package.Reader.BaseStream.Seek(3, SeekOrigin.Current);
-    //                column.flags = package.Reader.ReadByte();
-    //            }
+                column.Name = package.SubReader.ReadCString(-1, (long)(package.SubReader.ReadInt32() + package.Utf.StringsOffset), package.Encoding);
+                package.Utf.Columns.Add(column);
+            }
 
-    //            column.name = package.Reader.ReadCString(-1, (long)(package.Reader.ReadInt32() + strings_offset), encoding);
-    //            columns.Add(column);
-    //        }
+            //read Rows
+            // Originally this called for a List<List<Row>>. I dont see a need for a nested list as its always hardcorded to the 1st element, so its been removed.
+            // If Num Rows goes above 1 something will need added to deal with different rows or this process will need refactoring somehow.  
+            for (int j = 0; j < package.Utf.NumRows; j++)
+            {
+                package.SubReader.BaseStream.Seek(package.Utf.RowsOffeset + (j * package.Utf.RowLength), SeekOrigin.Begin);
 
-    //        //read Rows
+                for (int i = 0; i < package.Utf.NumColumns; i++)
+                {
+                    var row = new Row();
+                    var storage_flag = (package.Utf.Columns[i].Flags & (int)STORAGE.MASK);
+                    if (!(storage_flag == (int)STORAGE.NONE || storage_flag == (int)STORAGE.ZERO || storage_flag == (int)STORAGE.CONSTANT))
+                    {
+                        row.Id = j;
+                        row.Type = package.Utf.Columns[i].Flags & (int)CRITYPE.MASK;
+                        row.Position = package.SubReader.BaseStream.Position;
+                        row.Name = package.Utf.Columns[i].Name;
+                        //Bleh switch statements. fix if time.
+                        switch (row.Type)
+                        {
+                            case 0:
+                            case 1:
+                                row.uint8 = package.SubReader.ReadByte();
+                                break;
 
-    //        rows = new List<ROWS>();
-    //        ROWS current_entry;
-    //        ROW current_row;
-    //        int storage_flag;
+                            case 2:
+                            case 3:
+                                row.uint16 = package.SubReader.ReadUInt16();
+                                break;
 
-    //        for (int j = 0; j < num_rows; j++)
-    //        {
-    //            package.Reader.BaseStream.Seek(rows_offset + (j * row_length), SeekOrigin.Begin);
+                            case 4:
+                            case 5:
+                                row.uint32 = package.SubReader.ReadUInt32();
+                                break;
 
-    //            current_entry = new ROWS();
+                            case 6:
+                            case 7:
+                                row.uint64 = package.SubReader.ReadUInt64();
+                                break;
 
-    //            for (int i = 0; i < num_columns; i++)
-    //            {
-    //                current_row = new ROW();
+                            case 8:
+                                row.ufloat = package.SubReader.ReadSingle();
+                                break;
 
-    //                storage_flag = (columns[i].flags & (int)COLUMN_FLAGS.STORAGE_MASK);
+                            case 0xA:
+                                row.str = package.SubReader.ReadCString(-1, package.SubReader.ReadInt32() + package.Utf.StringsOffset, package.Encoding);
+                                break;
 
-    //                if (storage_flag == (int)COLUMN_FLAGS.STORAGE_NONE) // 0x00
-    //                {
-    //                    current_entry.rows.Add(current_row);
-    //                    continue;
-    //                }
+                            case 0xB:
+                                row.Position = package.SubReader.ReadInt32() + package.Utf.DataOffset;
+                                row.data = package.SubReader.GetData(row.Position, package.SubReader.ReadInt32());
+                                break;
 
-    //                if (storage_flag == (int)COLUMN_FLAGS.STORAGE_ZERO) // 0x10
-    //                {
-    //                    current_entry.rows.Add(current_row);
-    //                    continue;
-    //                }
-
-    //                if (storage_flag == (int)COLUMN_FLAGS.STORAGE_CONSTANT) // 0x30
-    //                {
-    //                    current_entry.rows.Add(current_row);
-    //                    continue;
-    //                }
-
-    //                // 0x50
-
-    //                current_row.type = columns[i].flags & (int)COLUMN_FLAGS.TYPE_MASK;
-
-    //                current_row.position = package.Reader.BaseStream.Position;
-
-    //                switch (current_row.type)
-    //                {
-    //                    case 0:
-    //                    case 1:
-    //                        current_row.uint8 = package.Reader.ReadByte();
-    //                        package.Readereak;
-
-    //                    case 2:
-    //                    case 3:
-    //                        current_row.uint16 = package.Reader.ReadUInt16();
-    //                        package.Readereak;
-
-    //                    case 4:
-    //                    case 5:
-    //                        current_row.uint32 = package.Reader.ReadUInt32();
-    //                        package.Readereak;
-
-    //                    case 6:
-    //                    case 7:
-    //                        current_row.uint64 = package.Reader.ReadUInt64();
-    //                        package.Readereak;
-
-    //                    case 8:
-    //                        current_row.ufloat = package.Reader.ReadSingle();
-    //                        package.Readereak;
-
-    //                    case 0xA:
-    //                        current_row.str = package.Reader.ReadCString(-1, package.Reader.ReadInt32() + strings_offset, encoding);
-    //                        package.Readereak;
-
-    //                    case 0xB:
-    //                        long position = package.Reader.ReadInt32() + data_offset;
-    //                        current_row.position = position;
-    //                        current_row.data = package.Reader.GetData(position, package.Reader.ReadInt32());
-    //                        package.Readereak;
-
-    //                    default: throw new NotImplementedException();
-    //                }
-
-
-    //                current_entry.rows.Add(current_row);
-    //            }
-
-    //            rows.Add(current_entry);
-    //        }
-
-    //        return true;
-    //    }
-    //}
+                            default: throw new NotImplementedException();
+                        }
+                    }
+                    package.Utf.Rows.Add(row);
+                    if (!package.CpkData.ContainsKey(package.Utf.Columns[i].Name))
+                    {
+                        package.CpkData.Add(package.Utf.Columns[i].Name, row.GetValue());
+                    }
+                }
+            }
+            return true;
+        }
+    }
 }

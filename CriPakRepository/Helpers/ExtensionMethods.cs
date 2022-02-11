@@ -94,17 +94,17 @@ namespace CriPakRepository.Helpers
         //TODO: Fix utf_packet var.
         public static bool ReadDataRows(this CriPak package)
         {
-            using (var utfr = new EndianReader<MemoryStream, EndianData>(new MemoryStream(package.UtfPacket), new EndianData(package.Reader.IsLittleEndian)))
+            package.SubReader = new EndianReader<MemoryStream, EndianData>(new MemoryStream(package.UtfPacket), new EndianData(package.Reader.IsLittleEndian));
+            
+            //var utf = new UTF();
+            //if (!utf.ReadUTF(utfr, encoding))
+            var parser = new UtfParser();
+            if (!parser.Parse(package))
             {
-                //var utf = new UTF();
-                //if (!utf.ReadUTF(utfr, encoding))
-                //var parser = new UtfParser();
-                //if(!parser.Parse(package))
-                //{
-                //    package.Reader.Close();
-                //    return false;
-                //}
+                package.SubReader.Close();
+                return false;
             }
+           
             return true;
         }
         public static byte[] GetData(this IEndianReader br, long offset, int size)

@@ -9,42 +9,48 @@ using System.Linq;
 
 namespace CriPakRepository.Parsers
 {
-    //public class EtocParser : ParserRepository
-    //{
-    //    public override bool Parse(CriPak package)//, ulong startOffset)
-    //    {
-    //        //Move this to parent
-    //        package.Reader.BaseStream.Seek((long)startOffset, SeekOrigin.Begin);
+    public class EtocParser : ParserRepository
+    {
+        public override bool Parse(CriPak package)//, ulong startOffset)
+        {
+            package.Reader.BaseStream.Seek((long)package.EtocOffset, SeekOrigin.Begin);
+            if (package.Reader.ReadCString(4) != "ETOC")
+            {
+                package.Reader.Close();
+                return false;
+            }
 
-    //        if (package.Reader.ReadCString(4) != "ETOC")
-    //        {
-    //            package.Reader.Close();
-    //            return false;
-    //        }          
-    //        //package.Reader.BaseStream.Seek(0xC, SeekOrigin.Current); //skip header data
+            package.ReadUTFData();
+            package.EtocPacket = package.UtfPacket;
 
-    //        ReadUTFData(package.Reader);
+            if (!package.ReadDataRows())
+            {
+                return false;
+            }
 
-    //        ETOC_packet = utf_packet;
-
-    //        FileEntry etoc_entry = FileTable.Where(x => x.FileName.ToString() == "ETOC_HDR").Single();
-    //        etoc_entry.Encrypted = isUtfEncrypted;
-    //        etoc_entry.FileSize = ETOC_packet.Length;
-
-    //        if (!ReadDataRows())
-    //        {
-    //            return false;
-    //        }
-
-    //        List<FileEntry> fileEntries = FileTable.Where(x => x.FileType == "FILE").ToList();
-
-    //        for (int i = 0; i < fileEntries.Count; i++)
-    //        {
-    //            FileTable[i].LocalDir = GetColumnData(files, i, "LocalDir");
-    //            FileTable[i].UpdateDateTime = (ulong)GetColumnData(files, i, "UpdateDateTime");
-    //        }
-
-    //        return true;
-    //    }
-    //}
+            //Move to a Mapper
+            var updateRowList = package.Utf.Rows.Where(x => x.Name == "UpdateDateTime");
+            var localDirList = package.Utf.Rows.Where(x => x.Name == "LocalDir");
+            if (updateRowList.Any())
+            {
+                package.CriFileList = package.CriFileList.Join(updateRowList, t => t.FileId, ur => ur.Id, (t, ur) =>
+                {
+                    t.UpdateDateTime = ur.uint64;
+                    return t;
+                }).ToList();
+            }
+            if (localDirList.Any())
+            {
+                package.CriFileList = package.CriFileList.Join(localDirList, t => t.FileId, ld => ld.Id, (t, ld) =>
+                {
+                    
+                    t.LocalDir = ld.str;
+                    return t;
+                }).ToList();
+            }
+            ///////
+            ///
+            return true;
+        }
+    }
 }

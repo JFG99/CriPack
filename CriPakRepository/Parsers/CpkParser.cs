@@ -7,6 +7,7 @@ using CriPakRepository.Repository;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace CriPakRepository.Parsers
@@ -15,12 +16,7 @@ namespace CriPakRepository.Parsers
     {
         public override bool Parse(CriPak package) //(string path, Encoding encoding = null)
         {
-            //Move the begining of this where it creates the reader out to the parent object.
-
-            uint Files;
-            ushort Align;
-            var test = new EndianData(true);
-            package.Reader = new EndianReader<FileStream, EndianData>(File.OpenRead(package.CpkName), test);
+            package.Reader = new EndianReader<FileStream, EndianData>(File.OpenRead(package.CpkName), new EndianData(true));
 
             if (package.Reader.ReadCString(4) != "CPK ")
             {
@@ -43,62 +39,51 @@ namespace CriPakRepository.Parsers
 
             package.CriFileList.Add(CpkEntry);
 
-            //if (!ReadDataRows(encoding))
-            //{
-            //    return false;
-            //}
+            if (!package.ReadDataRows())
+            {
+                return false;
+            }
 
-            //cpkdata = new Dictionary<string, object>();
+            package.TocOffset = (ulong)package.Utf.GetRowValue("TocOffset");
+            package.TocOffsetPos = package.Utf.GetRowPostion("TocOffset");
 
-            //try
-            //{
-            //    for (int i = 0; i < utf.columns.Count; i++)
-            //    {
-            //        cpkdata.Add(utf.columns[i].name, utf.rows[0].rows[i].GetValue());
-            //    }
-            //}
-            //catch (Exception ex)
-            //{
-            //    //MessageBox.Show(ex.ToString());
-            //    Console.WriteLine(ex.ToString());
-            //}
+            package.EtocOffset = (ulong)package.Utf.GetRowValue("EtocOffset");
+            package.EtocOffsetPos = package.Utf.GetRowPostion("EtocOffset"); 
 
-            //TocOffset = (ulong)GetColumsData2(utf, 0, "TocOffset", 3);
-            //long TocOffsetPos = GetColumnPostion(utf, 0, "TocOffset");
+            package.ItocOffset = (ulong)package.Utf.GetRowValue("ItocOffset");
+            package.ItocOffsetPos = package.Utf.GetRowPostion("ItocOffset");
 
-            //EtocOffset = (ulong)GetColumsData2(utf, 0, "EtocOffset", 3);
-            //long ETocOffsetPos = GetColumnPostion(utf, 0, "EtocOffset");
+            package.GtocOffset = (ulong)package.Utf.GetRowValue("GtocOffset");
+            package.GtocOffsetPos = package.Utf.GetRowPostion("GtocOffset");
 
-            //ItocOffset = (ulong)GetColumsData2(utf, 0, "ItocOffset", 3);
-            //long ITocOffsetPos = GetColumnPostion(utf, 0, "ItocOffset");
+            package.ContentOffset = (ulong)package.Utf.GetRowValue("ContentOffset");
+            package.ContentOffsetPos = package.Utf.GetRowPostion("ContentOffset");
 
-            //GtocOffset = (ulong)GetColumsData2(utf, 0, "GtocOffset", 3);
-            //long GTocOffsetPos = GetColumnPostion(utf, 0, "GtocOffset");
+            package.CriFileList.Add(new CriFile("CONTENT_OFFSET", package.ContentOffset, typeof(ulong), package.ContentOffsetPos, "CPK", "CONTENT", false));
 
-            //ContentOffset = (ulong)GetColumsData2(utf, 0, "ContentOffset", 3);
-            //long ContentOffsetPos = GetColumnPostion(utf, 0, "ContentOffset");
-            //FileTable.Add(new CriFile("CONTENT_OFFSET", ContentOffset, typeof(ulong), ContentOffsetPos, "CPK", "CONTENT", false));
+            package.Files = (uint)package.Utf.GetRowValue("Files");
+            package.Align = (ushort)package.Utf.GetRowValue("Align");
 
-            //Files = (uint)GetColumsData2(utf, 0, "Files", 2);
-            //Align = (ushort)GetColumsData2(utf, 0, "Align", 1);
+            if (package.TocOffset != 0xFFFFFFFFFFFFFFFF)
+            {
+                package.CriFileList.Add(new CriFile("TOC_HDR", package.TocOffset, typeof(ulong), package.TocOffsetPos, "CPK", "HDR", false));
+                var tocParser = new TocParser();
+                if (!tocParser.Parse(package))
+                {
+                    return false;
+                }
+            }
 
-            //if (TocOffset != 0xFFFFFFFFFFFFFFFF)
-            //{
-            //    CriFile entry = new CriFile("TOC_HDR", TocOffset, typeof(ulong), TocOffsetPos, "CPK", "HDR", false);
-            //    FileTable.Add(entry);
+            if (package.EtocOffset != 0xFFFFFFFFFFFFFFFF)
+            {
+                package.CriFileList.Add(new CriFile("ETOC_HDR", package.EtocOffset, typeof(ulong), package.EtocOffsetPos, "CPK", "HDR", false));
 
-            //    if (!ReadTOC(br, TocOffset, ContentOffset, encoding))
-            //        return false;
-            //}
-
-            //if (EtocOffset != 0xFFFFFFFFFFFFFFFF)
-            //{
-            //    CriFile entry = new CriFile("ETOC_HDR", EtocOffset, typeof(ulong), ETocOffsetPos, "CPK", "HDR", false);
-            //    FileTable.Add(entry);
-
-            //    if (!ReadETOC(br, EtocOffset))
-            //        return false;
-            //}
+                var etocParser = new EtocParser();
+                if (!etocParser.Parse(package))
+                {
+                    return false;
+                }
+            }
 
             //if (ItocOffset != 0xFFFFFFFFFFFFFFFF)
             //{

@@ -75,13 +75,13 @@
         </Menu>
         <DataGrid x:Name="datagrid_cpk" CanUserAddRows="False" Margin="0,62,0,30" Grid.Column="2" VerticalScrollBarVisibility="Visible" IsReadOnly="True" FrozenColumnCount="7" AutoGenerateColumns="False" CanUserResizeColumns="False" CanUserReorderColumns="False" CanUserSortColumns="False" AlternationCount="2" RowHeight="17" AreRowDetailsFrozen="True" CanUserResizeRows="False" MaxHeight="500" HorizontalContentAlignment="Stretch" IsTextSearchEnabled="True" RowBackground="#FFF1F7F4">
             <DataGrid.Columns>
-                <DataGridTextColumn x:Name="colume_number" Header="No." MinWidth="40" Binding="{Binding id}"/>
+                <DataGridTextColumn x:Name="colume_number" Header="No." MinWidth="40" Binding="{Binding FileId}"/>
                 <DataGridTextColumn x:Name="colume_filename" Header="FileName" MinWidth="200" Binding="{Binding FileName}"/>
                 <DataGridTextColumn x:Name="colume_offset" Header="Offset" MinWidth="100" Binding="{Binding FileOffset , StringFormat=\{0:X8\}}"/>
-                <DataGridTextColumn x:Name="colume_size" Header="Data Size" MinWidth="80" Binding="{Binding FileSize}"/>
-                <DataGridTextColumn x:Name="colume_extractsize" Header="Original Size" MinWidth="80" Binding="{Binding ExtractSize}"/>
+                <DataGridTextColumn x:Name="colume_size" Header="Data Size" MinWidth="80" Binding="{Binding CompressedFileSize}"/>
+                <DataGridTextColumn x:Name="colume_extractsize" Header="Original Size" MinWidth="80" Binding="{Binding ExtractedFileSize}"/>
                 <DataGridTextColumn x:Name="culume_type" Header="Data Type" MinWidth="40" Binding="{Binding FileType}"/>
-                <DataGridTextColumn x:Name="colume_pt" Header="%" MinWidth="40" Binding="{Binding Pt}"/>
+                <DataGridTextColumn x:Name="colume_pt" Header="%" MinWidth="40" Binding="{Binding CompressionPercentage}"/>
             </DataGrid.Columns>
             <DataGrid.ContextMenu>
                 <ContextMenu Name="dgmenu1" StaysOpen="true"  PreviewMouseRightButtonDown="dgmenu1_Cilck">
