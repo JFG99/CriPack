@@ -11,6 +11,9 @@ using System.Text;
 
 namespace CriPakRepository.Helpers
 {
+    //TODO:  For the most part these methods have not changed from their original.  They were placed here as extensions for the time being.
+    //since the seem to function properly despite being badly written.
+    //When the core of the rewrite is finished some of these can be able to be refactored out or deleted altogether
     public static class ExtensionMethods
     {
         //CriFile method?
@@ -91,20 +94,15 @@ namespace CriPakRepository.Helpers
 
             return result;
         }
-        //TODO: Fix utf_packet var.
         public static bool ReadDataRows(this CriPak package)
         {
             package.SubReader = new EndianReader<MemoryStream, EndianData>(new MemoryStream(package.UtfPacket), new EndianData(package.Reader.IsLittleEndian));
-            
-            //var utf = new UTF();
-            //if (!utf.ReadUTF(utfr, encoding))
             var parser = new UtfParser();
             if (!parser.Parse(package))
             {
                 package.SubReader.Close();
                 return false;
-            }
-           
+            }           
             return true;
         }
         public static byte[] GetData(this IEndianReader br, long offset, int size)

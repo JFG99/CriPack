@@ -52,7 +52,7 @@ namespace CriPakComplete
             var parser = new CpkParser();
             parser.Parse(CriPak);
 
-            var entries = CriPak.CriFileList.OrderBy(x => x.FileOffset).ToList();
+            var entries = CriPak.CriFileList.OrderBy(x => x.FileOffset).ThenBy(x => x.FileId).ToList();
             bool bFileRepeated = entries.CheckListRedundant();
             
             foreach (var entry in entries)

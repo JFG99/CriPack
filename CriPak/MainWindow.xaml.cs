@@ -11,7 +11,6 @@ using System.IO;
 using Ookii.Dialogs.Wpf;
 using System.Threading;
 using System.Windows.Threading;
-using CriPakRepository.Helpers;
 using CriPakInterfaces.Models.Components;
 
 namespace CriPakComplete
@@ -122,93 +121,93 @@ namespace CriPakComplete
         {
             string outDir;
             outDir = (string)(foutDir + "/" + package.baseName + "_unpacked");
-            //if (package.cpk != null)
-            //{
-            //    if (!Directory.Exists(outDir))
-            //    {
-            //        Directory.CreateDirectory(outDir);
-            //    }
-            //    BinaryReader oldFile = new BinaryReader(File.OpenRead(myPackage.cpk_name));
-            //    List<CriFile> entries = null;
+            if (package.cpk != null)
+            {
+                if (!Directory.Exists(outDir))
+                {
+                    Directory.CreateDirectory(outDir);
+                }
+                BinaryReader oldFile = new BinaryReader(File.OpenRead(myPackage.cpk_name));
+                List<CriFile> entries = null;
 
-            //    entries = myPackage.cpk.FileTable.Where(x => x.FileType == "FILE").ToList();
+                //    entries = myPackage.cpk.FileTable.Where(x => x.FileType == "FILE").ToList();
 
-            //    if (entries.Count == 0)
-            //    {
-            //        Debug.Print("err while extracting.");
-            //        oldFile.Close();
-            //        return;
-            //    }
+                //    if (entries.Count == 0)
+                //    {
+                //        Debug.Print("err while extracting.");
+                //        oldFile.Close();
+                //        return;
+                //    }
 
-            //    int i = 0;
-            //    int id;
-            //    string currentName;
-            //    bool bFileRepeated = entries.CheckListRedundant();
-            //    this.Dispatcher.Invoke(new datagridDelegate(updateDatagrid), new object[] { (bool)false });
+                //    int i = 0;
+                //    int id;
+                //    string currentName;
+                //    bool bFileRepeated = entries.CheckListRedundant();
+                //    this.Dispatcher.Invoke(new datagridDelegate(updateDatagrid), new object[] { (bool)false });
 
-            //    while (i < entries.Count)
-            //    {
-            //        this.Dispatcher.Invoke(new progressbarDelegate(updateprogressbar), new object[] { (float)i / (float)entries.Count * 100f });//异步委托
+                //    while (i < entries.Count)
+                //    {
+                //        this.Dispatcher.Invoke(new progressbarDelegate(updateprogressbar), new object[] { (float)i / (float)entries.Count * 100f });//异步委托
 
-            //        if (!String.IsNullOrEmpty((string)entries[i].DirName))
-            //        {
-            //            Directory.CreateDirectory(outDir + "/" + entries[i].DirName.ToString());
-            //        }
+                //        if (!String.IsNullOrEmpty((string)entries[i].DirName))
+                //        {
+                //            Directory.CreateDirectory(outDir + "/" + entries[i].DirName.ToString());
+                //        }
 
-            //        id = Convert.ToInt32(entries[i].ID);
-            //        if (id > 0 && bFileRepeated)
-            //        {
-            //            currentName = (((entries[i].DirName != null) ?
-            //                            entries[i].DirName + "/" : "") + string.Format("[{0}]", id.ToString()) + entries[i].FileName);
-            //            currentName = currentName.TrimStart('/');
-            //        }
-            //        else
-            //        {
-            //            currentName = ((entries[i].DirName != null) ? entries[i].DirName + "/" : "") + entries[i].FileName;
-            //            currentName = currentName.TrimStart('/');
-            //        }
+                //        id = Convert.ToInt32(entries[i].ID);
+                //        if (id > 0 && bFileRepeated)
+                //        {
+                //            currentName = (((entries[i].DirName != null) ?
+                //                            entries[i].DirName + "/" : "") + string.Format("[{0}]", id.ToString()) + entries[i].FileName);
+                //            currentName = currentName.TrimStart('/');
+                //        }
+                //        else
+                //        {
+                //            currentName = ((entries[i].DirName != null) ? entries[i].DirName + "/" : "") + entries[i].FileName;
+                //            currentName = currentName.TrimStart('/');
+                //        }
 
-            //        oldFile.BaseStream.Seek((long)entries[i].FileOffset, SeekOrigin.Begin);
+                //        oldFile.BaseStream.Seek((long)entries[i].FileOffset, SeekOrigin.Begin);
 
-            //        string isComp = Encoding.ASCII.GetString(oldFile.ReadBytes(8));
-            //        oldFile.BaseStream.Seek((long)entries[i].FileOffset, SeekOrigin.Begin);
+                //        string isComp = Encoding.ASCII.GetString(oldFile.ReadBytes(8));
+                //        oldFile.BaseStream.Seek((long)entries[i].FileOffset, SeekOrigin.Begin);
 
-            //        byte[] chunk = oldFile.ReadBytes(Int32.Parse(entries[i].FileSize.ToString()));
+                //        byte[] chunk = oldFile.ReadBytes(Int32.Parse(entries[i].FileSize.ToString()));
 
-            //        if (isComp == "CRILAYLA")
-            //        {
-            //            int size = Int32.Parse((entries[i].ExtractedFileSize?? entries[i].FileSize).ToString());
+                //        if (isComp == "CRILAYLA")
+                //        {
+                //            int size = Int32.Parse((entries[i].ExtractedFileSize?? entries[i].FileSize).ToString());
 
-            //            if (size != 0)
-            //            {
-            //                chunk = myPackage.cpk.DecompressLegacyCRI(chunk, size);
-            //            }
-            //        }
+                //            if (size != 0)
+                //            {
+                //                chunk = myPackage.cpk.DecompressLegacyCRI(chunk, size);
+                //            }
+                //        }
 
-            //        Debug.WriteLine(" FileName :{0}\n    FileOffset:{1:x8}    ExtractSize:{2:x8}   ChunkSize:{3:x8} {4}",
-            //                                                    entries[i].FileName.ToString(),
-            //                                                    (long)entries[i].FileOffset,
-            //                                                    entries[i].ExtractSize,
-            //                                                    entries[i].FileSize,
-            //                                                    ((float)i / (float)entries.Count) * 100f);
-            //        string dstpath = outDir + "/" + currentName;
-            //        dstpath = dstpath.GetSafePath();
-            //        string dstdir = System.IO.Path.GetDirectoryName(dstpath);
-            //        if (!Directory.Exists(dstdir))
-            //        {
-            //            Directory.CreateDirectory(dstdir);
-            //        }
-            //        File.WriteAllBytes(dstpath, chunk);
-            //        i += 1;
-            //    }
-            //    oldFile.Close();
-            //    this.Dispatcher.Invoke(new progressbarDelegate(updateprogressbar), new object[] { 100f });
-            //    this.Dispatcher.Invoke(new datagridDelegate(updateDatagrid), new object[] { (bool)true });
-            //    MessageBox.Show("Extraction Complete.");
+                //        Debug.WriteLine(" FileName :{0}\n    FileOffset:{1:x8}    ExtractSize:{2:x8}   ChunkSize:{3:x8} {4}",
+                //                                                    entries[i].FileName.ToString(),
+                //                                                    (long)entries[i].FileOffset,
+                //                                                    entries[i].ExtractSize,
+                //                                                    entries[i].FileSize,
+                //                                                    ((float)i / (float)entries.Count) * 100f);
+                //        string dstpath = outDir + "/" + currentName;
+                //        dstpath = dstpath.GetSafePath();
+                //        string dstdir = System.IO.Path.GetDirectoryName(dstpath);
+                //        if (!Directory.Exists(dstdir))
+                //        {
+                //            Directory.CreateDirectory(dstdir);
+                //        }
+                //        File.WriteAllBytes(dstpath, chunk);
+                //        i += 1;
+                //    }
+                //    oldFile.Close();
+                //    this.Dispatcher.Invoke(new progressbarDelegate(updateprogressbar), new object[] { 100f });
+                //    this.Dispatcher.Invoke(new datagridDelegate(updateDatagrid), new object[] { (bool)true });
+                //    MessageBox.Show("Extraction Complete.");
 
-            //}
+                //}
 
-        }
+            }
 
         private void button_extract_Click(object sender, RoutedEventArgs e)
         {

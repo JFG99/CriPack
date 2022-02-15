@@ -9,6 +9,7 @@ namespace CriPakInterfaces.Models
         public CriPak()
         {
             CriFileList = new List<CriFile>();
+            HeaderInfo = new List<CriFile>();
             Utf = new UTF();
             CpkData = new Dictionary<string, object>();
         }
@@ -16,6 +17,7 @@ namespace CriPakInterfaces.Models
         public IEndianReader Reader { get; set; }
         public IEndianReader SubReader { get; set; }
         public List<CriFile> CriFileList { get; set; }
+        public List<CriFile> HeaderInfo { get; set; }
         public Dictionary<string, object> CpkData { get; set; }
         public Encoding Encoding { get; set; }
         public UTF Utf { get; set; }

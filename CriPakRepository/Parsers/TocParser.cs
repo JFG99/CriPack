@@ -25,6 +25,16 @@ namespace CriPakRepository.Parsers
 
             package.ReadUTFData();
             package.TocPacket = package.UtfPacket;
+            package.HeaderInfo.Add(new CriFile
+            {
+                FileName = "TOC_HDR", 
+                FileOffset = package.TocOffset, 
+                FileSize = package.TocPacket.Length, 
+                FileOffsetPos = package.TocOffsetPos, 
+                TOCName = "CPK", 
+                FileType = "HDR", 
+                IsEncrypted = package.IsUtfEncrypted 
+            });
 
             if (!package.ReadDataRows())
             {

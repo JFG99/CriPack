@@ -1,6 +1,8 @@
 ﻿using CriPakInterfaces;
 using CriPakInterfaces.Models;
+using CriPakInterfaces.Models.Components;
 using CriPakRepository.Helpers;
+using CriPakRepository.Mappers;
 using CriPakRepository.Repositories;
 using CriPakRepository.Repository;
 using System.Collections.Generic;
@@ -22,34 +24,22 @@ namespace CriPakRepository.Parsers
 
             package.ReadUTFData();
             package.EtocPacket = package.UtfPacket;
+            package.HeaderInfo.Add(new CriFile
+            {
+                FileName = "ETOC_HDR",
+                FileOffset = package.EtocOffset,
+                FileSize = package.EtocPacket.Length,
+                FileOffsetPos = package.EtocOffsetPos,
+                TOCName = "CPK",
+                FileType = "HDR",
+                IsEncrypted = package.IsUtfEncrypted
+            });
 
             if (!package.ReadDataRows())
             {
                 return false;
             }
-
-            //Move to a Mapper
-            var updateRowList = package.Utf.Rows.Where(x => x.Name == "UpdateDateTime");
-            var localDirList = package.Utf.Rows.Where(x => x.Name == "LocalDir");
-            if (updateRowList.Any())
-            {
-                package.CriFileList = package.CriFileList.Join(updateRowList, t => t.FileId, ur => ur.Id, (t, ur) =>
-                {
-                    t.UpdateDateTime = ur.uint64;
-                    return t;
-                }).ToList();
-            }
-            if (localDirList.Any())
-            {
-                package.CriFileList = package.CriFileList.Join(localDirList, t => t.FileId, ld => ld.Id, (t, ld) =>
-                {
-                    
-                    t.LocalDir = ld.str;
-                    return t;
-                }).ToList();
-            }
-            ///////
-            ///
+            package.MapEtocData();
             return true;
         }
     }
