@@ -13,7 +13,7 @@ namespace CriPakRepository.Writers
             if (position != 0xffffffffffffffff)
             {
                 cpk.BaseStream.Seek((long)position, SeekOrigin.Begin);
-                byte[] encrypted;
+                //byte[] encrypted;
                 //if (isUtfEncrypted == true)
                 //{
                 //    encrypted = packet.DecryptUTF(); // Yes it says decrypt...

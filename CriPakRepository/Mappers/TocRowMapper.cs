@@ -46,7 +46,7 @@ namespace CriPakRepository.Mappers
 
             package.CriFileList.AddRange(tempList.Join(package.Utf.Rows.Where(x => x.Name == "FileSize"), t => t.FileId, fs => fs.Id, (t, fs) =>
             {
-                t.FileSize = int.TryParse(fs?.GetValue()?.ToString(), out var num) ? num : 0;
+                t.CompressedFileSize = int.TryParse(fs?.GetValue()?.ToString(), out var num) ? num : 0;
                 t.FileSizePos = fs.Position;
                 t.FileSizeType = fs?.GetType();
                 return t;

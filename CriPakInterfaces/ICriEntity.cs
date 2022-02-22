@@ -6,6 +6,6 @@ namespace CriPakInterfaces
 {
     public interface ICriEntity
     {
-        int? FileId { get; set; }
+        int FileId { get; set; }
     }
 }

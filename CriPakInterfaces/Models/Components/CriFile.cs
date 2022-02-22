@@ -13,9 +13,8 @@ namespace CriPakInterfaces.Models.Components
             FileOffsetType = fileOffsetType;
         }
 
-        
         public string LocalDir { get; set; }
-        public string DirName { get; set; }        
+        public string DirName { get; set; }
         public long FileSizePos { get; set; }
         public Type FileSizeType { get; set; }
         public Type FileOffsetType { get; set; }

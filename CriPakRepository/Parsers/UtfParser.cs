@@ -64,7 +64,7 @@ namespace CriPakRepository.Parsers
                     var storage_flag = (package.Utf.Columns[i].Flags & (int)STORAGE.MASK);
                     if (!(storage_flag == (int)STORAGE.NONE || storage_flag == (int)STORAGE.ZERO || storage_flag == (int)STORAGE.CONSTANT))
                     {
-                        row.Id = j;
+                        row.Id = j+1;
                         row.Type = package.Utf.Columns[i].Flags & (int)CRITYPE.MASK;
                         row.Position = package.SubReader.BaseStream.Position;
                         row.Name = package.Utf.Columns[i].Name;

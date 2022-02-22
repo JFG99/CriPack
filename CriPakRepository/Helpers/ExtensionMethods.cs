@@ -32,8 +32,7 @@ namespace CriPakRepository.Helpers
                 }
                 else
                 {
-                    result = true;
-                    return result;
+                    return true ;
                 }
             }
             return result;

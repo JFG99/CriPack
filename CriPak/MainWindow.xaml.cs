@@ -12,6 +12,8 @@ using Ookii.Dialogs.Wpf;
 using System.Threading;
 using System.Windows.Threading;
 using CriPakInterfaces.Models.Components;
+using CriPakInterfaces.Models;
+using CriPakRepository.Parsers;
 
 namespace CriPakComplete
 {
@@ -20,11 +22,11 @@ namespace CriPakComplete
     /// </summary>
     public partial class MainWindow : Window
     {
-        public myPackage package { get; set; }
+        public CriPak package { get; set; }
 
         public MainWindow()
         {
-            package = new myPackage();
+            package = new CriPak();
             InitializeComponent();
             SetBasicPrefs();
         }
@@ -34,7 +36,7 @@ namespace CriPakComplete
             menu_savefiles.IsEnabled = false;
             menu_importAssets.IsEnabled = false;
             progressbar0.Maximum = 100;
-            package.basePath = @"C:/";
+            package.BasePath = @"C:/";
         }
         private void menu_openfile_Click(object sender, RoutedEventArgs e)
         {
@@ -58,26 +60,27 @@ namespace CriPakComplete
             }
         }
 
-        private void beginLoadCPK(string fName)
+        private void beginLoadCPK(string inFile)
         {
-            ThreadPool.QueueUserWorkItem(o =>
-            {
-                Application.Current.Dispatcher.BeginInvoke(
-                    DispatcherPriority.SystemIdle,
-                    new Action(() =>
-                    {
-                        cpkwrapper cpk = new cpkwrapper(fName);
-                        status_cpkmsg.Content = string.Format("{0} file(s) registered.", cpk.nums);
-                        datagrid_cpk.ItemsSource = cpk.tablePkgFiles;
-
-                        menu_importAssets.IsEnabled = true;
-                        menu_savefiles.IsEnabled = true;
-                        package.basePath = System.IO.Path.GetDirectoryName(fName);
-                        package.baseName = System.IO.Path.GetFileName(fName);
-                        package.fileName = fName;
-                    })
-               );
-            });
+            package.CpkName = inFile;
+            package.BasePath = Path.GetDirectoryName(inFile);
+            package.BaseName = Path.GetFileName(inFile);
+            package.Encoding = Encoding.GetEncoding(65001);
+            _ = ThreadPool.QueueUserWorkItem(o =>
+              {
+                  _ = Application.Current.Dispatcher.BeginInvoke(
+                      DispatcherPriority.SystemIdle,
+                      new Action(() =>
+                      {
+                          var parser = new CpkParser();
+                          parser.Parse(package);
+                          status_cpkmsg.Content = string.Format("{0} file(s) registered.", package.CriFileList.Count());
+                          datagrid_cpk.ItemsSource = package.DisplayList;
+                          menu_importAssets.IsEnabled = true;
+                          menu_savefiles.IsEnabled = true;
+                      })
+                 );
+              });
         }
 
 
@@ -107,10 +110,10 @@ namespace CriPakComplete
         private void menu_savefiles_Click(object sender, RoutedEventArgs e)
         {
             VistaFolderBrowserDialog saveFilesDialog = new VistaFolderBrowserDialog();
-            saveFilesDialog.SelectedPath = package.basePath;
+            saveFilesDialog.SelectedPath = package.BasePath;
             if (saveFilesDialog.ShowDialog().Value)
             {
-                Debug.Print(saveFilesDialog.SelectedPath + "/" + package.baseName + "_unpacked");
+                Debug.Print(saveFilesDialog.SelectedPath + "/" + package.BaseName + "_unpacked");
                 ThreadPool.QueueUserWorkItem(new WaitCallback(beginExtractCPK), saveFilesDialog.SelectedPath);
 
             }
@@ -120,15 +123,15 @@ namespace CriPakComplete
         private void beginExtractCPK(object foutDir)
         {
             string outDir;
-            outDir = (string)(foutDir + "/" + package.baseName + "_unpacked");
-            if (package.cpk != null)
+            outDir = (string)(foutDir + "/" + package.BaseName + "_unpacked");
+            if (package != null)
             {
                 if (!Directory.Exists(outDir))
                 {
                     Directory.CreateDirectory(outDir);
                 }
-                BinaryReader oldFile = new BinaryReader(File.OpenRead(myPackage.cpk_name));
-                List<CriFile> entries = null;
+                BinaryReader oldFile = new BinaryReader(File.OpenRead(package.CpkName));
+                //List<CriFile> entries = null;
 
                 //    entries = myPackage.cpk.FileTable.Where(x => x.FileType == "FILE").ToList();
 
@@ -205,17 +208,17 @@ namespace CriPakComplete
                 //    this.Dispatcher.Invoke(new datagridDelegate(updateDatagrid), new object[] { (bool)true });
                 //    MessageBox.Show("Extraction Complete.");
 
-                //}
+                }
 
             }
 
         private void button_extract_Click(object sender, RoutedEventArgs e)
         {
             VistaFolderBrowserDialog saveFilesDialog = new VistaFolderBrowserDialog();
-            saveFilesDialog.SelectedPath = package.basePath + "/";
+            saveFilesDialog.SelectedPath = package.BasePath + "/";
             if (saveFilesDialog.ShowDialog().Value)
             {
-                Debug.Print(saveFilesDialog.SelectedPath + "/" + package.baseName + "_unpacked");
+                Debug.Print(saveFilesDialog.SelectedPath + "/" + package.BaseName + "_unpacked");
                 ThreadPool.QueueUserWorkItem(new WaitCallback(beginExtractCPK), saveFilesDialog.SelectedPath);
 
             }
@@ -255,8 +258,8 @@ namespace CriPakComplete
                 if (t.CompressedFileSize > 0 && t.FileType == "FILE")
                 {
                     VistaSaveFileDialog saveFilesDialog = new VistaSaveFileDialog();
-                    saveFilesDialog.InitialDirectory = package.basePath;
-                    saveFilesDialog.FileName = package.basePath + "/" + t.LocalName;
+                    saveFilesDialog.InitialDirectory = package.BasePath;
+                    saveFilesDialog.FileName = package.BasePath + "/" + t.LocalName;
                     if (saveFilesDialog.ShowDialog().Value)
                     {
                         byte[] chunk = ExtractItem(t);
@@ -344,6 +347,11 @@ namespace CriPakComplete
             //}
 
 
+
+        }
+
+        private void datagrid_cpk_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
 
         }
     }

@@ -7,9 +7,8 @@ namespace CriPakInterfaces
     public interface IPackagedFile : ICriFile
     {
         int CompressedFileSize { get; set; }
-        float CompressionPercentage { get; set; }
+        float CompressionPercentage { get; }
         int ExtractedFileSize { get; set; }
         //Do I need this. This is for extraction(?)
-        string LocalName { get; set; }
     }
 }

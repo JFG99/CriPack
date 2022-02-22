@@ -1,5 +1,6 @@
 ﻿using CriPakInterfaces.Models.Components;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace CriPakInterfaces.Models
@@ -13,7 +14,7 @@ namespace CriPakInterfaces.Models
             Utf = new UTF();
             CpkData = new Dictionary<string, object>();
         }
-
+        public List<PackagedFile> DisplayList => CriFileList.OfType<PackagedFile>().Where(x => x.FileType != null).OrderBy(x => x.FileOffset).ThenBy(x => x.FileId).ToList();
         public IEndianReader Reader { get; set; }
         public IEndianReader SubReader { get; set; }
         public List<CriFile> CriFileList { get; set; }
@@ -23,6 +24,8 @@ namespace CriPakInterfaces.Models
         public UTF Utf { get; set; }
         public uint Files { get; set; }
         public ushort Align { get; set; }
+        public string BaseName { get; set; }
+        public string BasePath { get; set; }
         public string CpkName { get; set; }
         public bool IsUtfEncrypted { get; set; }
         public int Unk1 { get; set; }
