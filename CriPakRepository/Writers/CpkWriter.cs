@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Text;
 
 namespace CriPakRepository.Writers
@@ -8,6 +9,24 @@ namespace CriPakRepository.Writers
         public void Write(BinaryWriter cpk)
         {
             //WritePacket(cpk, "CPK ", 0, CPK_packet);
+            //if (position != 0xffffffffffffffff)
+            //{
+            //    cpk.BaseStream.Seek((long)position, SeekOrigin.Begin);
+            //    byte[] encrypted;
+            //    if (isUtfEncrypted == true)
+            //    {
+            //        encrypted = packet.DecryptUTF(); // Yes it says decrypt...
+            //    }
+            //    else
+            //    {
+            //        encrypted = packet;
+            //    }
+
+            //    cpk.Write(Encoding.ASCII.GetBytes(ID));
+            //    cpk.Write((Int32)0xff);
+            //    cpk.Write((UInt64)encrypted.Length);
+            //    cpk.Write(encrypted);
+            //}
 
             //cpk.BaseStream.Seek(0x800 - 6, SeekOrigin.Begin);
             //cpk.Write(Encoding.ASCII.GetBytes("(c)CRI"));

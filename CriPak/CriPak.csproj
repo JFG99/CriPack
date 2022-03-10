@@ -7,19 +7,16 @@
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="CpkPatcher.xaml.cs" />
-  </ItemGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
 
   <ItemGroup>
     <None Remove="Resources\1.ico" />
     <None Remove="Resources\importAssets.ico" />
     <None Remove="Resources\openFile.ico" />
     <None Remove="Resources\saveFiles.ico" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Page Remove="CpkPatcher.xaml" />
   </ItemGroup>
 
   <ItemGroup>

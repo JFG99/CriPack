@@ -19,6 +19,7 @@ namespace CriPakRepository.Mappers
             var tempList = package.Utf.Rows.Where(x => x.Name == "FileName")
                 .Select(x => new CriFile
                 {
+                    TOCName = "TOC",
                     FileId = x.Id,
                     FileName = x.str,
                     FileType = "FILE",

@@ -1,6 +1,7 @@
 ﻿using CriPakInterfaces;
 using CriPakInterfaces.Models;
 using CriPakInterfaces.Models.Components;
+using CriPakInterfaces.Models.Components2;
 using CriPakRepository.Helpers;
 using CriPakRepository.Repositories;
 using System.IO;
@@ -27,12 +28,21 @@ namespace CriPakRepository.Parsers
             {
                 FileName = "GTOC_HDR",
                 FileOffset = package.GtocOffset,
-                FileSize = package.GtocPacket.Length,
+                FileOffsetType = package.GtocOffset.GetType(),
+                CompressedFileSize = package.GtocPacket.Length,
                 FileOffsetPos = package.GtocOffsetPos,
                 TOCName = "CPK",
                 FileType = "HDR",
                 IsEncrypted = package.IsUtfEncrypted
             });
+
+            //package.Header.Add(new GtocHeader
+            //{
+            //    DecryptedPacket = package.DecryptedPacket,
+            //    OriginalPacket = package.OriginalPacket,
+            //    Offset = package.GtocOffset,
+            //    OffsetPosition = package.GtocOffsetPos
+            //});
 
             return true;
         }

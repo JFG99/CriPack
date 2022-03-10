@@ -1,11 +1,13 @@
 ﻿using CriPakInterfaces;
 using CriPakInterfaces.Models;
 using CriPakInterfaces.Models.Components;
+using CriPakInterfaces.Models.Components2;
 using CriPakRepository.Parsers;
 using CriPakRepository.Repository;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -38,7 +40,8 @@ namespace CriPakRepository.Helpers
             return result;
         }
         //method on Endian Reader?
-        public static string ReadCString(this IEndianReader br, int MaxLength = -1, long lOffset = -1, Encoding enc = null)
+        public static string ReadCString(this IEndianReader br, long offsetLocation = -1, Encoding encoding = null) => br.ReadCString(-1, offsetLocation, encoding);
+        public static string ReadCString(this IEndianReader br, int MaxLength, long offsetLocation = -1, Encoding encoding = null)
         {
             int Max;
             if (MaxLength == -1)
@@ -47,18 +50,17 @@ namespace CriPakRepository.Helpers
                 Max = MaxLength;
 
             long fTemp = br.BaseStream.Position;
-            byte bTemp = 0;
             int i = 0;
             string result = "";
 
-            if (lOffset > -1)
+            if (offsetLocation > -1)
             {
-                br.BaseStream.Seek(lOffset, SeekOrigin.Begin);
+                br.BaseStream.Seek(offsetLocation, SeekOrigin.Begin);
             }
 
             do
             {
-                bTemp = br.ReadByte();
+                var bTemp = br.ReadByte();
                 if (bTemp == 0)
                     break;
                 i += 1;
@@ -69,35 +71,35 @@ namespace CriPakRepository.Helpers
             else
                 Max = MaxLength;
 
-            if (lOffset > -1)
+            if (offsetLocation > -1)
             {
-                br.BaseStream.Seek(lOffset, SeekOrigin.Begin);
+                br.BaseStream.Seek(offsetLocation, SeekOrigin.Begin);
 
-                if (enc == null)
+                if (encoding == null)
                     result = Encoding.UTF8.GetString(br.ReadBytes(i));
                 else
-                    result = enc.GetString(br.ReadBytes(i));
+                    result = encoding.GetString(br.ReadBytes(i));
 
                 br.BaseStream.Seek(fTemp, SeekOrigin.Begin);
             }
             else
             {
                 br.BaseStream.Seek(fTemp, SeekOrigin.Begin);
-                if (enc == null)
+                if (encoding == null)
                     result = Encoding.ASCII.GetString(br.ReadBytes(i));
                 else
-                    result = enc.GetString(br.ReadBytes(i));
+                    result = encoding.GetString(br.ReadBytes(i));
 
                 br.BaseStream.Seek(fTemp + Max, SeekOrigin.Begin);
             }
 
             return result;
         }
-        public static bool ReadDataRows(this CriPak package)
+        public static bool ReadDataRows(this ICriPak package)
         {
             package.SubReader = new EndianReader<MemoryStream, EndianData>(new MemoryStream(package.UtfPacket), new EndianData(package.Reader.IsLittleEndian));
             var parser = new UtfParser();
-            if (!parser.Parse(package))
+            if (!parser.Parse((CriPak)package))
             {
                 package.SubReader.Close();
                 return false;
@@ -143,42 +145,34 @@ namespace CriPakRepository.Helpers
 
             return out_bits;
         }
-        public static string GetSafePath(this string filename)
-        {
-            return string.Join("_", filename.Split(Path.GetInvalidFileNameChars()));
-        }
         public static byte[] DecryptUTF(this byte[] input)
         {
-            byte[] result = new byte[input.Length];
-
-            int m, t;
-            byte d;
-
-            m = 0x0000655f;
-            t = 0x00004115;
-
-            for (int i = 0; i < input.Length; i++)
+            var seed = 0x0000655f;
+            var decrypted = new List<byte>();
+            foreach(var entry in input)
             {
-                d = input[i];
-                d = (byte)(d ^ (byte)(m & 0xff));
-                result[i] = d;
-                m *= t;
+                decrypted.Add((byte)(entry ^ (byte)(seed & 0xff)));
+                //seed modifier
+                seed *= 0x00004115;
             }
-
-            return result;
+            var test = decrypted.Select(x => string.Join(" ", string.Format("{0:X2}", x)));
+            return decrypted.ToArray();
         }
-        public static void ReadUTFData(this CriPak package)
+
+        public static void ReadUTFData(this ICriPak package)
         {
             package.IsUtfEncrypted = false;
             package.Reader.IsLittleEndian = true;
 
             package.Unk1 = package.Reader.ReadInt32();
-            package.UtfSize = package.Reader.ReadInt64();
-            package.UtfPacket = package.Reader.ReadBytes((int)package.UtfSize);
+            package.UtfSize = package.Reader.ReadInt64(); 
+            package.UtfPacket = package.Reader.ReadBytes((int)package.UtfSize);            
+            package.OriginalPacket = package.UtfPacket;
 
             if (package.UtfPacket[0] != 0x40 && package.UtfPacket[1] != 0x55 && package.UtfPacket[2] != 0x54 && package.UtfPacket[3] != 0x46) //@UTF
             {
-                package.UtfPacket = package.UtfPacket.DecryptUTF();
+                package.DecryptedPacket = package.UtfPacket.DecryptUTF();
+                package.UtfPacket = package.DecryptedPacket;
                 package.IsUtfEncrypted = true;
             }
 
@@ -293,7 +287,7 @@ namespace CriPakRepository.Helpers
 
             return *destLen;
         }
-        unsafe public static byte[] CompressCRILAYLA(byte[] input)
+        unsafe public static byte[] CompressCRILAYLA(this byte[] input)
         {
             unsafe
             {
@@ -328,7 +322,7 @@ namespace CriPakRepository.Helpers
             }*/
 
         }
-        public static byte[] DecompressCRILAYLA(byte[] input, int USize)
+        public static byte[] DecompressCRILAYLA(this byte[] input)
         {
             byte[] result;// = new byte[USize];
 
@@ -397,7 +391,7 @@ namespace CriPakRepository.Helpers
 
             return result;
         }
-        public static byte[] DecompressLegacyCRI(byte[] input, int USize)
+        public static byte[] DecompressLegacyCRI(this byte[] input)
         {
             byte[] result;// = new byte[USize];
             var br = new EndianReader<MemoryStream, EndianData>(new MemoryStream(input), new EndianData(true));
@@ -462,7 +456,7 @@ namespace CriPakRepository.Helpers
             br.Close();
             return result;
         }
-        public static void UpdateCriFile(CriPak package, CriFile file)
+        public static void UpdateCriFile(this ICriPak package, CriFile file)
         {
             if (file.FileType == "FILE" || file.FileType == "HDR")
             {

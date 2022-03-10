@@ -15,13 +15,14 @@ namespace CriPakComplete
             Container = DependencyInjectionConfig.GetContainer();
         }
 
-        public void Execute()
+        private void OnStartup(object sender, StartupEventArgs s)
         {
             if (Container != null)
             {
                 using (var scope = Container.BeginLifetimeScope())
                 {
-                    Run();
+                    var main = scope.Resolve<MainWindow>();
+                    main.Show();
                 }
             }
         }

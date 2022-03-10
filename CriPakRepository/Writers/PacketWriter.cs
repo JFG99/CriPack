@@ -12,7 +12,7 @@ namespace CriPakRepository.Writers
         {
             if (position != 0xffffffffffffffff)
             {
-                cpk.BaseStream.Seek((long)position, SeekOrigin.Begin);
+                //cpk.BaseStream.Seek((long)position, SeekOrigin.Begin);
                 //byte[] encrypted;
                 //if (isUtfEncrypted == true)
                 //{
@@ -23,8 +23,8 @@ namespace CriPakRepository.Writers
                 //    encrypted = packet;
                 //}
 
-                cpk.Write(Encoding.ASCII.GetBytes(ID));
-                cpk.Write((Int32)0xff);
+                //cpk.Write(Encoding.ASCII.GetBytes(ID));
+                //cpk.Write((Int32)0xff);
                 //cpk.Write((UInt64)encrypted.Length);
                 //cpk.Write(encrypted);
             }

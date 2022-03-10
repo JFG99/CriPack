@@ -1,6 +1,7 @@
 ﻿using CriPakInterfaces;
 using CriPakInterfaces.Models;
 using CriPakInterfaces.Models.Components;
+using CriPakInterfaces.Models.Components2;
 using CriPakRepository.Helpers;
 using CriPakRepository.Mappers;
 using CriPakRepository.Repositories;
@@ -27,14 +28,25 @@ namespace CriPakRepository.Parsers
             package.TocPacket = package.UtfPacket;
             package.HeaderInfo.Add(new CriFile
             {
-                FileName = "TOC_HDR", 
-                FileOffset = package.TocOffset, 
-                FileSize = package.TocPacket.Length, 
-                FileOffsetPos = package.TocOffsetPos, 
-                TOCName = "CPK", 
-                FileType = "HDR", 
-                IsEncrypted = package.IsUtfEncrypted 
+                FileName = "TOC_HDR",
+                FileOffset = package.TocOffset,
+                FileOffsetType = package.TocOffset.GetType(),
+                CompressedFileSize = package.TocPacket.Length,
+                FileOffsetPos = package.TocOffsetPos,
+                TOCName = "CPK",
+                FileType = "HDR",
+                IsEncrypted = package.IsUtfEncrypted
             });
+
+            //package.Header.Add(new TocHeader
+            //{
+            //    DecryptedPacket = package.DecryptedPacket,
+            //    OriginalPacket = package.OriginalPacket,
+            //    Offset = package.TocOffset,
+            //    OffsetPosition = package.TocOffsetPos
+            //});
+
+
 
             if (!package.ReadDataRows())
             {

@@ -28,12 +28,13 @@ namespace CriPakRepository.Parsers
             {
                 FileName = "ETOC_HDR",
                 FileOffset = package.EtocOffset,
-                FileSize = package.EtocPacket.Length,
+                FileOffsetType = package.EtocOffset.GetType(),
+                CompressedFileSize = package.EtocPacket.Length,
                 FileOffsetPos = package.EtocOffsetPos,
                 TOCName = "CPK",
                 FileType = "HDR",
                 IsEncrypted = package.IsUtfEncrypted
-            });
+            }) ;
 
             if (!package.ReadDataRows())
             {

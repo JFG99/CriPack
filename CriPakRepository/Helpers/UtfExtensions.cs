@@ -7,6 +7,10 @@ namespace CriPakRepository.Helpers
 {
     public static class UtfExtensions
     {
+        public static string ToHexString(this byte[] packet)
+        {
+            return string.Join(" ", packet.Select(x => string.Format("{0:X2}", x)).ToList());
+        }
         public static  object GetRowValue(this UTF utf, string Name)
         {
             object Temp = utf.GetRow(Name).GetValue();

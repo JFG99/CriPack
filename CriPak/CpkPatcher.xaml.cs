@@ -8,317 +8,259 @@ using Ookii.Dialogs.Wpf;
 using System.Threading;
 using CriPakInterfaces.Models.Components;
 using CriPakRepository.Helpers;
+using CriPakInterfaces.Models;
+using System.Threading.Tasks;
+using System.Text;
 
 namespace CriPakComplete
 {
     /// <summary>
     /// CpkPatcher.xaml 的交互逻辑
     ///// </summary>
-    //public partial class CpkPatcher : Window
-    //{
-    //    public CpkPatcher(double x, double y)
-    //    {
-    //        InitializeComponent();
-    //        this.WindowStartupLocation = WindowStartupLocation.Manual;
-    //        this.Top = x;
-    //        this.Left = y;
-    //    }
+    public partial class CpkPatcher : Window
+    {
+        public CriPak package { get; set; }
+        private delegate void textblockDelegate(string text);
+        private delegate void progressbarDelegate(float no);
 
-    //    private void button_selPatchPath_Click(object sender, RoutedEventArgs e)
-    //    {
-    //        VistaFolderBrowserDialog saveFilesDialog = new VistaFolderBrowserDialog();
-    //        saveFilesDialog.SelectedPath = myPackage.basePath + "/";
-    //        if (saveFilesDialog.ShowDialog().Value)
-    //        {
-    //            Debug.Print(saveFilesDialog.SelectedPath);
-    //            textbox_patchDir.Text = saveFilesDialog.SelectedPath;
-    //        }
+        public CpkPatcher(CriPak mainPackage, double x, double y)
+        {
+            InitializeComponent();
+            WindowStartupLocation = WindowStartupLocation.Manual;
+            Top = x;      
+            Left = y;
+            package = mainPackage;
+        }
 
-    //    }
+        private void SelectPatchPath_Click(object sender, RoutedEventArgs e)
+        {
+            VistaFolderBrowserDialog saveFilesDialog = new VistaFolderBrowserDialog();
+            saveFilesDialog.SelectedPath = package.BasePath + "/";
+            if (saveFilesDialog.ShowDialog().Value)
+            {
+                Debug.Print(saveFilesDialog.SelectedPath);
+                textbox_patchDir.Text = saveFilesDialog.SelectedPath;
+            }
+        }
 
-        
+        private void SelectNewPath_Click(object sender, RoutedEventArgs e)
+        {
+            VistaSaveFileDialog saveDialog = new VistaSaveFileDialog();
+            saveDialog.InitialDirectory = package.BasePath;
+            saveDialog.RestoreDirectory = true;
+            saveDialog.Filter = "CPK File（*.cpk）|*.cpk";
+            if (saveDialog.ShowDialog() == true)
+            {
+                string saveFileName = saveDialog.FileName;
+                textbox_cpkDir.Text = saveFileName;
+            }
+        }
 
-    //    private void button_selDstCPK_Click(object sender, RoutedEventArgs e)
-    //    {
-    //        VistaSaveFileDialog saveDialog = new VistaSaveFileDialog();
-    //        saveDialog.InitialDirectory = myPackage.basePath;
-    //        saveDialog.RestoreDirectory = true;
-    //        saveDialog.Filter = "CPK File（*.cpk）|*.cpk";
-    //        if (saveDialog.ShowDialog() == true)
-    //        {
-    //            string saveFileName = saveDialog.FileName;
-    //            textbox_cpkDir.Text = saveFileName;
-    //        }
+        private void updateTextblock(string text)
+        {
+            textblock0.Text += $"Updating ... {text}\n";
+            Debug.WriteLine(text);
+            scrollview0.ScrollToEnd();
+        }
 
-    //    }
-    //    private delegate void textblockDelegate(string text);
-    //    private void updateTextblock(string text)
-    //    {
-    //        textblock0.Text += string.Format("Updating ... {0}\n", text);
-    //        scrollview0.ScrollToEnd();
-    //    }
+        private void PatchCPK_Click(object sender, RoutedEventArgs e)
+        {
+            string patchDir = textbox_patchDir.Text;
+            if (Directory.Exists(patchDir))
+            {
+                var patchFiles = Directory.EnumerateFiles(patchDir, "*.*", SearchOption.AllDirectories).ToList();
+                Debug.Print(string.Format("GOT {0} Files.", patchFiles.Count));
+                var fileList = patchFiles.Select(x => new KeyValuePair<string, string>(Path.GetFileName(x), x )).ToDictionary(x => x.Key, x=> x.Value);
+                Task.Run(() => 
+                    Dispatcher.Invoke(() => 
+                        PatchCPK(textbox_cpkDir.Text, fileList, checkbox_donotcompress.IsChecked ?? false)
+                    )
+                );
+            }
+            else
+            {
+                MessageBox.Show("Error, cpkdata or patchdata not found.");
+            }
+        }
 
-    //    private delegate void progressbarDelegate(float no);
-    //    private void updateprogressbar(float no)
-    //    {
-    //        progressbar1.Value = no;
-    //    }
-    //    public class actionCPK
-    //    {
-    //        public string cpkDir { get; set; }
-    //        public string patchDir { get; set; }
-    //        public bool bForceCompress { get; set; }
-    //        public Dictionary<string, string> batch_file_list { get; set; }
-    //    }
+        private void PatchCPK(string cpkDir, Dictionary<string, string> fileList, bool isForceCompress)
+        { 
+            var oldFile = new BinaryReader(File.OpenRead(package.CpkName));
+            var newCPK = new BinaryWriter(File.OpenWrite(cpkDir));
+            var entries = package.CriFileList.OrderBy(x => x.FileOffset).ToList();
+            var badEntries = package.CriFileList.Where(x => x.FileOffsetType == null);
+            var i = 0; 
+            var msg = "";
+            foreach (var entry in entries)
+            {                
+                Dispatcher.Invoke(() => progressbar1.Value = i++ / (float)package.CriFileList.Count * 100f);
 
-    //    private void button_PatchCPK_Click(object sender, RoutedEventArgs e)
-    //    {
-    //        string cpkDir = textbox_cpkDir.Text;
-    //        string patchDir = textbox_patchDir.Text;
-    //        Dictionary<string, string> batch_file_list = new Dictionary<string, string>();
-    //        List<string> ls = new List<string>();
-    //        if ((myPackage.cpk != null) && (Directory.Exists(patchDir)))
-    //        {
+                if (entry.FileType != "CONTENT")
+                {
+                    if (entry.FileType == "FILE")
+                    {
+                        // *****I'm too lazy to figure out how to update the ContentOffset position so this works :)
+                        // No it doesnt.
+                        if ((ulong)newCPK.BaseStream.Position < package.ContentOffset)
+                        {
+                            ulong padLength = package.ContentOffset - (ulong)newCPK.BaseStream.Position;
+                            for (ulong z = 0; z < padLength; z++)
+                            {
+                                newCPK.Write((byte)0);
+                            }
+                        }
+                    }                   
+                    Debug.WriteLine($"Got File: {entry.FileName}");
 
-    //            GetFilesFromPath(patchDir, ref ls);
-    //            Debug.Print(string.Format("GOT {0} Files.", ls.Count));
-    //            foreach (string s in ls)
-    //            {
-    //                string name = s.Remove(0, patchDir.Length + 1);
-    //                name = name.Replace("\\" , @"/");
-    //                if (!name.Contains(@"/"))
-    //                {
-    //                    name = @"/" + name;
-    //                }
-    //                batch_file_list.Add(name, s);
-    //            }
-    //            actionCPK t = new actionCPK();
-    //            t.cpkDir = cpkDir;
-    //            t.patchDir = patchDir;
-    //            if (checkbox_donotcompress.IsChecked == true)
-    //            {
-    //                t.bForceCompress = false;
-    //            }
-    //            else
-    //            {
-    //                t.bForceCompress = true;
-    //            }
-    //            t.batch_file_list = batch_file_list;
-    //            ThreadPool.QueueUserWorkItem(new WaitCallback(PatchCPK), t);
-    //        }
-    //        else
-    //        {
-    //            MessageBox.Show("Error, cpkdata or patchdata not found.");
+                    //If Not in dictionary, copy original data
+                    if (!fileList.ContainsKey(entry.FileName))
+                    {
+                        oldFile.BaseStream.Seek((long)entry.FileOffset, SeekOrigin.Begin);
 
-    //        }
-    //    }
+                        entry.FileOffset = (ulong)newCPK.BaseStream.Position;
 
-    //    private void PatchCPK(object t)
-    //    {
-    //        string msg; 
-    //        string cpkDir = ((actionCPK)t).cpkDir;
-    //        string patchDir = ((actionCPK)t).patchDir;
-    //        bool bForceCompress = ((actionCPK)t).bForceCompress;
-    //        Dictionary<string, string> batch_file_list = ((actionCPK)t).batch_file_list;
-    //        CPK cpk = myPackage.cpk;
-    //        BinaryReader oldFile = new BinaryReader(File.OpenRead(myPackage.cpk_name));
-    //        string outputName = cpkDir;
+                        if (entry.FileName.ToString() == "ETOC_HDR")
+                        {
+                            package.EtocOffset = entry.FileOffset;
+                            Debug.WriteLine($"Fix ETOC_OFFSET to {package.EtocOffset}");
+                        }
 
-    //        BinaryWriter newCPK = new BinaryWriter(File.OpenWrite(outputName));
+                        package.UpdateCriFile(entry);
+                        byte[] chunk = oldFile.ReadBytes(entry.CompressedFileSize);
+                        newCPK.Write(chunk);
 
-    //        List<CriFile> entries = cpk.FileTable.OrderBy(x => x.FileOffset).ToList();
-
-    //        Tools tool = new Tools();
-
-    //        int id;
-    //        bool bFileRepeated = entries.CheckListRedundant();
-    //        for (int i = 0; i < entries.Count; i++)
-    //        {
-    //            this.UI_SetProgess((float)i / (float)entries.Count * 100f);
-    //            if (entries[i].FileType != "CONTENT")
-    //            {
-
-    //                if (entries[i].FileType == "FILE")
-    //                {
-    //                    // I'm too lazy to figure out how to update the ContextOffset position so this works :)
-    //                    if ((ulong)newCPK.BaseStream.Position < cpk.ContentOffset)
-    //                    {
-    //                        ulong padLength = cpk.ContentOffset - (ulong)newCPK.BaseStream.Position;
-    //                        for (ulong z = 0; z < padLength; z++)
-    //                        {
-    //                            newCPK.Write((byte)0);
-    //                        }
-    //                    }
-    //                }
-
-    //                id = Convert.ToInt32(entries[i].ID);
-    //                string currentName;
-
-    //                if (id > 0 && bFileRepeated)
-    //                {
-    //                    currentName = (((entries[i].DirName != null) ?
-    //                                    entries[i].DirName + "/" : "") + string.Format("[{0}]", id.ToString()) + entries[i].FileName);
-    //                }
-    //                else
-    //                {
-    //                    currentName = ((entries[i].DirName != null) ? entries[i].DirName + "/" : "") + entries[i].FileName;
-    //                }
-
-                     
-
-    //                if (!currentName.Contains("/"))
-    //                {
-    //                    currentName = "/" + currentName;
-    //                }
-    //                Debug.Print("Got File:" + currentName.ToString());
-
-    //                if (!batch_file_list.Keys.Contains(currentName.ToString()))
-    //                //如果不在表中，复制原始数据
-    //                {
-    //                    oldFile.BaseStream.Seek((long)entries[i].FileOffset, SeekOrigin.Begin);
-
-    //                    entries[i].FileOffset = (ulong)newCPK.BaseStream.Position;
-
-    //                    if (entries[i].FileName.ToString() == "ETOC_HDR")
-    //                    {
-
-    //                        cpk.EtocOffset = entries[i].FileOffset;
-
-    //                        Debug.Print("Fix ETOC_OFFSET to {0:x8}", cpk.EtocOffset);
-
-    //                    }
-
-    //                    cpk.UpdateFileEntry(entries[i]);
-
-    //                    byte[] chunk = oldFile.ReadBytes(Int32.Parse(entries[i].FileSize.ToString()));
-    //                    newCPK.Write(chunk);
-
-    //                    if ((newCPK.BaseStream.Position % 0x800) > 0 && i < entries.Count - 1)
-    //                    {
-    //                        long cur_pos = newCPK.BaseStream.Position;
-    //                        for (int j = 0; j < (0x800 - (cur_pos % 0x800)); j++)
-    //                        {
-    //                            newCPK.Write((byte)0);
-    //                        }
-    //                    }
-
-    //                }
-    //                else
-    //                {
+                        if ((newCPK.BaseStream.Position % 0x800) > 0 && i <= package.CriFileList.Count)
+                        {
+                            long cur_pos = newCPK.BaseStream.Position;
+                            for (int j = 0; j < (0x800 - (cur_pos % 0x800)); j++)
+                            {
+                                newCPK.Write((byte)0);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        //Got patch file name
+                        msg = $"Patching: {entry.FileName}";
+                        Dispatcher.Invoke(() => updateTextblock(msg));
                         
-    //                    string replace_with = batch_file_list[currentName.ToString()];
-    //                    //Got patch file name
-    //                    msg = string.Format("Patching: {0}", currentName.ToString());
 
-    //                    this.UI_SetTextBlock(msg);
-    //                    Debug.Print(msg);
+                        var newFileBytes = File.ReadAllBytes(fileList[entry.FileName]);
+                        entry.FileOffset = (ulong)newCPK.BaseStream.Position;
+                        msg = $"Storing data: {newFileBytes.Length}\r\n";
+                        var originalSize = 0;
+                        if (isForceCompress && (entry.CompressedFileSize < entry.ExtractedFileSize) && entry.FileType == "FILE")
+                        {
+                            msg = $"Compressing and storing data:{newFileBytes.Length}\r\n";
+                            originalSize = newFileBytes.Length;
+                            newFileBytes = newFileBytes.CompressCRILAYLA();                          
+                        }
+                        WriteChunkData(newCPK, entry, newFileBytes, originalSize, msg);
 
-    //                    byte[] newbie = File.ReadAllBytes(replace_with);
-    //                    entries[i].FileOffset = (ulong)newCPK.BaseStream.Position;
-    //                    int o_ext_size = Int32.Parse((entries[i].ExtractSize).ToString());
-    //                    int o_com_size = Int32.Parse((entries[i].FileSize).ToString());
-    //                    if ((o_com_size < o_ext_size) && entries[i].FileType == "FILE" && bForceCompress == true)
-    //                    {
-    //                        // is compressed
-    //                        msg = string.Format("Compressing data:{0:x8}", newbie.Length);
-    //                        this.UI_SetTextBlock(msg);
-    //                        Console.Write(msg);
+                        if ((newCPK.BaseStream.Position % 0x800) > 0 && i < entries.Count - 1)
+                        {
+                            long cur_pos = newCPK.BaseStream.Position;
+                            for (int j = 0; j < (0x800 - (cur_pos % 0x800)); j++)
+                            {
+                                newCPK.Write((byte)0);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    // Content is special.... just update the position
+                    package.UpdateCriFile(entry);
+                }
+            }
 
-    //                        byte[] dest_comp = cpk.CompressCRILAYLA(newbie);
+            WriteCPK(newCPK);
+            Dispatcher.Invoke(() => updateTextblock("Writing TOC...."));
 
-    //                        entries[i].FileSize = Convert.ChangeType(dest_comp.Length, entries[i].FileSizeType);
-    //                        entries[i].ExtractedFileSize= Convert.ChangeType(newbie.Length, entries[i].FileSizeType);
-    //                        cpk.UpdateFileEntry(entries[i]);
-    //                        newCPK.Write(dest_comp);
-    //                        msg = string.Format(">> {0:x8}\r\n", dest_comp.Length);
-    //                        this.UI_SetTextBlock(msg);
-    //                        Console.Write(msg);
-    //                    }
+            WriteITOC(newCPK);
+            WriteTOC(newCPK);
+            WriteETOC(newCPK, package.EtocOffset);
+            WriteGTOC(newCPK);
 
-    //                    else
-    //                    {
-    //                        msg = string.Format("Storing data:{0:x8}\r\n", newbie.Length);
-    //                        this.UI_SetTextBlock(msg);
-    //                        Console.Write(msg);
+            newCPK.Close();
+            oldFile.Close();
+            Dispatcher.Invoke(() => updateTextblock($"Saving CPK to {cpkDir}...."));
+            MessageBox.Show("CPK Patched.");
+            Dispatcher.Invoke(() => progressbar1.Value = 0f);
+        }
 
-    //                        entries[i].FileSize = Convert.ChangeType(newbie.Length, entries[i].FileSizeType);
-    //                        entries[i].ExtractedFileSize= Convert.ChangeType(newbie.Length, entries[i].FileSizeType);
-    //                        cpk.UpdateFileEntry(entries[i]);
-    //                        newCPK.Write(newbie);
-    //                    }
+        private void WriteChunkData(BinaryWriter cpk, CriFile entry, byte[] chunkData, int originalDataLength, string msg)
+        {
+            Dispatcher.Invoke(() => updateTextblock(msg));
+            Debug.WriteLine(msg);
+            entry.CompressedFileSize = chunkData.Length;
+            entry.ExtractedFileSize = originalDataLength == 0 ? chunkData.Length : originalDataLength;
+            package.UpdateCriFile(entry);
+            cpk.Write(chunkData);
+            Dispatcher.Invoke(() => updateTextblock(msg));
+            Debug.WriteLine(msg);
 
+        }
+        public void WriteCPK(BinaryWriter cpk)
+        {
+            WritePacket(cpk, "CPK ", 0, package.CpkPacket);
 
-    //                    if ((newCPK.BaseStream.Position % 0x800) > 0 && i < entries.Count - 1)
-    //                    {
-    //                        long cur_pos = newCPK.BaseStream.Position;
-    //                        for (int j = 0; j < (0x800 - (cur_pos % 0x800)); j++)
-    //                        {
-    //                            newCPK.Write((byte)0);
-    //                        }
-    //                    }
-    //                }
+            cpk.BaseStream.Seek(0x800 - 6, SeekOrigin.Begin);
+            cpk.Write(Encoding.ASCII.GetBytes("(c)CRI"));
+            if ((package.TocOffset > 0x800) && package.TocOffset < 0x8000)
+            {
+                //Part of cpk starts TOC from 0x2000, so
+                //Need to calculate cpk padding
+                //HUH?
+                cpk.Write(new byte[package.TocOffset - 0x800]);
+            }
+        }
 
+        public void WriteTOC(BinaryWriter cpk)
+        {
+            WritePacket(cpk, "TOC ", package.TocOffset, package.TocPacket);
+        }
 
-    //            }
-    //            else
-    //            {
-    //                // Content is special.... just update the position
-    //                cpk.UpdateFileEntry(entries[i]);
-    //            }
-    //        }
+        public void WriteITOC(BinaryWriter cpk)
+        {
+            WritePacket(cpk, "ITOC", package.ItocOffset, package.ItocPacket);
+        }
 
-    //        cpk.WriteCPK(newCPK);
-    //        msg = string.Format("Writing TOC....");
-    //        this.UI_SetTextBlock(msg);
-    //        Console.WriteLine(msg);
+        public void WriteETOC(BinaryWriter cpk, ulong currentEtocOffset)
+        {
+            WritePacket(cpk, "ETOC", currentEtocOffset, package.EtocPacket);
+        }
 
-    //        cpk.WriteITOC(newCPK);
-    //        cpk.WriteTOC(newCPK);
-    //        cpk.WriteETOC(newCPK, cpk.EtocOffset);
-    //        cpk.WriteGTOC(newCPK);
+        public void WriteGTOC(BinaryWriter cpk)
+        {
+            WritePacket(cpk, "GTOC", package.GtocOffset, package.GtocPacket);
+        }
 
-    //        newCPK.Close();
-    //        oldFile.Close();
-    //        msg = string.Format("Saving CPK to {0}....", outputName);
-    //        this.UI_SetTextBlock(msg);
-    //        Console.WriteLine(msg);
+        public void WritePacket(BinaryWriter cpk, string ID, ulong position, byte[] packet)
+        {
+            if (position != 0xffffffffffffffff)
+            {
+                cpk.BaseStream.Seek((long)position, SeekOrigin.Begin);
+                byte[] encrypted;
+                if (package.IsUtfEncrypted == true)
+                {
+                    encrypted = packet.DecryptUTF(); // Yes it says decrypt...
+                }
+                else
+                {
+                    encrypted = packet;
+                }
 
-    //        MessageBox.Show("CPK Patched.");
-    //        this.UI_SetProgess(0f);
+                cpk.Write(Encoding.ASCII.GetBytes(ID));
+                cpk.Write((Int32)0xff);
+                cpk.Write((UInt64)encrypted.Length);
+                cpk.Write(encrypted);
+            }
+        }
 
-
-
-    //    }
-
-    //    public void UI_SetProgess(float value)
-    //    {
-    //        this.Dispatcher.Invoke(new progressbarDelegate(updateprogressbar), new object[] { (float)value });
-    //    }
-
-    //    public void UI_SetTextBlock(string msg)
-    //    {
-    //        this.Dispatcher.Invoke(new textblockDelegate(updateTextblock), new object[] { msg });
-    //    }
-
-    //    private void  GetFilesFromPath(string directoryname , ref List<string> ls)
-    //    {
-    //        FileInfo[] fi = new DirectoryInfo(directoryname).GetFiles();
-    //        DirectoryInfo[] di = new DirectoryInfo(directoryname).GetDirectories();
-    //        if (fi.Length != 0)
-    //        {
-    //            foreach (FileInfo v in fi)
-    //            {
-    //                ls.Add(v.FullName);
-    //            }
-    //        }
-    //        if (di.Length != 0)
-    //        {
-    //            foreach (DirectoryInfo v in di)
-    //            {
-    //                GetFilesFromPath(v.FullName , ref ls);
-
-    //            }
-    //        }
-    //    }
-    //}
+        public void UI_SetTextBlock(string msg)
+        {
+            Dispatcher.Invoke(new textblockDelegate(updateTextblock), new object[] { msg });
+        }        
+    }
 }

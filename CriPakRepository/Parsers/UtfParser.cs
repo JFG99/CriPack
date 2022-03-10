@@ -11,7 +11,7 @@ namespace CriPakRepository.Parsers
 {
     public class UtfParser : ParserRepository
     {
-        public override bool Parse(CriPak package) //, Encoding encoding = null)
+        public override bool Parse(CriPak package) 
         {
             package.Utf = new UTF();
             long offset = package.SubReader.BaseStream.Position;
@@ -22,34 +22,36 @@ namespace CriPakRepository.Parsers
             }
 
             package.Utf.TableSize = package.SubReader.ReadInt32();
-            package.Utf.RowsOffeset = package.SubReader.ReadInt32();
-            package.Utf.StringsOffset = package.SubReader.ReadInt32();
-            package.Utf.DataOffset = package.SubReader.ReadInt32();
-
             // CPK Header & UTF Header are ignored, so add 8 to each offset
-            package.Utf.RowsOffeset += (offset + 8);
-            package.Utf.StringsOffset += (offset + 8);
-            package.Utf.DataOffset += (offset + 8);
-
+            package.Utf.RowsOffeset = package.SubReader.ReadInt32() + (offset + 8);
+            package.Utf.StringsOffset = package.SubReader.ReadInt32() + (offset + 8);
+            package.Utf.DataOffset = package.SubReader.ReadInt32() + (offset + 8);
             package.Utf.TableName = package.SubReader.ReadInt32();
             package.Utf.NumColumns = package.SubReader.ReadInt16();
             package.Utf.RowLength = package.SubReader.ReadInt16();
             package.Utf.NumRows = package.SubReader.ReadInt32();
 
-            //read Columns
-            for (int i = 0; i < package.Utf.NumColumns; i++)
-            {
-                var column = new Column();
-                column.Flags = package.SubReader.ReadByte();
-                if (column.Flags == 0)
+            //Read Column Details
+            var columnBytes = package.SubReader.ReadBytes(package.Utf.NumColumns * 5).ToList();
+            var skip = columnBytes.Where((x, i) => i % 5 == 0).ToList().FindIndex(x => x == 0);//locate block data where byte 0 == 0
+            while (skip > -1)//iterate and delete 4 byte blocks where byte[0] == 0, then append 4 more bytes each time
+            {                            
+                columnBytes.RemoveRange(skip * 5, 4);
+                columnBytes.AddRange(package.SubReader.ReadBytes(4));               
+                skip = columnBytes.Where((x, i) => i % 5 == 0).ToList().FindIndex(x => x == 0);
+            }//This gets us a corrected byte header list where byte[0] is flag and byte 1-4 is padding size.
+            package.Utf.Columns = columnBytes.Select((x, i) =>
+                new { Index = i, Value = x })
+                .GroupBy(x => x.Index / 5)
+                .Select(x =>
                 {
-                    package.SubReader.BaseStream.Seek(3, SeekOrigin.Current);
-                    column.Flags = package.SubReader.ReadByte();
-                }
-
-                column.Name = package.SubReader.ReadCString(-1, (long)(package.SubReader.ReadInt32() + package.Utf.StringsOffset), package.Encoding);
-                package.Utf.Columns.Add(column);
-            }
+                    var bytes = x.Select(v => v.Value).ToArray();
+                    return new Column()
+                    {           
+                        Flags = bytes[0],
+                        Name = package.SubReader.ReadCString(BitConverter.ToInt32(bytes.Skip(1).Take(4).Reverse().ToArray(), 0) + package.Utf.StringsOffset, package.Encoding)
+                    };
+                }).ToList();
 
             //read Rows
             // Originally this called for a List<List<Row>>. I dont see a need for a nested list as its always hardcorded to the 1st element, so its been removed.
@@ -96,7 +98,7 @@ namespace CriPakRepository.Parsers
                                 break;
 
                             case 0xA:
-                                row.str = package.SubReader.ReadCString(-1, package.SubReader.ReadInt32() + package.Utf.StringsOffset, package.Encoding);
+                                row.str = package.SubReader.ReadCString(package.SubReader.ReadInt32() + package.Utf.StringsOffset, package.Encoding);
                                 break;
 
                             case 0xB:

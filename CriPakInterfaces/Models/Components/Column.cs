@@ -8,5 +8,6 @@ namespace CriPakInterfaces.Models.Components
     {
         public byte Flags { get; set; }
         public string Name { get; set; }
+        public int Offset { get; set; }
     }
 }

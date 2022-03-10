@@ -1,6 +1,8 @@
 ﻿using CriPakInterfaces;
 using CriPakInterfaces.Models;
 using CriPakInterfaces.Models.Components;
+using CriPakInterfaces.IComponents;
+using CriPakInterfaces.Models.Components2;
 using CriPakRepository.Helpers;
 using CriPakRepository.Repositories;
 using CriPakRepository.Repository;
@@ -9,6 +11,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using CriPakRepository.Mappers;
 
 namespace CriPakRepository.Parsers
 {
@@ -28,15 +31,31 @@ namespace CriPakRepository.Parsers
             {
                 FileName = "CPK_HDR",
                 FileOffsetPos = package.Reader.BaseStream.Position + 0x10,
-                FileSize = package.CpkPacket.Length,
+                CompressedFileSize = package.CpkPacket.Length,
                 IsEncrypted = package.IsUtfEncrypted,
                 FileType = "CPK"
             });
+
+            
 
             if (!package.ReadDataRows())
             {
                 return false;
             }
+            package.Header.Add(new CpkHeader
+            {
+                Packet = 
+                    new OriginalPacket()
+                    {
+                        PacketBytes = package.OriginalPacket,                    
+                    },
+                Offset = 0x10
+            });
+
+            var mapper = new CpkMapper();
+            mapper.Map(package.Header.OfType<ICpkHeader>().First());
+            var content = package.Header.OfType<ICpkHeader>().First().Rows.OfType<IUint64>().Where(x => x.Name == "ContentOffset").First();
+            var fileTest = new CriFile(content.Name, content.Value, content.Type, content.Position, "CPK", "CONTENT", false);
 
             GetHeaderOffsets(package);
             package.HeaderInfo.Add(new CriFile("CONTENT_OFFSET", package.ContentOffset, typeof(ulong), package.ContentOffsetPos, "CPK", "CONTENT", false));

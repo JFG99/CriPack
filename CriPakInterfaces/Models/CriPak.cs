@@ -5,12 +5,13 @@ using System.Text;
 
 namespace CriPakInterfaces.Models
 {
-    public class CriPak
+    public class CriPak : ICriPak
     {
         public CriPak()
         {
             CriFileList = new List<CriFile>();
             HeaderInfo = new List<CriFile>();
+            Header = new List<IHeader>();
             Utf = new UTF();
             CpkData = new Dictionary<string, object>();
         }
@@ -19,6 +20,7 @@ namespace CriPakInterfaces.Models
         public IEndianReader SubReader { get; set; }
         public List<CriFile> CriFileList { get; set; }
         public List<CriFile> HeaderInfo { get; set; }
+        public List<IHeader> Header { get; set; }
         public Dictionary<string, object> CpkData { get; set; }
         public Encoding Encoding { get; set; }
         public UTF Utf { get; set; }
@@ -31,6 +33,10 @@ namespace CriPakInterfaces.Models
         public int Unk1 { get; set; }
         public long UtfSize { get; set; }
         public byte[] UtfPacket { get; set; }
+        //public IEnumerable<IPacket> Packets { get; set; }
+        public byte[] OriginalPacket { get; set; }
+        public byte[] EncryptedPacket { get; set; }
+        public byte[] DecryptedPacket { get; set; }
         public byte[] CpkPacket { get; set; }
         //TOC
         public byte[] TocPacket { get; set; }
@@ -48,7 +54,7 @@ namespace CriPakInterfaces.Models
         public byte[] GtocPacket { get; set; }
         public ulong GtocOffset { get; set; }
         public long GtocOffsetPos { get; set; }
-        
+
         public ulong ContentOffset { get; set; }
         public long ContentOffsetPos { get; set; }
     }
