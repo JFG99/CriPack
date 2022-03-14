@@ -25,12 +25,21 @@ namespace CriPakComplete.App_Start
         {
             builder.RegisterType<MainWindow>().AsSelf().InstancePerLifetimeScope();
             builder.RegisterType<Orchestrator>().AsSelf().InstancePerLifetimeScope();
-            builder.RegisterType<MetaRepository>().AsSelf().As<IReaderDetailsRepository<IHeader>>().InstancePerLifetimeScope();
+            builder.RegisterTypes(
+                 typeof(MetaRepository)
+            ).AsSelf().As<IReaderDetailsRepository<IEntity>>().InstancePerLifetimeScope();
             builder.RegisterGeneric(typeof(ReaderDetailRepository<,>)).As(typeof(ReaderDetailRepository<,>)).InstancePerLifetimeScope();
             var assemblies = typeof(DependencyInjectionConfig).Assembly.GetReferencedAssemblies().Where(x => x.Name.EndsWith("Repository")).Select(Assembly.Load).ToArray();
             builder.RegisterAssemblyTypes(assemblies).AsClosedTypesOf(typeof(IDetailMapper<>)).InstancePerLifetimeScope();
             builder.RegisterType<CpkMapper>().As<CpkMapper>().InstancePerLifetimeScope();
-            builder.RegisterType<CpkHeader>().AsSelf().As<IHeader>().InstancePerLifetimeScope();
+            builder.RegisterType<CpkMeta>().AsSelf().As<IMeta>().InstancePerLifetimeScope();
+            builder.RegisterTypes(
+                typeof(ContentHeader),
+                typeof(TocHeader),
+                typeof(EtocHeader),
+                typeof(GtocHeader),
+                typeof(ItocHeader)
+            ).AsSelf().As<IHeader>().InstancePerLifetimeScope();
             //builder.RegisterType(typeof(ParserRepository)).As(typeof(IParserRepository)).InstancePerRequest();
             //builder.RegisterTypes(
             //    typeof(EtocParser),

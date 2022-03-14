@@ -42,20 +42,7 @@ namespace CriPakRepository.Parsers
             {
                 return false;
             }
-            package.Header.Add(new CpkHeader
-            {
-                Packet = 
-                    new OriginalPacket()
-                    {
-                        PacketBytes = package.OriginalPacket,                    
-                    },
-                Offset = 0x10
-            });
-
-            var mapper = new CpkMapper();
-            mapper.Map(package.Header.OfType<ICpkHeader>().First());
-            var content = package.Header.OfType<ICpkHeader>().First().Rows.OfType<IUint64>().Where(x => x.Name == "ContentOffset").First();
-            var fileTest = new CriFile(content.Name, content.Value, content.Type, content.Position, "CPK", "CONTENT", false);
+            
 
             GetHeaderOffsets(package);
             package.HeaderInfo.Add(new CriFile("CONTENT_OFFSET", package.ContentOffset, typeof(ulong), package.ContentOffsetPos, "CPK", "CONTENT", false));

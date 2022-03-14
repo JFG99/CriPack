@@ -48,7 +48,7 @@ namespace CriPakRepository.Parsers
                     var bytes = x.Select(v => v.Value).ToArray();
                     return new Column()
                     {           
-                        Flags = bytes[0],
+                        Flag = bytes[0],
                         Name = package.SubReader.ReadCString(BitConverter.ToInt32(bytes.Skip(1).Take(4).Reverse().ToArray(), 0) + package.Utf.StringsOffset, package.Encoding)
                     };
                 }).ToList();
@@ -63,11 +63,11 @@ namespace CriPakRepository.Parsers
                 for (int i = 0; i < package.Utf.NumColumns; i++)
                 {
                     var row = new Row();
-                    var storage_flag = (package.Utf.Columns[i].Flags & (int)STORAGE.MASK);
+                    var storage_flag = (package.Utf.Columns[i].Flag & (int)STORAGE.MASK);
                     if (!(storage_flag == (int)STORAGE.NONE || storage_flag == (int)STORAGE.ZERO || storage_flag == (int)STORAGE.CONSTANT))
                     {
                         row.Id = j+1;
-                        row.Type = package.Utf.Columns[i].Flags & (int)CRITYPE.MASK;
+                        row.Type = package.Utf.Columns[i].Flag & (int)CRITYPE.MASK;
                         row.Position = package.SubReader.BaseStream.Position;
                         row.Name = package.Utf.Columns[i].Name;
                         //Bleh switch statements. fix if time.

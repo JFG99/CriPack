@@ -1,4 +1,5 @@
 ﻿using CriPakInterfaces;
+using CriPakInterfaces.IComponents;
 using CriPakInterfaces.Models;
 using CriPakInterfaces.Models.Components2;
 using CriPakRepository.Repository;
@@ -12,11 +13,13 @@ namespace CriPakRepository.Repositories
 {
     public class ReaderDetailRepository<TMapper, TOut> : IReaderDetailRepository
         where TMapper : IDetailMapper<TOut>
-        where TOut : IHeader, new()
+        where TOut : IEntity, new()
     {
         private readonly TMapper _mapper;
-        private readonly IHeader _header;
+        private readonly IEntity _header;
         public IEndianReader Stream { get; set; }
+        public string SelectionName => _header.SelectionName;
+        public long CurrentPosition { get; set; }
         private IEnumerable<byte> Buffer { get; set; }
 
         public ReaderDetailRepository(TMapper mapper, TOut header)
@@ -25,11 +28,12 @@ namespace CriPakRepository.Repositories
             _header = header;
         }
 
-        public TOut Get(string inFile)
+        public TOut Get(string inFile, IRowValue rowValue)
         {
+            CurrentPosition = (long)(rowValue?.Value ?? 0);
             if (!ValidatePacketName(inFile, _header.ValidationName)) return default(TOut);
             _header.Packet = GetPacket();
-            return _mapper.Map(_header);
+            return _mapper.Map(_header, rowValue);
         }
 
         public IPacket GetPacket()
@@ -42,14 +46,14 @@ namespace CriPakRepository.Repositories
                 PacketBytes = Stream.ReadBytes((int)utfSize)
             };
             Stream.IsLittleEndian = false;
+            CurrentPosition = Stream.BaseStream.Position;
+            Stream.Close();
             return original;
         }
-        public bool ValidatePacketName(string inFile, string name) => ValidatePacketName(inFile, name, 0);
-
-        public bool ValidatePacketName(string inFile, string name, int offset)
+        public bool ValidatePacketName(string inFile, string name)
         {
             Stream = new EndianReader<FileStream, EndianData>(File.OpenRead(inFile), new EndianData(true));
-            GetBuffer(offset);
+            GetBuffer();
             if (Encoding.UTF8.GetString(Buffer.ToArray()) != name)
             {
                 Stream.Close();
@@ -58,9 +62,9 @@ namespace CriPakRepository.Repositories
             return true;
         }
 
-        private void GetBuffer(int offset, int count = 4)
+        private void GetBuffer(int count = 4)
         {
-            Stream.BaseStream.Position = offset;
+            Stream.BaseStream.Position = CurrentPosition;
             Buffer = Stream.ReadBytes(count);
         }
 

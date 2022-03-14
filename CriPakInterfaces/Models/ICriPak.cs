@@ -26,7 +26,7 @@ namespace CriPakInterfaces.Models
         ulong GtocOffset { get; set; }
         long GtocOffsetPos { get; set; }
         byte[] GtocPacket { get; set; }
-        List<IHeader> Header { get; set; }
+        List<IMeta> Header { get; set; }
         List<CriFile> HeaderInfo { get; set; }
         bool IsUtfEncrypted { get; set; }
         ulong ItocOffset { get; set; }

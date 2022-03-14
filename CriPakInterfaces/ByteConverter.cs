@@ -3,26 +3,13 @@ using CriPakInterfaces.Models.Components2;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace CriPakInterfaces
 {
     public static class ByteConverter
     {
-        public static Dictionary<int, int> ReadLength = new Dictionary<int, int>()
-        {
-            {0, 1},
-            {1, 1},
-            {2, 2},
-            {3, 2},
-            {4, 4},
-            {5, 4},
-            {6, 8},
-            {7, 8},
-            {8, 4},
-            {0xA, 8},
-            {0xB, 4}
-
-        };
+        
         public static Dictionary<int, Func<byte[], int, long>> MapInt = new Dictionary<int, Func<byte[], int, long>>()
         {
             {2, (value, index) => BitConverter.ToInt16(value, index) },
@@ -57,8 +44,28 @@ namespace CriPakInterfaces
             {6, (packet, offset) => new Row64(){Value = BitConverter.ToUInt64(packet.GetBytesFrom(offset, 8).Reverse().ToArray(), 0), Type = typeof(ulong), TypeSelect = 6, Position = offset} },
             {7, (packet, offset) => new Row64(){Value = BitConverter.ToUInt64(packet.GetBytesFrom(offset, 8).Reverse().ToArray(), 0), Type = typeof(ulong), TypeSelect = 7, Position = offset} },
             {8, (packet, offset) => new RowFloat(){Value = BitConverter.ToUInt64(packet.GetBytesFrom(offset, 4).Reverse().ToArray(), 0), Type = typeof(float), TypeSelect = 8, Position = offset} },
-            {0xA, (packet, offset) => new RowString(){Value = "Not Implemented", Type = typeof(string), TypeSelect = 0xA, Position = offset} },
+            {0xA, (packet, offset) => new RowString(){Value = packet.ReadCString(4 + offset, Encoding.UTF8) , Type = typeof(string), TypeSelect = 0xA, Position = offset, Length = packet.GetLastStringLength() + 1} },
             {0xB, (packet, offset) => new RowByteArray(){Value = new byte[]{ }, Type = typeof(byte[]), TypeSelect = 0xB, Position = offset} },
+        }; 
+        
+        public static Dictionary<int, Func<IEnumerable<byte>, IComponentsNew.IRowValue>> MapBytes = new Dictionary<int, Func<IEnumerable<byte>, IComponentsNew.IRowValue>>()
+        {
+            {0, (bytes) => new Models.ComponentsNew.Row8(){Value = bytes.First() } },
+            {1, (bytes) => new Models.ComponentsNew.Row8(){Value = bytes.First() } },
+            {2, (bytes) => new Models.ComponentsNew.Row16(){Value = BitConverter.ToUInt16(bytes.Reverse().ToArray(), 0) } },
+            {3, (bytes) => new Models.ComponentsNew.Row16(){Value = BitConverter.ToUInt16(bytes.Reverse().ToArray(), 0) } },
+            {4, (bytes) => new Models.ComponentsNew.Row32(){Value = BitConverter.ToUInt32(bytes.Reverse().ToArray(), 0) } },
+            {5, (bytes) => new Models.ComponentsNew.Row32(){Value = BitConverter.ToUInt32(bytes.Reverse().ToArray(), 0) } },
+            {6, (bytes) => new Models.ComponentsNew.Row64(){Value = BitConverter.ToUInt64(bytes.Reverse().ToArray(), 0) } },
+            {7, (bytes) => new Models.ComponentsNew.Row64(){Value = BitConverter.ToUInt64(bytes.Reverse().ToArray(), 0) } },
+            {8, (bytes) => new Models.ComponentsNew.RowFloat(){Value = BitConverter.ToUInt64(bytes.Reverse().ToArray(), 0) } },
+            {0xA, (bytes) => new Models.ComponentsNew.Row32(){Value = BitConverter.ToUInt32(bytes.Reverse().ToArray(), 0) } },
+            {0xB, (bytes) => new Models.ComponentsNew.Row32(){Value = BitConverter.ToUInt32(bytes.Reverse().ToArray(), 0) } }
         };
     }
 }
+
+//Encoding.UTF8.GetString(bytes.Skip(offset).ToArray())
+
+//{ 0xA, (bytes) => new RowString() { Value = "NotImplemented", Type = typeof(string), TypeSelect = 0xA, Length = bytes.Count() + 1 } },
+//{ 0xB, (bytes) => new RowByteArray() { Value = new byte[] { }, Type = typeof(byte[]), TypeSelect = 0xB } },

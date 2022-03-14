@@ -1,18 +1,12 @@
-﻿using CriPakInterfaces.IComponents;
-using CriPakInterfaces.Models.Components;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace CriPakInterfaces
 {
-    public interface IHeader
+    public interface IHeader : IEntity
     {
-        string DisplayName { get; set; }
-        string ValidationName { get; set; }
-        IPacket Packet { get; set; }
-        IEnumerable<Column> Columns { get; set; }
-        IEnumerable<IRowValue> Rows { get; set; }
-        ulong Offset { get; set; }                
+        long MetaOffsetPosition { get; set; }
+        ulong PackageOffsetPosition { get; set; }
     }
 }

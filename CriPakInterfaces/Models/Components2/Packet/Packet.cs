@@ -5,15 +5,18 @@ using System.Text;
 
 namespace CriPakInterfaces.Models.Components2
 {
-    public class Packet : IPacket
-    {   
+    public partial class Packet : IPacket
+    {
         public Packet()
         {
             PacketBytes = new List<byte>();
             ReadOffset = 0;
         }
         public IEnumerable<byte> PacketBytes { get; set; }
+        public IEnumerable<byte> DecryptedBytes { get; set; }
         public long Size => PacketBytes.Count();
+        private int LastStringLength{get;set;}
+        public long Offset { get; set; }
         public bool IsEncrypted => CheckEncryption();
         protected int ReadOffset { get; set; }
         
@@ -21,23 +24,9 @@ namespace CriPakInterfaces.Models.Components2
         {
             return string.Join( " ", PacketBytes.ToList().Select(x =>  string.Format("{0:X2}", x)));
         }
-
-        protected IEnumerable<byte> ProcessBytes()
+        public int GetLastStringLength()
         {
-            var seed = 0x0000655f;
-            var decrypted = new List<byte>();
-            foreach (var entry in PacketBytes)
-            {
-                decrypted.Add((byte)(entry ^ (byte)(seed & 0xff)));
-                //seed modifier
-                seed *= 0x00004115;
-            }
-            return decrypted;
-        }
-
-        private bool CheckEncryption()
-        {
-            return !string.Join("", PacketBytes.Take(4).ToList().Select(x => string.Format("{0:X2}", x))).Equals($"40555446"); //@UTF
+            return LastStringLength;
         }
     }
 }

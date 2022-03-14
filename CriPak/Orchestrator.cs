@@ -9,17 +9,17 @@ namespace CriPakComplete
 {
     public class Orchestrator 
     {
-        private readonly IEnumerable<IReaderDetailsRepository<IHeader>> _readers;
+        private readonly IEnumerable<IReaderDetailsRepository<IEntity>> _readers;
 
-        public Orchestrator(IEnumerable<IReaderDetailsRepository<IHeader>> readers)
+        public Orchestrator(IEnumerable<IReaderDetailsRepository<IEntity>> readers)
         {
             _readers = readers;
         }
 
         public void Read(string inFile)
         {
-            var headers = new List<IHeader>();
-            _readers.ToList().ForEach(x => headers.Add(x.Read(inFile)));
+            var headers = new List<IEntity>();
+            _readers.ToList().ForEach(x => headers.AddRange(x.Read(inFile)));
         }
     }
 }

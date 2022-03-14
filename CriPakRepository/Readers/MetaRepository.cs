@@ -16,111 +16,38 @@ using CriPakRepository.Parsers;
 
 namespace CriPakRepository.Readers
 {
-    public class MetaRepository : ReaderDetailsRepository<CpkHeader>, IReaderDetailsRepository<IHeader>
+    public class MetaRepository : ReaderDetailsRepository<Entity>, IReaderDetailsRepository<IEntity>
     {
-        private readonly Func<IHeader>[] _initialReaders; 
-        private readonly Func<IHeader>[] _readers;
+        private readonly Func<IEntity>[] _initialReaders; 
+        private readonly Func<IEntity>[] _readers;
 
-        public MetaRepository(ReaderDetailRepository<CpkMapper, CpkHeader> cpkRepository,
+        public MetaRepository(ReaderDetailRepository<CpkMapper, CpkMeta> cpkRepository,
                               ReaderDetailRepository<ContentMapper, ContentHeader> contentRepository,
                               ReaderDetailRepository<TocMapper, TocHeader> tocRepository,
-                              ReaderDetailRepository<GtocMapper, GtocHeader> gtocRepository,
-                              ReaderDetailRepository<ItocMapper, ItocHeader> itocRepository,
-                              ReaderDetailRepository<EtocMapper, EtocHeader> etocRepository
-        )
+                              ReaderDetailRepository<EtocMapper, EtocHeader> etocRepository,
+                              ReaderDetailRepository<GtocMapper, GtocHeader> gtocRepository
+                              //ReaderDetailRepository<ItocMapper, ItocHeader> itocRepository
+                              )
         {
-            _initialReaders = new Func<IHeader>[]
+            _initialReaders = new Func<IEntity>[]
                 {
                     () => GetHeader(cpkRepository)
                 };
-            _readers = new Func<IHeader>[]
+            _readers = new Func<IEntity>[]
                 {
                     () => GetHeader(contentRepository),
                     () => GetHeader(tocRepository),
                     () => GetHeader(gtocRepository),
-                    () => GetHeader(itocRepository),
+                //   () => GetHeader(itocRepository), Not Implemented
                     () => GetHeader(etocRepository)
                 };
         }
 
-        public override IHeader Read(string inFile) 
+        public override IEnumerable<IEntity> Read(string inFile)
         {
-            var test = Get(_initialReaders, inFile);
-
-
-
-
-            // var content = _header.Rows.OfType<IUint64>().Where(x => x.Name == "ContentOffset").First();
-
-
-
-
-            //    var fileTest = new CriFile(content.Name, content.Value, content.Type, content.Position, "CPK", "CONTENT", false);
-
-            //    GetHeaderOffsets(package);
-            //    package.HeaderInfo.Add(new CriFile("CONTENT_OFFSET", package.ContentOffset, typeof(ulong), package.ContentOffsetPos, "CPK", "CONTENT", false));
-            //    package.Files = (uint)package.Utf.GetRowValue("Files");
-            //    package.Align = (ushort)package.Utf.GetRowValue("Align");
-
-            //    if (package.TocOffset != 0xFFFFFFFFFFFFFFFF)
-            //    {
-            //        var tocParser = new TocParser();
-            //        if (!tocParser.Parse(package))
-            //        {
-            //            return false;
-            //        }
-            //    }
-
-            //    if (package.EtocOffset != 0xFFFFFFFFFFFFFFFF)
-            //    {
-            //        var etocParser = new EtocParser();
-            //        if (!etocParser.Parse(package))
-            //        {
-            //            return false;
-            //        }
-            //    }
-
-            //    Leaving this commented out as the Shining Resonance CPK does not have ITOC
-
-            //    if (package.ItocOffset != 0xFFFFFFFFFFFFFFFF)
-            //    {
-            //        package.HeaderInfo.Add(new CriFile("ITOC_HDR", package.ItocOffset, typeof(ulong), package.ItocOffsetPos, "CPK", "HDR", false));
-            //        var itocParser = new ItocParser();
-            //        if (!itocParser.Parse(package))
-            //        {
-            //            return false;
-            //        }
-            //    }
-
-            //    if (package.GtocOffset != 0xFFFFFFFFFFFFFFFF)
-            //    {
-            //        var gtocParser = new GtocParser();
-            //        if (!gtocParser.Parse(package))
-            //        {
-            //            return false;
-            //        }
-            //    }
-            //    package.CriFileList.AddRange(package.HeaderInfo);
-            //    package.Reader.Close();
-            return null;
+            var initialHeader = Get(_initialReaders, inFile); 
+            var meta = initialHeader.OfType<ICpkMeta>().First().Rows.OfType<IUint64>(); 
+            return Get(_readers, meta);
         }
-
-        //private void GetHeaderOffsets(ICriPak package)
-        //{
-        //    package.TocOffset = (ulong)package.Utf.GetRowValue("TocOffset");
-        //    package.TocOffsetPos = package.Utf.GetRowPostion("TocOffset");
-
-        //    package.EtocOffset = (ulong)package.Utf.GetRowValue("EtocOffset");
-        //    package.EtocOffsetPos = package.Utf.GetRowPostion("EtocOffset");
-
-        //    package.ItocOffset = (ulong)package.Utf.GetRowValue("ItocOffset");
-        //    package.ItocOffsetPos = package.Utf.GetRowPostion("ItocOffset");
-
-        //    package.GtocOffset = (ulong)package.Utf.GetRowValue("GtocOffset");
-        //    package.GtocOffsetPos = package.Utf.GetRowPostion("GtocOffset");
-
-        //    package.ContentOffset = (ulong)package.Utf.GetRowValue("ContentOffset");
-        //    package.ContentOffsetPos = package.Utf.GetRowPostion("ContentOffset");
-        //}
     }
 }

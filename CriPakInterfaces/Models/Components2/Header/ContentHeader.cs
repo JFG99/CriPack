@@ -8,6 +8,11 @@ namespace CriPakInterfaces.Models.Components2
 {
     public class ContentHeader : Header, IContentHeader
     {
-
-    }
+        public ContentHeader()
+        {
+            DisplayName = "CONTENT_OFFSET";
+            SelectionName = "Content";
+            ValidationName = "";
+        }        
+    }                                          
 }

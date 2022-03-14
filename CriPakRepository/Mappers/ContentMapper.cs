@@ -12,7 +12,7 @@ namespace CriPakRepository.Mappers
 {
     public class ContentMapper : IDetailMapper<ContentHeader>
     {
-        public ContentHeader Map(IHeader header) 
+        public ContentHeader Map(IEntity header, IRowValue rowValue)
         {
             var packet = (IOriginalPacket)header.Packet;
             var TableSize = (int)packet.ReadBytesFrom(4, 4, true);
@@ -49,8 +49,8 @@ namespace CriPakRepository.Mappers
                            new Column()
                            {
                                Name = packet.ReadStringFrom((int)y.ReflectedValue("Offset"), (int)y.ReflectedValue("Length")),
-                               Offset = (int)y.ReflectedValue("Offset"),
-                               Flags = x.ToArray()[(int)y.ReflectedValue("Index")].Value
+                               NameOffset = (int)y.ReflectedValue("Offset"),
+                               Flag = x.ToArray()[(int)y.ReflectedValue("Index")].Value
                            });
                 }).First().ToList();
 
@@ -62,10 +62,10 @@ namespace CriPakRepository.Mappers
                 var bytes = packet.GetBytesFrom(RowsOffset + (j * RowLength), RowLength);
                 for (int i = 0; i < NumColumns; i++)
                 {
-                    var storage_flag = (columns[i].Flags & (int)STORAGE.MASK);
+                    var storage_flag = (columns[i].Flag & (int)STORAGE.MASK);
                     if (!(storage_flag == (int)STORAGE.NONE || storage_flag == (int)STORAGE.ZERO || storage_flag == (int)STORAGE.CONSTANT))
                     {                        
-                        var mask = columns[i].Flags & (int)CRITYPE.MASK;
+                        var mask = columns[i].Flag & (int)CRITYPE.MASK;
                         var row = ByteConverter.MapRow[mask](packet, RowsOffset); 
                         row.Id = j + 1;
                         row.Name = columns[i].Name;
@@ -75,11 +75,11 @@ namespace CriPakRepository.Mappers
                 }
             }
 
-            return new CpkHeader()
+            return new ContentHeader()
             {
-                Columns = columns, 
-                Rows = rows, 
-                Packet = header.Packet
+                //Columns = columns, 
+                //Rows = rows, 
+                //Packet = header.Packet
             };
         }
     }

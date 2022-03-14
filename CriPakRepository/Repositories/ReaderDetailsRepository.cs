@@ -1,9 +1,11 @@
 ﻿using CriPakInterfaces;
+using CriPakInterfaces.IComponents;
 using CriPakInterfaces.Models;
 using CriPakInterfaces.Models.Components2;
 using CriPakRepository.Repository;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -11,18 +13,27 @@ using System.Text;
 namespace CriPakRepository.Repositories
 {
     public abstract class ReaderDetailsRepository<TOut> : IReaderDetailsRepository<TOut>
-        where TOut : IHeader, new()
+        where TOut : IEntity, new()
     {
         private string FileName { get; set; }
+        public long CurrentPosition { get; set; }
+        public IEnumerable<IRowValue> Meta { get; set; }
+        private int IdSetter { get; set; }
 
         public T GetHeader<TMapper, T>(ReaderDetailRepository<TMapper, T> repository)
             where TMapper : IDetailMapper<T>
-            where T : IHeader, new()
+            where T : IEntity, new()
         {
-            return repository.Get(FileName);
+            var data = repository.Get(FileName, Meta?.FirstOrDefault(x => x.Name.Equals($"{repository.SelectionName}Offset")));
+            if (data != null)
+            {
+                data.Id = IdSetter++;
+                //CurrentPosition = data.PacketLength;
+            }
+            return data;
         }
        
-        public IEnumerable<IHeader> Get(Func<IHeader>[] details, string inFile = "")
+        public IEnumerable<IEntity> Get(Func<IEntity>[] details, string inFile)
         {
             if (string.IsNullOrEmpty(FileName))
             {
@@ -31,7 +42,13 @@ namespace CriPakRepository.Repositories
             return details.Select(x => x.Invoke()).ToList();
 
         }
-        public abstract IHeader Read(string inFile);
+        public IEnumerable<IEntity> Get(Func<IEntity>[] details, IEnumerable<IRowValue> meta)
+        {
+            Meta = meta;   
+            return details.Select(x => x.Invoke()).ToList();
+
+        }
+        public abstract IEnumerable<IEntity> Read(string inFile);
         
     }
 }

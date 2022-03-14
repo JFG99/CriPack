@@ -1,10 +1,11 @@
 ﻿
 using CriPakInterfaces.Models;
+using System.Collections.Generic;
 
 namespace CriPakInterfaces
 {
-    public interface IReaderDetailsRepository<TOut> where TOut : IHeader
+    public interface IReaderDetailsRepository<TOut> where TOut : IEntity
     {
-        IHeader Read(string inFile);
+        IEnumerable<IEntity> Read(string inFile);
     }
 }

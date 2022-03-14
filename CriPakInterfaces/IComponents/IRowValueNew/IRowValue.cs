@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace CriPakInterfaces.IComponents
+namespace CriPakInterfaces.IComponentsNew
 {
-    public interface ICpkHeader : IHeader
+    public interface IRowValue
     {
     }
 }

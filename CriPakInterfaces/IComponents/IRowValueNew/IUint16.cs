@@ -2,11 +2,10 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace CriPakInterfaces.IComponents
+namespace CriPakInterfaces.IComponentsNew
 {
     public interface IUint16 : IRowValue
     {
-        new ushort Value { get; set; }
-        new Type Type { get; set; }
+        ushort Value { get; set; }
     }
 }

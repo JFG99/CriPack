@@ -7,5 +7,11 @@ namespace CriPakInterfaces.Models.Components2
 {
     public class EtocHeader : Header, IEtocHeader
     {
+        public EtocHeader()
+        {
+            DisplayName = "ETOC_HDR";
+            SelectionName = "Etoc";
+            ValidationName = "ETOC";
+        }
     }
 }

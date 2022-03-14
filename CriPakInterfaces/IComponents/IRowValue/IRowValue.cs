@@ -11,6 +11,7 @@ namespace CriPakInterfaces.IComponents
         Type Type { get; set; }
         string Name { get; set; }
         long Position { get; set; }
+        ulong Value { get; set; }
         int Length { get; }
         Type GetType();
     }

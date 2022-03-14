@@ -7,5 +7,11 @@ namespace CriPakInterfaces.Models.Components2
 {
     public class ItocHeader : Header, IItocHeader
     {
+        public ItocHeader()
+        {
+            DisplayName = "ItOC_HDR";
+            SelectionName = "Itoc";
+            ValidationName = "ITOC";
+        }
     }
 }
