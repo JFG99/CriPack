@@ -45,9 +45,13 @@ namespace CriPakRepository.Readers
 
         public override IEnumerable<IEntity> Read(string inFile)
         {
-            var initialHeader = Get(_initialReaders, inFile); 
-            var meta = initialHeader.OfType<ICpkMeta>().First().Rows.OfType<IUint64>(); 
-            return Get(_readers, meta);
+            var displayList = new List<DisplayList>();
+            var initialHeader = Get(_initialReaders, inFile);
+            var headers = Get(_readers, initialHeader.OfType<ICpkMeta>().First().Rows);
+            displayList.AddRange(initialHeader.OfType<IHeader>().MapHeaderRowsToDisplay());
+            displayList.AddRange(headers.OfType<IHeader>().MapHeaderRowsToDisplay());
+            displayList.AddRange(headers.OfType<TocHeader>().First().MapTocRowsToDisplay());
+            return displayList.OrderBy(x => x.PackageOffset).ThenBy(x => x.Id);
         }
     }
 }

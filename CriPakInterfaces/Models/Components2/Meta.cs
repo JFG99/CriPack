@@ -12,10 +12,10 @@ namespace CriPakInterfaces.Models.Components2
         public Meta()
         {
             Columns = new List<Column>();
-            Rows = new List<IRowValue>();
+            Rows = new List<ComponentsNew.Row>();
         }
         public IEnumerable<Column> Columns { get; set; }
-        public IEnumerable<IRowValue> Rows { get; set; }
+        public IEnumerable<ComponentsNew.Row> Rows { get; set; }
         public long Offset { get; set; }
     }
 }

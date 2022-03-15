@@ -12,7 +12,7 @@ namespace CriPakRepository.Mappers
 {
     public class CpkMapper : Mapper, IDetailMapper<CpkMeta>
     {
-        public CpkMeta Map(IEntity header, IRowValue rowValue)
+        public CpkMeta Map(IEntity header, CriPakInterfaces.Models.ComponentsNew.Row rowValue)
         {
             var packet = (IOriginalPacket)header.Packet;
             packet.MakeDecyrpted();
@@ -24,8 +24,8 @@ namespace CriPakRepository.Mappers
                 Packet = value.Packet,
                 Offset = 0x10,
                 PacketLength = 0x10 + value.Packet.PacketBytes.Count(),
-                Files = (uint)value.Rows.Where(x => x.Name == "Files").FirstOrDefault().Value,
-                Align = (ushort)value.Rows.Where(x => x.Name == "Align").FirstOrDefault().Value,
+                Files = (uint)value.Rows.Where(x => x.Name == "Files").FirstOrDefault().Modifier.ReflectedValue("Value"),
+                Align = (ushort)value.Rows.Where(x => x.Name == "Align").FirstOrDefault().Modifier.ReflectedValue("Value"),
             };
         }
     }

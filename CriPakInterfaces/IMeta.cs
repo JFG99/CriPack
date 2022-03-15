@@ -9,7 +9,7 @@ namespace CriPakInterfaces
     public interface IMeta : IEntity
     {
         IEnumerable<Column> Columns { get; set; }
-        IEnumerable<IRowValue> Rows { get; set; }
+        IEnumerable<Models.ComponentsNew.Row> Rows { get; set; }
         long Offset { get; set; }                
     }
 }

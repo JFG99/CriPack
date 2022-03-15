@@ -18,13 +18,14 @@ namespace CriPakRepository.Repositories
         private string FileName { get; set; }
         public long CurrentPosition { get; set; }
         public IEnumerable<IRowValue> Meta { get; set; }
+        public IEnumerable<CriPakInterfaces.Models.ComponentsNew.Row> MetaNew { get; set; }
         private int IdSetter { get; set; }
 
         public T GetHeader<TMapper, T>(ReaderDetailRepository<TMapper, T> repository)
             where TMapper : IDetailMapper<T>
             where T : IEntity, new()
         {
-            var data = repository.Get(FileName, Meta?.FirstOrDefault(x => x.Name.Equals($"{repository.SelectionName}Offset")));
+            var data = repository.Get(FileName, MetaNew?.FirstOrDefault(x => x.Name.Equals($"{repository.SelectionName}Offset")));
             if (data != null)
             {
                 data.Id = IdSetter++;
@@ -42,9 +43,9 @@ namespace CriPakRepository.Repositories
             return details.Select(x => x.Invoke()).ToList();
 
         }
-        public IEnumerable<IEntity> Get(Func<IEntity>[] details, IEnumerable<IRowValue> meta)
+        public IEnumerable<IEntity> Get(Func<IEntity>[] details, IEnumerable<CriPakInterfaces.Models.ComponentsNew.Row> meta)
         {
-            Meta = meta;   
+            MetaNew = meta;   
             return details.Select(x => x.Invoke()).ToList();
 
         }

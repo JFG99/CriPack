@@ -6,7 +6,7 @@ namespace CriPakInterfaces.IComponents
 {
     public interface IString : IRowValue
     {
-        string Value { get; set; }
+        new string Value { get; set; }
         new Type Type { get; set; }
         string GetValue();
     }

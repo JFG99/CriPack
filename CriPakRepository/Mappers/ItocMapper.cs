@@ -12,7 +12,7 @@ namespace CriPakRepository.Mappers
 {
     public class ItocMapper : IDetailMapper<ItocHeader>
     {
-        public ItocHeader Map(IEntity header, IRowValue rowValue)
+        public ItocHeader Map(IEntity header, CriPakInterfaces.Models.ComponentsNew.Row rowValue)
         {
             //Not Currently Implemented. Old code is below.
 

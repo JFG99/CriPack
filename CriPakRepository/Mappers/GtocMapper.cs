@@ -12,7 +12,7 @@ namespace CriPakRepository.Mappers
 {
     public class GtocMapper : Mapper, IDetailMapper<GtocHeader>
     {
-        public GtocHeader Map(IEntity header, IRowValue rowValue) 
+        public GtocHeader Map(IEntity header, CriPakInterfaces.Models.ComponentsNew.Row rowValue) 
         {
             var packet = (IOriginalPacket)header.Packet;
             
@@ -20,8 +20,8 @@ namespace CriPakRepository.Mappers
             {
                 Packet = packet,
                 PacketLength = header.Packet.PacketBytes.Count(),
-                MetaOffsetPosition = rowValue.Position,
-                PackageOffsetPosition = rowValue.Value
+                MetaOffsetPosition = rowValue.RowOffset,
+                PackageOffsetPosition = (ulong)rowValue.Modifier.ReflectedValue("Value")
             };            
         }
     }

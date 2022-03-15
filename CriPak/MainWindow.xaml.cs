@@ -68,11 +68,11 @@ namespace CriPakComplete
                 Dispatcher.Invoke(() => 
                 {
                     var parser = new CpkParser();
-                    _home.Read(inFile);
+                    datagrid_cpk.ItemsSource = _home.Read(inFile);
                     //_cpkReader.Read(package);
-                    parser.Parse(package);
-                    status_cpkmsg.Content = string.Format("{0} file(s) registered.", package.CriFileList.Count());
-                    datagrid_cpk.ItemsSource = package.DisplayList;
+                    //parser.Parse(package);
+                    status_cpkmsg.Content = string.Format($"{datagrid_cpk.Items.Count} file(s) registered.");
+                    //datagrid_cpk.ItemsSource = package.DisplayList;
                     menu_importAssets.IsEnabled = true;
                     menu_savefiles.IsEnabled = true;
                 })

@@ -12,7 +12,7 @@ namespace CriPakRepository.Mappers
 {
     public class ContentMapper : IDetailMapper<ContentHeader>
     {
-        public ContentHeader Map(IEntity header, IRowValue rowValue)
+        public ContentHeader Map(IEntity header, CriPakInterfaces.Models.ComponentsNew.Row rowValue)
         {
             var packet = (IOriginalPacket)header.Packet;
             var TableSize = (int)packet.ReadBytesFrom(4, 4, true);

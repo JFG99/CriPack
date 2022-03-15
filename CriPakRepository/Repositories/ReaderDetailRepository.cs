@@ -2,6 +2,7 @@
 using CriPakInterfaces.IComponents;
 using CriPakInterfaces.Models;
 using CriPakInterfaces.Models.Components2;
+using CriPakRepository.Helpers;
 using CriPakRepository.Repository;
 using System;
 using System.Collections.Generic;
@@ -28,9 +29,17 @@ namespace CriPakRepository.Repositories
             _header = header;
         }
 
-        public TOut Get(string inFile, IRowValue rowValue)
+        //public TOut Get(string inFile, IRowValue rowValue)
+        //{
+        //    CurrentPosition = (long)(rowValue?.Value ?? 0);
+        //    if (!ValidatePacketName(inFile, _header.ValidationName)) return default(TOut);
+        //    _header.Packet = GetPacket();
+        //    return _mapper.Map(_header, rowValue);
+        //}
+
+        public TOut Get(string inFile, CriPakInterfaces.Models.ComponentsNew.Row rowValue)
         {
-            CurrentPosition = (long)(rowValue?.Value ?? 0);
+            CurrentPosition = Convert.ToInt64(rowValue?.Modifier.ReflectedValue("Value") ?? 0);
             if (!ValidatePacketName(inFile, _header.ValidationName)) return default(TOut);
             _header.Packet = GetPacket();
             return _mapper.Map(_header, rowValue);
