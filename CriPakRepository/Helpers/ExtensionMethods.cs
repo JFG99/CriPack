@@ -13,108 +13,9 @@ using System.Text;
 
 namespace CriPakRepository.Helpers
 {
-    //TODO:  For the most part these methods have not changed from their original.  They were placed here as extensions for the time being.
-    //since the seem to function properly despite being badly written.
-    //When the core of the rewrite is finished some of these can be able to be refactored out or deleted altogether
+    //TODO:  refactor the crilayla methods, maybe
     public static class ExtensionMethods
-    {
-        //CriFile method?
-        public static bool CheckListRedundant(this List<CriFile> input)
-        {
-
-            bool result = false;
-            List<string> tmp = new List<string>();
-            for (int i = 0; i < input.Count; i++)
-            {
-                string name = ((input[i].DirName != null) ?
-                                        input[i].DirName + "/" : "") + input[i].FileName;
-                if (!tmp.Contains(name))
-                {
-                    tmp.Add(name);
-                }
-                else
-                {
-                    return true ;
-                }
-            }
-            return result;
-        }
-        //method on Endian Reader?
-        public static string ReadCString(this IEndianReader br, long offsetLocation = -1, Encoding encoding = null) => br.ReadCString(-1, offsetLocation, encoding);
-        public static string ReadCString(this IEndianReader br, int MaxLength, long offsetLocation = -1, Encoding encoding = null)
-        {
-            int Max;
-            if (MaxLength == -1)
-                Max = 255;
-            else
-                Max = MaxLength;
-
-            long fTemp = br.BaseStream.Position;
-            int i = 0;
-            string result = "";
-
-            if (offsetLocation > -1)
-            {
-                br.BaseStream.Seek(offsetLocation, SeekOrigin.Begin);
-            }
-
-            do
-            {
-                var bTemp = br.ReadByte();
-                if (bTemp == 0)
-                    break;
-                i += 1;
-            } while (i < Max);
-
-            if (MaxLength == -1)
-                Max = i + 1;
-            else
-                Max = MaxLength;
-
-            if (offsetLocation > -1)
-            {
-                br.BaseStream.Seek(offsetLocation, SeekOrigin.Begin);
-
-                if (encoding == null)
-                    result = Encoding.UTF8.GetString(br.ReadBytes(i));
-                else
-                    result = encoding.GetString(br.ReadBytes(i));
-
-                br.BaseStream.Seek(fTemp, SeekOrigin.Begin);
-            }
-            else
-            {
-                br.BaseStream.Seek(fTemp, SeekOrigin.Begin);
-                if (encoding == null)
-                    result = Encoding.ASCII.GetString(br.ReadBytes(i));
-                else
-                    result = encoding.GetString(br.ReadBytes(i));
-
-                br.BaseStream.Seek(fTemp + Max, SeekOrigin.Begin);
-            }
-
-            return result;
-        }
-        public static bool ReadDataRows(this ICriPak package)
-        {
-            package.SubReader = new EndianReader<MemoryStream, EndianData>(new MemoryStream(package.UtfPacket), new EndianData(package.Reader.IsLittleEndian));
-            var parser = new UtfParser();
-            if (!parser.Parse((CriPak)package))
-            {
-                package.SubReader.Close();
-                return false;
-            }           
-            return true;
-        }
-        public static byte[] GetData(this IEndianReader br, long offset, int size)
-        {
-            byte[] result = null;
-            long backup = br.BaseStream.Position;
-            br.BaseStream.Seek(offset, SeekOrigin.Begin);
-            result = br.ReadBytes(size);
-            br.BaseStream.Seek(backup, SeekOrigin.Begin);
-            return result;
-        }
+    {             
         public static ushort GetNextBits(byte[] input, ref int offset_p, ref byte bit_pool_p, ref int bits_left_p, int bit_count)
         {
             ushort out_bits = 0;
@@ -144,39 +45,6 @@ namespace CriPakRepository.Helpers
             }
 
             return out_bits;
-        }
-        public static byte[] DecryptUTF(this byte[] input)
-        {
-            var seed = 0x0000655f;
-            var decrypted = new List<byte>();
-            foreach(var entry in input)
-            {
-                decrypted.Add((byte)(entry ^ (byte)(seed & 0xff)));
-                //seed modifier
-                seed *= 0x00004115;
-            }
-            var test = decrypted.Select(x => string.Join(" ", string.Format("{0:X2}", x)));
-            return decrypted.ToArray();
-        }
-
-        public static void ReadUTFData(this ICriPak package)
-        {
-            package.IsUtfEncrypted = false;
-            package.Reader.IsLittleEndian = true;
-
-            package.Unk1 = package.Reader.ReadInt32();
-            package.UtfSize = package.Reader.ReadInt64(); 
-            package.UtfPacket = package.Reader.ReadBytes((int)package.UtfSize);            
-            package.OriginalPacket = package.UtfPacket;
-
-            if (package.UtfPacket[0] != 0x40 && package.UtfPacket[1] != 0x55 && package.UtfPacket[2] != 0x54 && package.UtfPacket[3] != 0x46) //@UTF
-            {
-                package.DecryptedPacket = package.UtfPacket.DecryptUTF();
-                package.UtfPacket = package.DecryptedPacket;
-                package.IsUtfEncrypted = true;
-            }
-
-            package.Reader.IsLittleEndian = false;
         }
         unsafe public static int UnsafeCRICompress(byte* dest, int* destLen, byte* src, int srcLen)
         {
@@ -567,5 +435,145 @@ namespace CriPakRepository.Helpers
             packet = myStream.ToArray();
 
         }
+
+
+        #region Obsolete: for Deletion
+        [Obsolete]
+        public static byte[] GetData(this IEndianReader br, long offset, int size)
+        {
+            byte[] result = null;
+            long backup = br.BaseStream.Position;
+            br.BaseStream.Seek(offset, SeekOrigin.Begin);
+            result = br.ReadBytes(size);
+            br.BaseStream.Seek(backup, SeekOrigin.Begin);
+            return result;
+        }
+        [Obsolete]
+        public static void ReadUTFData(this ICriPak package)
+        {
+            package.IsUtfEncrypted = false;
+            package.Reader.IsLittleEndian = true;
+
+            package.Unk1 = package.Reader.ReadInt32();
+            package.UtfSize = package.Reader.ReadInt64();
+            package.UtfPacket = package.Reader.ReadBytes((int)package.UtfSize);
+            package.OriginalPacket = package.UtfPacket;
+
+            if (package.UtfPacket[0] != 0x40 && package.UtfPacket[1] != 0x55 && package.UtfPacket[2] != 0x54 && package.UtfPacket[3] != 0x46) //@UTF
+            {
+                package.DecryptedPacket = package.UtfPacket.DecryptUTF();
+                package.UtfPacket = package.DecryptedPacket;
+                package.IsUtfEncrypted = true;
+            }
+
+            package.Reader.IsLittleEndian = false;
+        }
+        [Obsolete]
+        public static byte[] DecryptUTF(this byte[] input)
+        {
+            var seed = 0x0000655f;
+            var decrypted = new List<byte>();
+            foreach (var entry in input)
+            {
+                decrypted.Add((byte)(entry ^ (byte)(seed & 0xff)));
+                //seed modifier
+                seed *= 0x00004115;
+            }
+            var test = decrypted.Select(x => string.Join(" ", string.Format("{0:X2}", x)));
+            return decrypted.ToArray();
+        }
+        [Obsolete]
+        public static bool ReadDataRows(this ICriPak package)
+        {
+            package.SubReader = new EndianReader<MemoryStream, EndianData>(new MemoryStream(package.UtfPacket), new EndianData(package.Reader.IsLittleEndian));
+            var parser = new UtfParser();
+            if (!parser.Parse((CriPak)package))
+            {
+                package.SubReader.Close();
+                return false;
+            }
+            return true;
+        }
+        [Obsolete]
+        public static bool CheckListRedundant(this List<CriFile> input)
+        {
+
+            bool result = false;
+            List<string> tmp = new List<string>();
+            for (int i = 0; i < input.Count; i++)
+            {
+                string name = ((input[i].DirName != null) ?
+                                        input[i].DirName + "/" : "") + input[i].FileName;
+                if (!tmp.Contains(name))
+                {
+                    tmp.Add(name);
+                }
+                else
+                {
+                    return true;
+                }
+            }
+            return result;
+        }
+        [Obsolete] 
+        public static string ReadCString(this IEndianReader br, long offsetLocation = -1, Encoding encoding = null) => br.ReadCString(-1, offsetLocation, encoding);
+        [Obsolete]        
+        public static string ReadCString(this IEndianReader br, int MaxLength, long offsetLocation = -1, Encoding encoding = null)
+        {
+            int Max;
+            if (MaxLength == -1)
+                Max = 255;
+            else
+                Max = MaxLength;
+
+            long fTemp = br.BaseStream.Position;
+            int i = 0;
+            string result = "";
+
+            if (offsetLocation > -1)
+            {
+                br.BaseStream.Seek(offsetLocation, SeekOrigin.Begin);
+            }
+
+            do
+            {
+                var bTemp = br.ReadByte();
+                if (bTemp == 0)
+                    break;
+                i += 1;
+            } while (i < Max);
+
+            if (MaxLength == -1)
+                Max = i + 1;
+            else
+                Max = MaxLength;
+
+            if (offsetLocation > -1)
+            {
+                br.BaseStream.Seek(offsetLocation, SeekOrigin.Begin);
+
+                if (encoding == null)
+                    result = Encoding.UTF8.GetString(br.ReadBytes(i));
+                else
+                    result = encoding.GetString(br.ReadBytes(i));
+
+                br.BaseStream.Seek(fTemp, SeekOrigin.Begin);
+            }
+            else
+            {
+                br.BaseStream.Seek(fTemp, SeekOrigin.Begin);
+                if (encoding == null)
+                    result = Encoding.ASCII.GetString(br.ReadBytes(i));
+                else
+                    result = encoding.GetString(br.ReadBytes(i));
+
+                br.BaseStream.Seek(fTemp + Max, SeekOrigin.Begin);
+            }
+
+            return result;
+        }
+        #endregion
+
+
     }
 }

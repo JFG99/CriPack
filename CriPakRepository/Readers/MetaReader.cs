@@ -16,18 +16,18 @@ using CriPakRepository.Parsers;
 
 namespace CriPakRepository.Readers
 {
-    public class MetaRepository : ReaderDetailsRepository<Entity>, IReaderDetailsRepository<IEntity>
+    public class MetaReader : ReaderDetailsRepository<Entity>, IReaderDetailsRepository<IEntity>
     {
         private readonly Func<IEntity>[] _initialReaders; 
         private readonly Func<IEntity>[] _readers;
 
-        public MetaRepository(ReaderDetailRepository<CpkMapper, CpkMeta> cpkRepository,
-                              ReaderDetailRepository<ContentMapper, ContentHeader> contentRepository,
-                              ReaderDetailRepository<TocMapper, TocHeader> tocRepository,
-                              ReaderDetailRepository<EtocMapper, EtocHeader> etocRepository,
-                              ReaderDetailRepository<GtocMapper, GtocHeader> gtocRepository
-                              //ReaderDetailRepository<ItocMapper, ItocHeader> itocRepository
-                              )
+        public MetaReader(ReaderDetailRepository<CpkMapper, CpkMeta> cpkRepository,
+                          ReaderDetailRepository<ContentMapper, ContentHeader> contentRepository,
+                          ReaderDetailRepository<TocMapper, TocHeader> tocRepository,
+                          ReaderDetailRepository<EtocMapper, EtocHeader> etocRepository,
+                          ReaderDetailRepository<GtocMapper, GtocHeader> gtocRepository
+                          //ReaderDetailRepository<ItocMapper, ItocHeader> itocRepository //Not Implemented
+                          )
         {
             _initialReaders = new Func<IEntity>[]
                 {
@@ -38,7 +38,7 @@ namespace CriPakRepository.Readers
                     () => GetHeader(contentRepository),
                     () => GetHeader(tocRepository),
                     () => GetHeader(gtocRepository),
-                //   () => GetHeader(itocRepository), Not Implemented
+                //   () => GetHeader(itocRepository), //Not Implemented
                     () => GetHeader(etocRepository)
                 };
         }
@@ -50,8 +50,14 @@ namespace CriPakRepository.Readers
             var headers = Get(_readers, initialHeader.OfType<ICpkMeta>().First().Rows);
             displayList.AddRange(initialHeader.OfType<IHeader>().MapHeaderRowsToDisplay());
             displayList.AddRange(headers.OfType<IHeader>().MapHeaderRowsToDisplay());
-            displayList.AddRange(headers.OfType<TocHeader>().First().MapTocRowsToDisplay());
+            displayList.AddRange(headers.OfType<ITocHeader>().First().MapTocRowsToDisplay());
             return displayList.OrderBy(x => x.PackageOffset).ThenBy(x => x.Id);
+        }
+
+        public override IEnumerable<IEntity> ReadHeaders(string inFile)
+        {
+            var initialHeader = Get(_initialReaders, inFile);
+            return Get(_readers, initialHeader.OfType<ICpkMeta>().First().Rows);
         }
     }
 }

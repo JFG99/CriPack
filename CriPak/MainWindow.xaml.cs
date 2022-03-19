@@ -67,12 +67,8 @@ namespace CriPakComplete
             _ = Task.Run(() => 
                 Dispatcher.Invoke(() => 
                 {
-                    var parser = new CpkParser();
                     datagrid_cpk.ItemsSource = _home.Read(inFile);
-                    //_cpkReader.Read(package);
-                    //parser.Parse(package);
                     status_cpkmsg.Content = string.Format($"{datagrid_cpk.Items.Count} file(s) registered.");
-                    //datagrid_cpk.ItemsSource = package.DisplayList;
                     menu_importAssets.IsEnabled = true;
                     menu_savefiles.IsEnabled = true;
                 })
@@ -89,11 +85,14 @@ namespace CriPakComplete
             button_extract.IsEnabled = value;
             button_importassets.IsEnabled = value;
         }
-        private void beginExtractCPK(object foutDir)
+        private void beginExtractCPK(string foutDir)
         {
+            _home.Extract(package.CpkName, foutDir);
+
+
             if (package != null)
             {
-                var outDir = $"{foutDir}/{package.BaseName}_unpacked";
+                var outDir = Path.Combine(foutDir, $"{package.BaseName}_unpacked");
                 if (!Directory.Exists(outDir))
                 {
                     Directory.CreateDirectory(outDir);

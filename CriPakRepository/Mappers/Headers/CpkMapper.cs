@@ -12,7 +12,7 @@ namespace CriPakRepository.Mappers
 {
     public class CpkMapper : Mapper, IDetailMapper<CpkMeta>
     {
-        public CpkMeta Map(IEntity header, CriPakInterfaces.Models.ComponentsNew.Row rowValue)
+        public CpkMeta Map(IEntity header, IEnumerable<CriPakInterfaces.Models.ComponentsNew.Row> rowValue)
         {
             var packet = (IOriginalPacket)header.Packet;
             packet.MakeDecyrpted();

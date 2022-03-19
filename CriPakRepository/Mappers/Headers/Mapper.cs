@@ -3,10 +3,7 @@ using CriPakInterfaces.IComponents;
 using CriPakInterfaces.Models.Components;
 using CriPakInterfaces.Models.Components2;
 using CriPakRepository.Helpers;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace CriPakRepository.Mappers
 {
@@ -29,7 +26,7 @@ namespace CriPakRepository.Mappers
 
 
             var headerBytes = packet.GetBytes(NumColumns * 5).ToList();
-            var skip = headerBytes.Where((x, i) => i % 5 == 0).ToList().FindIndex(x => x == 0);//locate block data where byte 0 == 0
+            var skip = headerBytes.Where((x, i) => i % 5 == 0).ToList().FindIndex(x => x == 0);//locate block data where byte[0] == 0, because this is an empty column string
             while (skip > -1)//iterate and delete 4 byte blocks where byte[0] == 0, then append 4 more bytes each time
             {
                 headerBytes.RemoveRange(skip * 5, 4);
@@ -47,8 +44,7 @@ namespace CriPakRepository.Mappers
             var rows = rowMeta.SelectMany(x => x).Merge(stringData);
 #else
             var rows = packet.GetRows(columns, RowsOffset, RowLength, DataOffset, StringsOffset);
-#endif
-                       
+#endif                       
             return new Meta()
             {
                 Rows = rows,

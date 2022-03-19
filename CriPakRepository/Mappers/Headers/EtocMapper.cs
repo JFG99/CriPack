@@ -12,8 +12,9 @@ namespace CriPakRepository.Mappers
 {
     public class EtocMapper : Mapper, IDetailMapper<EtocHeader>
     {
-        public EtocHeader Map(IEntity header, CriPakInterfaces.Models.ComponentsNew.Row rowValue)
+        public EtocHeader Map(IEntity header, IEnumerable<CriPakInterfaces.Models.ComponentsNew.Row> rowValue)
         {
+            var offsetRowData = rowValue.Where(x => x.Name.Contains("Offset")).FirstOrDefault();
             var packet = (IOriginalPacket)header.Packet;
             packet.MakeDecyrpted();
             var values = Map(header, (int)packet.ReadBytesFrom(4, 4, true));     
@@ -23,8 +24,8 @@ namespace CriPakRepository.Mappers
                 Rows = values.Rows,
                 Packet = header.Packet,
                 PacketLength = header.Packet.PacketBytes.Count(),
-                MetaOffsetPosition = rowValue.RowOffset,
-                PackageOffsetPosition = (ulong)rowValue.Modifier.ReflectedValue("Value")
+                MetaOffsetPosition = offsetRowData.RowOffset,
+                PackageOffsetPosition = (ulong)offsetRowData.Modifier.ReflectedValue("Value")
             };
         }
     }

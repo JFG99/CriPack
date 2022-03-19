@@ -55,6 +55,12 @@ namespace CriPakInterfaces.Models.Components2
         
         public string ReadString(int length)
         {
+            var value = Encoding.UTF8.GetString(PacketBytes.Take(length).ToArray());
+            ReadOffset += length;
+            return value;
+        }
+        public string ReadEncryptedString(int length)
+        {
             var value = Encoding.UTF8.GetString(GetDecryptedSegment(length).ToArray());
             ReadOffset += length;
             return value;

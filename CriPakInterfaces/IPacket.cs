@@ -14,6 +14,7 @@ namespace CriPakInterfaces
         string ToString();
         int GetLastStringLength();
         string ReadCString(int offsetLocation, Encoding encoding, int MaxLength = 255);
+        string ReadEncryptedString(int length); 
         string ReadString(int length);
         string ReadStringFrom(int offeset, int length);
         long ReadBytes(int length);

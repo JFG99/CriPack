@@ -21,7 +21,23 @@ namespace CriPakRepository.Helpers
                 return data2;
             }
             return null;
-        }    
+        }
+
+        public static IEnumerable<object> AggregateDifference<T>(this IEnumerable<T> source, ulong size, ulong offset)
+        {
+            if (source.Any())
+            {
+                var data = source.Select((x, i) => new { Index = i, FileId = (int)x.ReflectedValue("Index"), Value = (ulong)x.ReflectedValue("Value") }).ToArray();
+                var last = data.Last().Index;
+                var data2 = data.Select(x =>
+                {
+                    var length = x.Index == last ? size - (data[x.Index].Value + offset) : data[x.Index + 1].Value - data[x.Index].Value ;
+                    return new { Index = x.FileId, Offset = x.Value + offset, Length = length };
+                });
+                return data2;
+            }
+            return null;
+        }
 
         public static object ReflectedValue<T>(this T source, string property)
         {

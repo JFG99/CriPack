@@ -20,8 +20,7 @@ namespace CriPakRepository.Mappers
                     Id = 0,
                     DisplayName = x.DisplayName,
                     PackageOffset = x.PackageOffsetPosition,
-                    Size = Convert.ToInt32(x.PacketLength),
-                    ExtractedSize = 0,
+                    Size = x.PacketLength,
                     Type = "HDR",
                     Percentage = 0
                 });

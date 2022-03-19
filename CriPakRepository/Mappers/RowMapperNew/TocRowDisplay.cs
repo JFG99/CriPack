@@ -1,4 +1,5 @@
-﻿using CriPakInterfaces.Models;
+﻿using CriPakInterfaces.IComponents;
+using CriPakInterfaces.Models;
 using CriPakInterfaces.Models.Components;
 using CriPakInterfaces.Models.Components2;
 using CriPakRepository.Helpers;
@@ -11,7 +12,7 @@ namespace CriPakRepository.Mappers
 {
     public static class TocRowDisplay
     {
-        public static IEnumerable<DisplayList> MapTocRowsToDisplay(this TocHeader header)
+        public static IEnumerable<DisplayList> MapTocRowsToDisplay(this ITocHeader header)
         {
             var displayList = new List<DisplayList>();
             header.Rows.GroupBy(x => x.Id).ToList().ForEach(x =>
@@ -24,10 +25,11 @@ namespace CriPakRepository.Mappers
                     DisplayName = x.Where(y => y.Name == "FileName").First().StringName,
                     PackageOffset = (ulong)x.Where(y => y.Name == "FileOffset").First().Modifier.ReflectedValue("Value") + 0x800,// This is the header offset of 2048.  
                     Size = size,
+                    FileKb = $"{string.Format("{0:##,###}", Math.Ceiling(extractedSize / 1024.0))} KB",
                     ExtractedSize = extractedSize,
                     Type = "FILE",
-                    Percentage = size / (float)extractedSize * 100
-                });
+                    Percentage = (float)Math.Ceiling(size / (float)extractedSize * 100)
+                }) ;
             });
             return displayList;
         }

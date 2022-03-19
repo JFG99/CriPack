@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CriPakComplete"
         mc:Ignorable="d"
-        Title="CriPak Complete" Height="360" Width="640" ResizeMode="CanResizeWithGrip" SizeToContent="WidthAndHeight" MinWidth="640" MinHeight="358" Icon="Resources/1.ico" MaxHeight="640">
+        Title="CriPak Complete" Height="360" Width="725" ResizeMode="CanResizeWithGrip" SizeToContent="Width" MinWidth="725" MaxWidth="725" MinHeight="358" Icon="Resources/1.ico" >
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="0*"/>
@@ -17,10 +17,10 @@
             <StatusBarItem x:Name="status_cpkname" Content=" "/>
             <StatusBarItem x:Name="status_progress" Content=" " Width="40"/>
             <StatusBarItem x:Name="status_tips" Content=" " Height="25" VerticalAlignment="Top"/>
-            <ProgressBar x:Name="progressbar0" Height="15" Width="287"/>
+            <ProgressBar x:Name="progressbar0" Height="15" Width="400"/>
             <StatusBarItem x:Name="status_cpkmsg" Content="0 file(s) registered." HorizontalContentAlignment="Right"/>
         </StatusBar>
-        <Menu Grid.ColumnSpan="3" Height="25" VerticalAlignment="Top">
+        <Menu Grid.ColumnSpan="3" Height="25" VerticalAlignment="Top" >
             <MenuItem Header="_File">
                 <MenuItem x:Name="menu_openfile" Header="Open CPK" Click="menu_openfile_Click" >
                     <MenuItem.Icon>
@@ -69,17 +69,19 @@
             <Separator Margin="0"/>
             <Separator Margin="0"/>
             <Separator Margin="0"/>
+            <Separator Margin="0"/>
             <MenuItem Header="About" HorizontalContentAlignment="Right" HorizontalAlignment="Right" FlowDirection="RightToLeft" Width="50">
                 <MenuItem x:Name="menu_aboutgui" Header="About CriPak GUI" Click="menu_aboutgui_Click" />
             </MenuItem>
         </Menu>
-        <DataGrid x:Name="datagrid_cpk" CanUserAddRows="False" Margin="0,62,0,30" Grid.Column="2" VerticalScrollBarVisibility="Visible" IsReadOnly="True" FrozenColumnCount="7" AutoGenerateColumns="False" CanUserResizeColumns="False" CanUserReorderColumns="False" CanUserSortColumns="False" AlternationCount="2" RowHeight="17" AreRowDetailsFrozen="True" CanUserResizeRows="False" MaxHeight="500" HorizontalContentAlignment="Stretch" IsTextSearchEnabled="True" RowBackground="#FFF1F7F4">
+        <DataGrid x:Name="datagrid_cpk" CanUserAddRows="False" Margin="0,62,0,30" Grid.Column="2" VerticalScrollBarVisibility="Visible" IsReadOnly="True" FrozenColumnCount="8" AutoGenerateColumns="False" CanUserResizeColumns="False" CanUserReorderColumns="False" CanUserSortColumns="False" AlternationCount="2" RowHeight="17" AreRowDetailsFrozen="True" CanUserResizeRows="False" HorizontalContentAlignment="Stretch" IsTextSearchEnabled="True" RowBackground="#FFF1F7F4">
             <DataGrid.Columns>
                 <DataGridTextColumn x:Name="colume_number" Header="No." MinWidth="40" Binding="{Binding Id}"/>
                 <DataGridTextColumn x:Name="colume_filename" Header="FileName" MinWidth="200" Binding="{Binding DisplayName}"/>
                 <DataGridTextColumn x:Name="colume_offset" Header="Offset" MinWidth="100" Binding="{Binding PackageOffset , StringFormat=\{0:X8\}}"/>
-                <DataGridTextColumn x:Name="colume_size" Header="Data Size" MinWidth="80" Binding="{Binding Size}"/>
-                <DataGridTextColumn x:Name="colume_extractsize" Header="Original Size" MinWidth="80" Binding="{Binding ExtractedSize}"/>
+                <DataGridTextColumn x:Name="colume_size" Header="Data Size" MinWidth="80" Binding="{Binding Size , StringFormat=\{0:X8\}}"/>
+                <DataGridTextColumn x:Name="colume_extractsize" Header="Original Size" MinWidth="80" Binding="{Binding ExtractedSize , StringFormat=\{0:X8\}}"/>
+                <DataGridTextColumn x:Name="colume_filesize" Header="Size KB" MinWidth="80" Binding="{Binding FileKb}" />
                 <DataGridTextColumn x:Name="culume_type" Header="Data Type" MinWidth="40" Binding="{Binding Type}"/>
                 <DataGridTextColumn x:Name="colume_pt" Header="%" MinWidth="40" Binding="{Binding Percentage}"/>
             </DataGrid.Columns>

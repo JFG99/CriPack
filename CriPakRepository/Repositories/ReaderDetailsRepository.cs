@@ -25,7 +25,7 @@ namespace CriPakRepository.Repositories
             where TMapper : IDetailMapper<T>
             where T : IEntity, new()
         {
-            var data = repository.Get(FileName, MetaNew?.FirstOrDefault(x => x.Name.Equals($"{repository.SelectionName}Offset")));
+            var data = repository.Get(FileName, MetaNew?.Where(x => x.Name.StartsWith($"{repository.SelectionName}")));
             if (data != null)
             {
                 data.Id = IdSetter++;
@@ -50,6 +50,7 @@ namespace CriPakRepository.Repositories
 
         }
         public abstract IEnumerable<IEntity> Read(string inFile);
-        
+        public abstract IEnumerable<IEntity> ReadHeaders(string inFile);
+
     }
 }

@@ -32,7 +32,7 @@ namespace CriPakInterfaces
             {8, (value, index) => BitConverter.ToSingle(value, index) }
 
         };
-
+        [Obsolete]
         public static Dictionary<int, Func<IOriginalPacket, int, IRowValue>> MapRow = new Dictionary<int, Func<IOriginalPacket, int, IRowValue>>()
         {
             {0, (packet, offset) => new Row8(){Value = packet.GetByteFrom(offset), Type = typeof(byte), TypeSelect = 0, Position = offset} },
@@ -65,7 +65,3 @@ namespace CriPakInterfaces
     }
 }
 
-//Encoding.UTF8.GetString(bytes.Skip(offset).ToArray())
-
-//{ 0xA, (bytes) => new RowString() { Value = "NotImplemented", Type = typeof(string), TypeSelect = 0xA, Length = bytes.Count() + 1 } },
-//{ 0xB, (bytes) => new RowByteArray() { Value = new byte[] { }, Type = typeof(byte[]), TypeSelect = 0xB } },

@@ -1,8 +1,10 @@
 ﻿using Autofac;
 using CriPakInterfaces;
+using CriPakInterfaces.IComponents;
 using CriPakInterfaces.Models;
 using CriPakInterfaces.Models.Components;
 using CriPakInterfaces.Models.Components2;
+using CriPakRepository.Extractors;
 using CriPakRepository.Mappers;
 using CriPakRepository.Parsers;
 using CriPakRepository.Readers;
@@ -26,11 +28,17 @@ namespace CriPakComplete.App_Start
             builder.RegisterType<MainWindow>().AsSelf().InstancePerLifetimeScope();
             builder.RegisterType<Orchestrator>().AsSelf().InstancePerLifetimeScope();
             builder.RegisterTypes(
-                 typeof(MetaRepository)
-            ).AsSelf().As<IReaderDetailsRepository<IEntity>>().InstancePerLifetimeScope();
+                 typeof(MetaReader)
+            ).AsSelf().As<IReaderDetailsRepository<IEntity>>().InstancePerLifetimeScope(); 
+            builder.RegisterTypes(
+                  typeof(FileExtractor)
+             ).AsSelf().As<IExtractorsRepository<IFiles>>().InstancePerLifetimeScope();
             builder.RegisterGeneric(typeof(ReaderDetailRepository<,>)).As(typeof(ReaderDetailRepository<,>)).InstancePerLifetimeScope();
+            builder.RegisterGeneric(typeof(ExtractorRepository<,,>)).As(typeof(ExtractorRepository<,,>)).InstancePerLifetimeScope();
             var assemblies = typeof(DependencyInjectionConfig).Assembly.GetReferencedAssemblies().Where(x => x.Name.EndsWith("Repository")).Select(Assembly.Load).ToArray();
             builder.RegisterAssemblyTypes(assemblies).AsClosedTypesOf(typeof(IDetailMapper<>)).InstancePerLifetimeScope();
+            builder.RegisterAssemblyTypes(assemblies).AsClosedTypesOf(typeof(IExtractorMapper<>)).InstancePerLifetimeScope();
+            builder.RegisterAssemblyTypes(assemblies).AsClosedTypesOf(typeof(IWriter<>)).InstancePerLifetimeScope();
             builder.RegisterType<CpkMapper>().As<CpkMapper>().InstancePerLifetimeScope();
             builder.RegisterType<CpkMeta>().AsSelf().As<IMeta>().InstancePerLifetimeScope();
             builder.RegisterTypes(

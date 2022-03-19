@@ -12,8 +12,9 @@ namespace CriPakRepository.Mappers
 {
     public class TocMapper : Mapper, IDetailMapper<TocHeader>
     {
-        public TocHeader Map(IEntity header, CriPakInterfaces.Models.ComponentsNew.Row rowValue)  
+        public TocHeader Map(IEntity header, IEnumerable<CriPakInterfaces.Models.ComponentsNew.Row> rowValue)  
         {
+            var offsetRowData = rowValue.Where(x => x.Name.Contains("Offset")).FirstOrDefault();
             var packet = (IOriginalPacket)header.Packet;
             packet.MakeDecyrpted();       
             var RowsOffset = (int)packet.ReadBytesFrom(8, 4, true) + 8;
@@ -26,10 +27,9 @@ namespace CriPakRepository.Mappers
                 Rows = values.Rows,
                 Packet = packet,
                 PacketLength = header.Packet.PacketBytes.Count(),
-                MetaOffsetPosition = rowValue.RowOffset,
-                PackageOffsetPosition = (ulong)rowValue.Modifier.ReflectedValue("Value")            
+                MetaOffsetPosition = offsetRowData.RowOffset,
+                PackageOffsetPosition = (ulong)offsetRowData.Modifier.ReflectedValue("Value")            
             };
-
         }
     }
 }

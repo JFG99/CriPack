@@ -4,7 +4,7 @@ using System.Text;
 
 namespace CriPakInterfaces.IComponents
 {
-    public interface ITocHeader : IHeader
+    public interface ITocHeader : IHeader, IMeta
     {
     }
 }

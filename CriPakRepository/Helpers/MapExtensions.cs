@@ -54,7 +54,7 @@ namespace CriPakRepository.Helpers
                 var offsets = 0;
                 return columns.Where(y => y.Stored).Select(y =>
                 {
-                    var test = x.Skip(offsets).Take(y.RowReadLength);
+                    var bytes = x.Skip(offsets).Take(y.RowReadLength);
                     var rowOffset = offsets + (i * rowLength) + packetRowOffset;
                     offsets += y.RowReadLength;
                     return new
@@ -62,8 +62,8 @@ namespace CriPakRepository.Helpers
                         Id = i,
                         Name = y.Name,
                         Mask = y.Mask,
-                        ByteSegment = test.ToList(),
-                        OffsetModifier = ByteConverter.MapBytes[y.Mask](test),
+                        ByteSegment = bytes.ToList(),
+                        OffsetModifier = ByteConverter.MapBytes[y.Mask](bytes),
                         RowOffset = rowOffset,
                         IsStringsModifier = y.Mask == 0xA,
                         IsDataModifier = y.Mask == 0xB

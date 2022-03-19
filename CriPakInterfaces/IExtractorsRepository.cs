@@ -5,8 +5,8 @@ using System.Text;
 
 namespace CriPakInterfaces
 {
-    public interface IDetailMapper<out T>
+    public interface IExtractorsRepository<TOut>
     {
-        T Map(IEntity header, IEnumerable<Models.ComponentsNew.Row> rowValue); 
+        IFiles Extract(IEnumerable<IEntity> headers, string inFile, string outDir);
     }
 }

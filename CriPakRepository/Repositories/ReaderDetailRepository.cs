@@ -29,19 +29,13 @@ namespace CriPakRepository.Repositories
             _header = header;
         }
 
-        //public TOut Get(string inFile, IRowValue rowValue)
-        //{
-        //    CurrentPosition = (long)(rowValue?.Value ?? 0);
-        //    if (!ValidatePacketName(inFile, _header.ValidationName)) return default(TOut);
-        //    _header.Packet = GetPacket();
-        //    return _mapper.Map(_header, rowValue);
-        //}
-
-        public TOut Get(string inFile, CriPakInterfaces.Models.ComponentsNew.Row rowValue)
+        public TOut Get(string inFile, IEnumerable<CriPakInterfaces.Models.ComponentsNew.Row> rowValue)
         {
-            CurrentPosition = Convert.ToInt64(rowValue?.Modifier.ReflectedValue("Value") ?? 0);
-            if (!ValidatePacketName(inFile, _header.ValidationName)) return default(TOut);
-            _header.Packet = GetPacket();
+            CurrentPosition = Convert.ToInt64(rowValue?.FirstOrDefault(x => x.Name.Contains("Offset"))?.Modifier.ReflectedValue("Value") ?? 0);
+            if (ValidatePacketName(inFile, _header.ValidationName))
+            {
+                _header.Packet = GetPacket();
+            }
             return _mapper.Map(_header, rowValue);
         }
 
@@ -61,7 +55,7 @@ namespace CriPakRepository.Repositories
         }
         public bool ValidatePacketName(string inFile, string name)
         {
-            Stream = new EndianReader<FileStream, EndianData>(File.OpenRead(inFile), new EndianData(true));
+            Stream = new EndianReader<FileStream, EndianData>(System.IO.File.OpenRead(inFile), new EndianData(true));
             GetBuffer();
             if (Encoding.UTF8.GetString(Buffer.ToArray()) != name)
             {
