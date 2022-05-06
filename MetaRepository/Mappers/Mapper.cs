@@ -9,7 +9,7 @@ namespace MetaRepository.Mappers
 {
     public class Mapper 
     {
-        public Meta Map(IEntity header, int aggregateModifier)
+        public Meta Map(IDisplayList header, int aggregateModifier)
         {
             var packet = (IOriginalPacket)header.Packet;
             packet.MakeDecyrpted();

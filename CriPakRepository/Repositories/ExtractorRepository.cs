@@ -26,7 +26,7 @@ namespace CriPakRepository.Repositories
             _mapper = mapper;
             _writer = writer;
         }
-        public TOut Get(IEnumerable<IEntity> headers)
+        public TOut Get(IEnumerable<IDisplayList> headers)
         {
             return _mapper.Map(headers);
         }

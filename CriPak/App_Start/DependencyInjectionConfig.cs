@@ -25,7 +25,7 @@ namespace CriPakComplete.App_Start
             builder.RegisterType<Orchestrator>().AsSelf().InstancePerLifetimeScope();
             builder.RegisterTypes(
                  typeof(MetaReader)
-            ).AsSelf().As<IReaderDetailsRepository<IEntity>>().InstancePerLifetimeScope(); 
+            ).AsSelf().As<IReaderDetailsRepository<IDisplayList>>().InstancePerLifetimeScope(); 
             builder.RegisterTypes(
                   typeof(FileExtractor)
              ).AsSelf().As<IExtractorsRepository<IFiles>>().InstancePerLifetimeScope();

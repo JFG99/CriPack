@@ -11,27 +11,29 @@ namespace CriPakComplete
 {
     public class Orchestrator 
     {
-        private readonly IEnumerable<IReaderDetailsRepository<IEntity>> _readers; 
+        private readonly IEnumerable<IReaderDetailsRepository<IDisplayList>> _readers; 
         private readonly IEnumerable<IExtractorsRepository<IFiles>> _extractors;
 
-        public Orchestrator(IEnumerable<IReaderDetailsRepository<IEntity>> readers,
+        public Orchestrator(IEnumerable<IReaderDetailsRepository<IDisplayList>> readers,
                             IEnumerable<IExtractorsRepository<IFiles>> extractors)
         {
             _readers = readers;
             _extractors = extractors;
         }
 
-        public IEnumerable<DisplayList> Read(string inFile)
+        public IEnumerable<IDisplayList> Read(CriPak criPak)
         {
-            var headers = new List<DisplayList>();
-            _readers.ToList().ForEach(x => headers.AddRange(x.Read(inFile).OfType<DisplayList>()));
-            return headers;
+            _readers.ToList().ForEach(x => {
+                x.FileName = criPak.FilePath;
+                criPak.DisplayList.AddRange(x.Read().OfType<DisplayList>());
+            });
+            return criPak.DisplayList;
         }
         public IEnumerable<ITocHeader> Extract(string inFile, string outDir)
         {
-            var headers = new List<IEntity>();
+            var headers = new List<IDisplayList>();
             var files = new List<IFiles>();
-            _readers.ToList().ForEach(x => headers.AddRange(x.ReadHeaders(inFile)));
+            _readers.ToList().ForEach(x => headers.AddRange(x.ReadHeaders()));
             _extractors.ToList().ForEach(x => files.Add(x.Extract(headers, inFile, outDir)));
             var test = files.SelectMany(x => x.FileMeta) ;
             return null;

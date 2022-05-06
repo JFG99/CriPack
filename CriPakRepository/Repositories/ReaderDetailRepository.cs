@@ -14,10 +14,10 @@ namespace CriPakRepository.Repositories
 {
     public class ReaderDetailRepository<TMapper, TOut> : IReaderDetailRepository
         where TMapper : IDetailMapper<TOut>
-        where TOut : IEntity, new()
+        where TOut : IDisplayList, new()
     {
         private readonly TMapper _mapper;
-        private readonly IEntity _header;
+        private readonly IDisplayList _header;
         public IEndianReader Stream { get; set; }
         public string SelectionName => _header.SelectionName;
         public long CurrentPosition { get; set; }

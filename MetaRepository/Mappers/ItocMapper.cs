@@ -12,7 +12,7 @@ namespace MetaRepository.Mappers
 {
     public class ItocMapper : IDetailMapper<ItocHeader>
     {
-        public ItocHeader Map(IEntity header, IEnumerable<CriPakInterfaces.Models.ComponentsNew.Row> rowValue)
+        public ItocHeader Map(IDisplayList header, IEnumerable<CriPakInterfaces.Models.ComponentsNew.Row> rowValue)
         {
             //Not Currently Implemented. Old code is below.
 

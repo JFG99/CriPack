@@ -4,7 +4,7 @@ using System.Text;
 
 namespace CriPakInterfaces
 {
-    public interface IHeader : IEntity
+    public interface IHeader : IDisplayList
     {
         long MetaOffsetPosition { get; set; }
         ulong PackageOffsetPosition { get; set; }

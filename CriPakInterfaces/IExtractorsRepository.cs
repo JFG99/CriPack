@@ -7,6 +7,6 @@ namespace CriPakInterfaces
 {
     public interface IExtractorsRepository<TOut>
     {
-        IFiles Extract(IEnumerable<IEntity> headers, string inFile, string outDir);
+        IFiles Extract(IEnumerable<IDisplayList> headers, string inFile, string outDir);
     }
 }

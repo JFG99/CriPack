@@ -7,6 +7,6 @@ namespace CriPakInterfaces
 {
     public interface IDetailMapper<out T>
     {
-        T Map(IEntity header, IEnumerable<Models.ComponentsNew.Row> rowValue); 
+        T Map(IDisplayList header, IEnumerable<Models.ComponentsNew.Row> rowValue); 
     }
 }

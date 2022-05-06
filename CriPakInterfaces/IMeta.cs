@@ -6,7 +6,7 @@ using System.Text;
 
 namespace CriPakInterfaces
 {
-    public interface IMeta : IEntity
+    public interface IMeta : IDisplayList
     {
         IEnumerable<Column> Columns { get; set; }
         IEnumerable<Models.ComponentsNew.Row> Rows { get; set; }

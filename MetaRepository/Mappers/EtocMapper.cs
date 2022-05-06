@@ -12,7 +12,7 @@ namespace MetaRepository.Mappers
 {
     public class EtocMapper : Mapper, IDetailMapper<EtocHeader>
     {
-        public EtocHeader Map(IEntity header, IEnumerable<CriPakInterfaces.Models.ComponentsNew.Row> rowValue)
+        public EtocHeader Map(IDisplayList header, IEnumerable<CriPakInterfaces.Models.ComponentsNew.Row> rowValue)
         {
             var offsetRowData = rowValue.Where(x => x.Name.Contains("Offset")).FirstOrDefault();
             var packet = (IOriginalPacket)header.Packet;

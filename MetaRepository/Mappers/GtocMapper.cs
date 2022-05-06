@@ -12,7 +12,7 @@ namespace MetaRepository.Mappers
 {
     public class GtocMapper : Mapper, IDetailMapper<GtocHeader>
     {
-        public GtocHeader Map(IEntity header, IEnumerable<CriPakInterfaces.Models.ComponentsNew.Row> rowValue) 
+        public GtocHeader Map(IDisplayList header, IEnumerable<CriPakInterfaces.Models.ComponentsNew.Row> rowValue) 
         {
             var offsetRowData = rowValue.Where(x => x.Name.Contains("Offset")).FirstOrDefault();
             var packet = (IOriginalPacket)header.Packet;            

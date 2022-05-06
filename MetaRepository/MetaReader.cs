@@ -17,10 +17,10 @@ using MetaRepository.Mappers;
 
 namespace MetaRepository
 {
-    public class MetaReader : ReaderDetailsRepository<Entity>, IReaderDetailsRepository<IEntity>
+    public class MetaReader : ReaderDetailsRepository<DisplayList>, IReaderDetailsRepository<IDisplayList>
     {
-        private readonly Func<IEntity>[] _initialReaders; 
-        private readonly Func<IEntity>[] _readers;
+        private readonly Func<IDisplayList>[] _initialReaders; 
+        private readonly Func<IDisplayList>[] _readers;
 
         public MetaReader(ReaderDetailRepository<CpkMapper, CpkMeta> cpkRepository,
                           ReaderDetailRepository<ContentMapper, ContentHeader> contentRepository,
@@ -28,13 +28,13 @@ namespace MetaRepository
                           ReaderDetailRepository<EtocMapper, EtocHeader> etocRepository,
                           ReaderDetailRepository<GtocMapper, GtocHeader> gtocRepository
                           //ReaderDetailRepository<ItocMapper, ItocHeader> itocRepository //Not Implemented
-                          )
+                          ) 
         {
-            _initialReaders = new Func<IEntity>[]
+            _initialReaders = new Func<IDisplayList>[]
                 {
                     () => GetHeader(cpkRepository)
                 };
-            _readers = new Func<IEntity>[]
+            _readers = new Func<IDisplayList>[]
                 {
                     () => GetHeader(contentRepository),
                     () => GetHeader(tocRepository),
@@ -44,10 +44,10 @@ namespace MetaRepository
                 };
         }
 
-        public override IEnumerable<IEntity> Read(string inFile)
+        public override IEnumerable<IDisplayList> Read()
         {
             var displayList = new List<DisplayList>();
-            var initialHeader = Get(_initialReaders, inFile);
+            var initialHeader = Get(_initialReaders);
             var headers = Get(_readers, initialHeader.OfType<ICpkMeta>().First().Rows);
             displayList.AddRange(initialHeader.OfType<IHeader>().MapHeaderRowsToDisplay());
             displayList.AddRange(headers.OfType<IHeader>().MapHeaderRowsToDisplay());
@@ -55,9 +55,9 @@ namespace MetaRepository
             return displayList.OrderBy(x => x.PackageOffset).ThenBy(x => x.Id);
         }
 
-        public override IEnumerable<IEntity> ReadHeaders(string inFile)
+        public override IEnumerable<IDisplayList> ReadHeaders()
         {
-            var initialHeader = Get(_initialReaders, inFile);
+            var initialHeader = Get(_initialReaders);
             return Get(_readers, initialHeader.OfType<ICpkMeta>().First().Rows);
         }
     }

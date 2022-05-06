@@ -4,7 +4,7 @@ using System.Text;
 
 namespace CriPakInterfaces
 {
-    public interface IEntity
+    public interface IDisplayList
     {
         int Id { get; set; }
         string DisplayName { get; set; }

@@ -23,6 +23,7 @@ namespace CriPakComplete
     public partial class MainWindow : Window
     {
         public CriPakOld package = new CriPakOld();
+        public CriPak criPak = new CriPak();
         private readonly Orchestrator _home;
         public MainWindow(Orchestrator home)
         {
@@ -64,10 +65,14 @@ namespace CriPakComplete
             package.BasePath = Path.GetDirectoryName(inFile);
             package.BaseName = Path.GetFileName(inFile);
             package.Encoding = Encoding.GetEncoding(65001);
+
+            criPak.FilePath = inFile;
+            criPak.Encoding = Encoding.GetEncoding(65001);
+
             _ = Task.Run(() => 
                 Dispatcher.Invoke(() => 
                 {
-                    datagrid_cpk.ItemsSource = _home.Read(inFile);
+                    datagrid_cpk.ItemsSource = _home.Read(criPak);
                     status_cpkmsg.Content = string.Format($"{datagrid_cpk.Items.Count} file(s) registered.");
                     menu_importAssets.IsEnabled = true;
                     menu_savefiles.IsEnabled = true;

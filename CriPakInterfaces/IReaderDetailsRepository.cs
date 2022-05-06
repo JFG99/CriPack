@@ -4,9 +4,10 @@ using System.Collections.Generic;
 
 namespace CriPakInterfaces
 {
-    public interface IReaderDetailsRepository<TOut> where TOut : IEntity
+    public interface IReaderDetailsRepository<TOut> where TOut : IDisplayList
     {
-        IEnumerable<IEntity> Read(string inFile);
-        IEnumerable<IEntity> ReadHeaders(string inFile);
+        public string FileName {get;set;}
+        IEnumerable<IDisplayList> Read();
+        IEnumerable<IDisplayList> ReadHeaders();
     }
 }

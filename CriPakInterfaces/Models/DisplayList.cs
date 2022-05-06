@@ -4,7 +4,7 @@ using System.Text;
 
 namespace CriPakInterfaces.Models
 {
-    public class DisplayList : IEntity
+    public class DisplayList : IDisplayList
     {
         public int Id { get; set; }
         public string DisplayName { get; set; }
