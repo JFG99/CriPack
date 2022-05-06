@@ -13,6 +13,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CriPakRepository", "CriPakR
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CriPak", "CriPak\CriPak.csproj", "{6C0ADB3D-F9F3-4C4C-9C4B-E7DB05F27EEB}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Source", "Source", "{D5556023-E231-4858-865C-033C0189718A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MetaRepository", "MetaRepository\MetaRepository.csproj", "{90071BC3-D06B-4589-A8A5-B6173DDE1842}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileRepository", "FileRepository\FileRepository.csproj", "{DFA4C220-E903-450D-A813-CBD36A940140}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -81,9 +87,37 @@ Global
 		{6C0ADB3D-F9F3-4C4C-9C4B-E7DB05F27EEB}.Release|x64.Build.0 = Release|Any CPU
 		{6C0ADB3D-F9F3-4C4C-9C4B-E7DB05F27EEB}.Release|x86.ActiveCfg = Release|Any CPU
 		{6C0ADB3D-F9F3-4C4C-9C4B-E7DB05F27EEB}.Release|x86.Build.0 = Release|Any CPU
+		{90071BC3-D06B-4589-A8A5-B6173DDE1842}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{90071BC3-D06B-4589-A8A5-B6173DDE1842}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{90071BC3-D06B-4589-A8A5-B6173DDE1842}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{90071BC3-D06B-4589-A8A5-B6173DDE1842}.Debug|x64.Build.0 = Debug|Any CPU
+		{90071BC3-D06B-4589-A8A5-B6173DDE1842}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{90071BC3-D06B-4589-A8A5-B6173DDE1842}.Debug|x86.Build.0 = Debug|Any CPU
+		{90071BC3-D06B-4589-A8A5-B6173DDE1842}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{90071BC3-D06B-4589-A8A5-B6173DDE1842}.Release|Any CPU.Build.0 = Release|Any CPU
+		{90071BC3-D06B-4589-A8A5-B6173DDE1842}.Release|x64.ActiveCfg = Release|Any CPU
+		{90071BC3-D06B-4589-A8A5-B6173DDE1842}.Release|x64.Build.0 = Release|Any CPU
+		{90071BC3-D06B-4589-A8A5-B6173DDE1842}.Release|x86.ActiveCfg = Release|Any CPU
+		{90071BC3-D06B-4589-A8A5-B6173DDE1842}.Release|x86.Build.0 = Release|Any CPU
+		{DFA4C220-E903-450D-A813-CBD36A940140}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DFA4C220-E903-450D-A813-CBD36A940140}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DFA4C220-E903-450D-A813-CBD36A940140}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{DFA4C220-E903-450D-A813-CBD36A940140}.Debug|x64.Build.0 = Debug|Any CPU
+		{DFA4C220-E903-450D-A813-CBD36A940140}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{DFA4C220-E903-450D-A813-CBD36A940140}.Debug|x86.Build.0 = Debug|Any CPU
+		{DFA4C220-E903-450D-A813-CBD36A940140}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DFA4C220-E903-450D-A813-CBD36A940140}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DFA4C220-E903-450D-A813-CBD36A940140}.Release|x64.ActiveCfg = Release|Any CPU
+		{DFA4C220-E903-450D-A813-CBD36A940140}.Release|x64.Build.0 = Release|Any CPU
+		{DFA4C220-E903-450D-A813-CBD36A940140}.Release|x86.ActiveCfg = Release|Any CPU
+		{DFA4C220-E903-450D-A813-CBD36A940140}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{90071BC3-D06B-4589-A8A5-B6173DDE1842} = {D5556023-E231-4858-865C-033C0189718A}
+		{DFA4C220-E903-450D-A813-CBD36A940140} = {D5556023-E231-4858-865C-033C0189718A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {770B89CA-7183-4E2F-A24E-0E1920153831}

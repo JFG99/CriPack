@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace CriPakRepository.Mappers.Files
+namespace FileRepository.Mappers
 {
     public class Mapper
     {

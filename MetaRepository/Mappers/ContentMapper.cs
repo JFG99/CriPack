@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace CriPakRepository.Mappers
+namespace MetaRepository.Mappers
 {
     public class ContentMapper : IDetailMapper<ContentHeader>
     {

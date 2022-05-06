@@ -1,14 +1,13 @@
 ﻿using CriPakInterfaces;
 using CriPakInterfaces.IComponents;
-using CriPakInterfaces.Models.Components2;
-using CriPakRepository.Mappers.Files;
 using CriPakRepository.Repositories;
 using CriPakRepository.Writers;
+using FileRepository.Mappers;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace CriPakRepository.Extractors
+namespace FileRepository
 {
     public class FileExtractor : ExtractorsRepository<IFiles>, IExtractorsRepository<IFiles>
     {

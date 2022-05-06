@@ -13,8 +13,9 @@ using System.Linq;
 using System.Text;
 using CriPakRepository.Mappers;
 using CriPakRepository.Parsers;
+using MetaRepository.Mappers;
 
-namespace CriPakRepository.Readers
+namespace MetaRepository
 {
     public class MetaReader : ReaderDetailsRepository<Entity>, IReaderDetailsRepository<IEntity>
     {

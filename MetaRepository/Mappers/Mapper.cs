@@ -5,7 +5,7 @@ using CriPakInterfaces.Models.Components2;
 using CriPakRepository.Helpers;
 using System.Linq;
 
-namespace CriPakRepository.Mappers
+namespace MetaRepository.Mappers
 {
     public class Mapper 
     {

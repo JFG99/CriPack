@@ -1,14 +1,10 @@
 ﻿using Autofac;
 using CriPakInterfaces;
 using CriPakInterfaces.IComponents;
-using CriPakInterfaces.Models;
-using CriPakInterfaces.Models.Components;
 using CriPakInterfaces.Models.Components2;
-using CriPakRepository.Extractors;
-using CriPakRepository.Mappers;
-using CriPakRepository.Parsers;
-using CriPakRepository.Readers;
 using CriPakRepository.Repositories;
+using FileRepository;
+using MetaRepository;
 using System.Linq;
 using System.Reflection;
 
@@ -39,7 +35,6 @@ namespace CriPakComplete.App_Start
             builder.RegisterAssemblyTypes(assemblies).AsClosedTypesOf(typeof(IDetailMapper<>)).InstancePerLifetimeScope();
             builder.RegisterAssemblyTypes(assemblies).AsClosedTypesOf(typeof(IExtractorMapper<>)).InstancePerLifetimeScope();
             builder.RegisterAssemblyTypes(assemblies).AsClosedTypesOf(typeof(IWriter<>)).InstancePerLifetimeScope();
-            builder.RegisterType<CpkMapper>().As<CpkMapper>().InstancePerLifetimeScope();
             builder.RegisterType<CpkMeta>().AsSelf().As<IMeta>().InstancePerLifetimeScope();
             builder.RegisterTypes(
                 typeof(ContentHeader),

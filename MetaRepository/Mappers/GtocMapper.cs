@@ -8,25 +8,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace CriPakRepository.Mappers
+namespace MetaRepository.Mappers
 {
-    public class EtocMapper : Mapper, IDetailMapper<EtocHeader>
+    public class GtocMapper : Mapper, IDetailMapper<GtocHeader>
     {
-        public EtocHeader Map(IEntity header, IEnumerable<CriPakInterfaces.Models.ComponentsNew.Row> rowValue)
+        public GtocHeader Map(IEntity header, IEnumerable<CriPakInterfaces.Models.ComponentsNew.Row> rowValue) 
         {
             var offsetRowData = rowValue.Where(x => x.Name.Contains("Offset")).FirstOrDefault();
-            var packet = (IOriginalPacket)header.Packet;
-            packet.MakeDecyrpted();
-            var values = Map(header, (int)packet.ReadBytesFrom(4, 4, true));     
-            return new EtocHeader()
+            var packet = (IOriginalPacket)header.Packet;            
+            return new GtocHeader()
             {
-                Columns = values.Columns,
-                Rows = values.Rows,
-                Packet = header.Packet,
+                Packet = packet,
                 PacketLength = header.Packet.PacketBytes.Count(),
                 MetaOffsetPosition = offsetRowData.RowOffset,
                 PackageOffsetPosition = (ulong)offsetRowData.Modifier.ReflectedValue("Value")
-            };
+            };            
         }
     }
 }
