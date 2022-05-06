@@ -15,7 +15,7 @@ namespace CriPakRepository.Parsers
 {
     public class TocParser : ParserRepository
     {
-        public override bool Parse(CriPak package)
+        public override bool Parse(CriPakOld package)
         {
             package.Reader.BaseStream.Seek((long)package.TocOffset, SeekOrigin.Begin);
             if (package.Reader.ReadCString(4) != "TOC ")

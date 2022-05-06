@@ -5,6 +5,6 @@ namespace CriPakInterfaces
 {
     public interface IParserRepository //<T> where T : IEndian
     {
-        bool Parse(CriPak package);
+        bool Parse(CriPakOld package);
     }
 }

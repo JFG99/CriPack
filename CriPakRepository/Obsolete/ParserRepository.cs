@@ -12,6 +12,6 @@ namespace CriPakRepository.Repositories
         //The orchestration should send all 'Read' traffic to here
         //Parsers get injected here as available resources.
         //Where this determines which read is required before sending it to the correct parser.
-        public abstract bool Parse(CriPak package);
+        public abstract bool Parse(CriPakOld package);
     }
 }

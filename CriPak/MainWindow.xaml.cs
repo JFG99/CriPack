@@ -22,7 +22,7 @@ namespace CriPakComplete
     /// </summary>
     public partial class MainWindow : Window
     {
-        public CriPak package = new CriPak();
+        public CriPakOld package = new CriPakOld();
         private readonly Orchestrator _home;
         public MainWindow(Orchestrator home)
         {

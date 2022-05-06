@@ -9,7 +9,7 @@ namespace CriPakRepository.Mappers
 {
     public static class EtocRowMapper
     {
-        public static void MapEtocData(this CriPak package)
+        public static void MapEtocData(this CriPakOld package)
         {
             var updateRowList = package.Utf.Rows.Where(x => x.Name == "UpdateDateTime");
             var localDirList = package.Utf.Rows.Where(x => x.Name == "LocalDir");

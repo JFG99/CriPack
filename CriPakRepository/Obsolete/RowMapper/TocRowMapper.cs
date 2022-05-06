@@ -9,7 +9,7 @@ namespace CriPakRepository.Mappers
 {
     public static class TocRowMapper
     {
-        public static void MapTocData(this CriPak package)
+        public static void MapTocData(this CriPakOld package)
         {
             var fTocOffset = package.TocOffset;
             if (fTocOffset > 0x800)

@@ -11,7 +11,7 @@ namespace CriPakRepository.Parsers
 {
     public class GtocParser : ParserRepository
     {
-        public override bool Parse(CriPak package)  
+        public override bool Parse(CriPakOld package)  
         {
             package.Reader.BaseStream.Seek((long)package.GtocOffset, SeekOrigin.Begin);
 

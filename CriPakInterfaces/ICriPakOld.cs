@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace CriPakInterfaces.Models
+namespace CriPakInterfaces
 {
-    public interface ICriPak
+    public interface ICriPakOld
     {
         ushort Align { get; set; }
         string BaseName { get; set; }

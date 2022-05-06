@@ -13,7 +13,7 @@ namespace CriPakRepository.Parsers
 {
     public class EtocParser : ParserRepository
     {
-        public override bool Parse(CriPak package)//, ulong startOffset)
+        public override bool Parse(CriPakOld package)//, ulong startOffset)
         {
             package.Reader.BaseStream.Seek((long)package.EtocOffset, SeekOrigin.Begin);
             if (package.Reader.ReadCString(4) != "ETOC")

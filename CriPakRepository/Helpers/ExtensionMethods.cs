@@ -324,7 +324,7 @@ namespace CriPakRepository.Helpers
             br.Close();
             return result;
         }
-        public static void UpdateCriFile(this ICriPak package, CriFile file)
+        public static void UpdateCriFile(this ICriPakOld package, CriFile file)
         {
             if (file.FileType == "FILE" || file.FileType == "HDR")
             {
@@ -449,7 +449,7 @@ namespace CriPakRepository.Helpers
             return result;
         }
         [Obsolete]
-        public static void ReadUTFData(this ICriPak package)
+        public static void ReadUTFData(this ICriPakOld package)
         {
             package.IsUtfEncrypted = false;
             package.Reader.IsLittleEndian = true;
@@ -483,11 +483,11 @@ namespace CriPakRepository.Helpers
             return decrypted.ToArray();
         }
         [Obsolete]
-        public static bool ReadDataRows(this ICriPak package)
+        public static bool ReadDataRows(this ICriPakOld package)
         {
             package.SubReader = new EndianReader<MemoryStream, EndianData>(new MemoryStream(package.UtfPacket), new EndianData(package.Reader.IsLittleEndian));
             var parser = new UtfParser();
-            if (!parser.Parse((CriPak)package))
+            if (!parser.Parse((CriPakOld)package))
             {
                 package.SubReader.Close();
                 return false;

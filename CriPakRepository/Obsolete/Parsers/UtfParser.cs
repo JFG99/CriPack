@@ -11,7 +11,7 @@ namespace CriPakRepository.Parsers
 {
     public class UtfParser : ParserRepository
     {
-        public override bool Parse(CriPak package) 
+        public override bool Parse(CriPakOld package) 
         {
             package.Utf = new UTF();
             long offset = package.SubReader.BaseStream.Position;

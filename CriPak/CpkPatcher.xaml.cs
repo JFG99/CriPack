@@ -19,11 +19,11 @@ namespace CriPakComplete
     ///// </summary>
     public partial class CpkPatcher : Window
     {
-        public CriPak package { get; set; }
+        public CriPakOld package { get; set; }
         private delegate void textblockDelegate(string text);
         private delegate void progressbarDelegate(float no);
 
-        public CpkPatcher(CriPak mainPackage, double x, double y)
+        public CpkPatcher(CriPakOld mainPackage, double x, double y)
         {
             InitializeComponent();
             WindowStartupLocation = WindowStartupLocation.Manual;

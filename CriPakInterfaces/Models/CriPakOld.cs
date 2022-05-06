@@ -5,9 +5,9 @@ using System.Text;
 
 namespace CriPakInterfaces.Models
 {
-    public class CriPak : ICriPak
+    public class CriPakOld : ICriPakOld
     {
-        public CriPak()
+        public CriPakOld()
         {
             CriFileList = new List<CriFile>();
             HeaderInfo = new List<CriFile>();
