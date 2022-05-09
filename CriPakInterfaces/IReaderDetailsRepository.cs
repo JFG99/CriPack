@@ -9,5 +9,6 @@ namespace CriPakInterfaces
         public string FileName {get;set;}
         IEnumerable<IDisplayList> Read();
         IEnumerable<IDisplayList> ReadHeaders();
+        IEnumerable<IDisplayList> MapForDisplay(IEnumerable<IDisplayList> headers);
     }
 }

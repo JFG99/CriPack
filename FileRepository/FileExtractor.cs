@@ -27,13 +27,13 @@ namespace FileRepository
         }
 
         //TODO: Figure out best way to read in and decompress files.  Do I need the footers?  What are they?
-        public override IFiles Extract(IEnumerable<IDisplayList> headers, string inFile, string outDir)
+        public override IFiles Extract(IEnumerable<IDisplayList> headers)
         {
-            CreateOutDirectory(outDir);
-            var files = Extract(_extractors, headers, inFile);
-            Write(_writers, files);
+            CreateOutDirectory(OutputDirectory);
+            var files = Extract(_extractors, headers);
+            //Write(_writers, files);
 
-            return files;
+            return null;
         }
     }
 }

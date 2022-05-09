@@ -21,21 +21,26 @@ namespace CriPakComplete
             _extractors = extractors;
         }
 
-        public IEnumerable<IDisplayList> Read(CriPak criPak)
+        public CriPak Read(CriPak criPak)
         {
             _readers.ToList().ForEach(x => {
                 x.FileName = criPak.FilePath;
-                criPak.DisplayList.AddRange(x.Read().OfType<DisplayList>());
-            });
-            return criPak.DisplayList;
+                criPak.Headers.AddRange(x.Read());
+                criPak.DisplayList.AddRange(x.MapForDisplay(criPak.Headers).OfType<DisplayList>().ToList());
+            }); 
+            
+            return criPak;
         }
-        public IEnumerable<ITocHeader> Extract(string inFile, string outDir)
+
+        public IEnumerable<ITocHeader> Extract(CriPak criPak)
         {
-            var headers = new List<IDisplayList>();
             var files = new List<IFiles>();
-            _readers.ToList().ForEach(x => headers.AddRange(x.ReadHeaders()));
-            _extractors.ToList().ForEach(x => files.Add(x.Extract(headers, inFile, outDir)));
-            var test = files.SelectMany(x => x.FileMeta) ;
+            _extractors.ToList().ForEach(x => {
+                x.FileName = criPak.Name;
+                x.OutputDirectory = criPak.OutputDirectory;
+                files.Add(x.Extract(criPak.Headers)); 
+            });
+            var test = files.SelectMany(x => x.FileMeta);
             return null;
         }
     }

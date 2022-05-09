@@ -48,17 +48,24 @@ namespace MetaRepository
         {
             var displayList = new List<DisplayList>();
             var initialHeader = Get(_initialReaders);
-            var headers = Get(_readers, initialHeader.OfType<ICpkMeta>().First().Rows);
-            displayList.AddRange(initialHeader.OfType<IHeader>().MapHeaderRowsToDisplay());
-            displayList.AddRange(headers.OfType<IHeader>().MapHeaderRowsToDisplay());
-            displayList.AddRange(headers.OfType<ITocHeader>().First().MapTocRowsToDisplay());
-            return displayList.OrderBy(x => x.PackageOffset).ThenBy(x => x.Id);
+            var headers = Get(_readers, initialHeader.OfType<ICpkMeta>().First().Rows).ToList();
+            headers.AddRange(initialHeader.ToList());
+            return headers;
+
         }
 
         public override IEnumerable<IDisplayList> ReadHeaders()
         {
             var initialHeader = Get(_initialReaders);
             return Get(_readers, initialHeader.OfType<ICpkMeta>().First().Rows);
+        }
+
+        public override IEnumerable<IDisplayList> MapForDisplay(IEnumerable<IDisplayList> headers)
+        {
+            var displayList = new List<DisplayList>();
+            displayList.AddRange(headers.OfType<IHeader>().MapHeaderRowsToDisplay());
+            displayList.AddRange(headers.OfType<ITocHeader>().First().MapTocRowsToDisplay());
+            return displayList.OrderBy(x => x.PackageOffset).ThenBy(x => x.Id);
         }
     }
 }

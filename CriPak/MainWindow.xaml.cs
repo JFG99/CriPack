@@ -72,7 +72,8 @@ namespace CriPakComplete
             _ = Task.Run(() => 
                 Dispatcher.Invoke(() => 
                 {
-                    datagrid_cpk.ItemsSource = _home.Read(criPak);
+                    criPak = _home.Read(criPak);
+                    datagrid_cpk.ItemsSource = criPak.DisplayList;
                     status_cpkmsg.Content = string.Format($"{datagrid_cpk.Items.Count} file(s) registered.");
                     menu_importAssets.IsEnabled = true;
                     menu_savefiles.IsEnabled = true;
@@ -92,7 +93,8 @@ namespace CriPakComplete
         }
         private void beginExtractCPK(string foutDir)
         {
-            _home.Extract(package.CpkName, foutDir);
+            criPak.OutputDirectory = foutDir;
+            _home.Extract(criPak);
 
 
             if (package != null)

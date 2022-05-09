@@ -10,10 +10,10 @@ namespace CriPakRepository.Repositories
 {
     public abstract class ExtractorsRepository<TOut> : IExtractorsRepository<TOut>
     {
-        private string FileName { get; set; }
         private IEnumerable<IDisplayList> Headers { get; set; }
         private IFiles Files { get; set; }
-        private string OutputDirectory { get; set; }
+        public string OutputDirectory { get; set; }
+        public string FileName { get; set; }
 
         public T ExtractFileMeta<TMapper, TWriter, T>(ExtractorRepository<TMapper, TWriter, T> repository)
             where TMapper : IExtractorMapper<T>
@@ -22,10 +22,9 @@ namespace CriPakRepository.Repositories
         {
             return repository.Get(Headers);
         }
-        public IFiles Extract(Func<IFiles>[] details, IEnumerable<IDisplayList> headers, string inFile)
+        public IFiles Extract(Func<IFiles>[] details, IEnumerable<IDisplayList> headers)
         {
             Headers = headers;
-            FileName = inFile;
             return details.Select(x => x.Invoke()).ToList().First();
         }
 
@@ -53,6 +52,6 @@ namespace CriPakRepository.Repositories
             OutputDirectory = outDir;
         }
 
-        public abstract IFiles Extract(IEnumerable<IDisplayList> tocHeader, string inFile,  string outDir);
+        public abstract IFiles Extract(IEnumerable<IDisplayList> tocHeader);
     }
 }
