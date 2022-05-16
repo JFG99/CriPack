@@ -34,7 +34,7 @@ namespace CriPakComplete
         private void SetBasicPrefs()
         {
             menu_savefiles.IsEnabled = false;
-            menu_importAssets.IsEnabled = false;
+            menu_patch.IsEnabled = false;
             progressbar0.Maximum = 100;
             package.BasePath = @"C:/";
         }
@@ -75,15 +75,15 @@ namespace CriPakComplete
                     criPak = _home.Read(criPak);
                     datagrid_cpk.ItemsSource = criPak.DisplayList;
                     status_cpkmsg.Content = string.Format($"{datagrid_cpk.Items.Count} file(s) registered.");
-                    menu_importAssets.IsEnabled = true;
+                    menu_patch.IsEnabled = true;
                     menu_savefiles.IsEnabled = true;
                 })
             );
         }
-        private void ImportAssets_Click(object sender, RoutedEventArgs e)
+        private void Patch_Click(object sender, RoutedEventArgs e)
         {
-            //CpkPatcher patcherWindow = new CpkPatcher(package, Top, Left);
-            //patcherWindow.ShowDialog();
+            CpkPatcher patcherWindow = new CpkPatcher(_home, criPak, Top, Left);
+            patcherWindow.ShowDialog();
         }
         private void updateDatagrid(bool value = false)
         {
@@ -95,60 +95,10 @@ namespace CriPakComplete
         {
             criPak.OutputDirectory = foutDir;
             _home.Extract(criPak);
-
-
-            if (package != null)
-            {
-                var outDir = Path.Combine(foutDir, $"{package.BaseName}_unpacked");
-                if (!Directory.Exists(outDir))
-                {
-                    Directory.CreateDirectory(outDir);
-                }
-                BinaryReader oldFile = new BinaryReader(File.OpenRead(package.CpkName));
-                
-                var entries = package.CriFileList.Where(x => x.FileType == "FILE").ToList();
-
-                if (entries.Count == 0)
-                {
-                    Debug.Print("err while extracting.");
-                    oldFile.Close();
-                    return;
-                }
-                Dispatcher.Invoke(() => updateDatagrid()); 
-                var i = 0;
-                foreach (var entry in entries) 
-                {                    
-                    Dispatcher.Invoke(() => progressbar0.Value = i++ / (float)entries.Count * 100f );
-                    oldFile.BaseStream.Seek((long)entry.FileOffset, SeekOrigin.Begin);
-                    string isComp = Encoding.ASCII.GetString(oldFile.ReadBytes(8));
-                    oldFile.BaseStream.Seek((long)entry.FileOffset, SeekOrigin.Begin);
-                    byte[] chunk = oldFile.ReadBytes(entry.CompressedFileSize);
-                    if (isComp == "CRILAYLA")
-                    {
-                        chunk = chunk.DecompressLegacyCRI();
-                    }
-
-                    if (!string.IsNullOrEmpty((string)entry.DirName))
-                    {
-                        Directory.CreateDirectory(outDir + "/" + entry.DirName.ToString());
-                    }
-                    var currentName = $"{((entry.DirName != null) ? entry.DirName + "/" : "")}{entry.FileName}".TrimStart('/');                    
-                    Debug.WriteLine($" FileName :{entry.FileName}\n FileOffset:{entry.FileOffset}\n ExtractSize:{entry.ExtractedFileSize}\n ChunkSize:{entry.FileSize}\n {(i / (float)entries.Count) * 100f}");
-                    string dstpath = outDir + "/" + currentName;
-                    string dstdir = System.IO.Path.GetDirectoryName(dstpath);
-                    if (!Directory.Exists(dstdir))
-                    {
-                        Directory.CreateDirectory(dstdir);
-                    }
-
-                    File.WriteAllBytes(dstpath, chunk);
-                    i += 1;
-                }
-                oldFile.Close();
-                Dispatcher.Invoke(() => progressbar0.Value = 100f);
-                Dispatcher.Invoke(() => updateDatagrid(true));
-                MessageBox.Show("Extraction Complete.");
-            }
+            Dispatcher.Invoke(() => progressbar0.Value = 100f);
+            Dispatcher.Invoke(() => updateDatagrid(true));
+            MessageBox.Show("Extraction Complete.");
+           
         }
         private void Extract_Click(object sender, RoutedEventArgs e)
         {

@@ -27,7 +27,7 @@
                         <Image Width="18" Height="18" Source="Resources/openFile.ico"/>
                     </MenuItem.Icon>
                 </MenuItem>
-                <MenuItem x:Name="menu_importAssets" Header="Patch CPK..." Click="ImportAssets_Click" >
+                <MenuItem x:Name="menu_patch" Header="Patch CPK..." Click="Patch_Click" >
                     <MenuItem.Icon>
                         <Image Width="18" Height="18" Source="Resources/importAssets.ico"/>
                     </MenuItem.Icon>
@@ -93,7 +93,7 @@
             </DataGrid.ContextMenu>
         </DataGrid>
         <Grid Grid.ColumnSpan="3" Height="37" Margin="0,25,0,0" VerticalAlignment="Top" Background="{DynamicResource {x:Static SystemColors.MenuBarBrushKey}}">
-            <Button x:Name="button_importassets" Content="Patch CPK" HorizontalAlignment="Left" Margin="142,10,0,0" VerticalAlignment="Top" Width="86" IsEnabled="False" Click="ImportAssets_Click"/>
+            <Button x:Name="button_importassets" Content="Patch CPK" HorizontalAlignment="Left" Margin="142,10,0,0" VerticalAlignment="Top" Width="86" IsEnabled="False" Click="Patch_Click"/>
             <Button x:Name="button_extract" Content="Extract me!" HorizontalAlignment="Left" Margin="37,10,0,0" VerticalAlignment="Top" Width="86" IsEnabled="False" Click="Extract_Click"/>
 
         </Grid>

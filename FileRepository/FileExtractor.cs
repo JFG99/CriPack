@@ -32,7 +32,6 @@ namespace FileRepository
         {
             CreateOutDirectory(OutputDirectory);
             var files = Extract(_extractors, headers);
-            var test = files.FileMeta.ToList().Where(x => x.FileName.ToLower().Contains("wipeset"));
             Write(_writers, files);
 
             return null;

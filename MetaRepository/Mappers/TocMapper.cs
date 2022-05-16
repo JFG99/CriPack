@@ -15,17 +15,13 @@ namespace MetaRepository.Mappers
         public TocHeader Map(IDisplayList header, IEnumerable<CriPakInterfaces.Models.ComponentsNew.Row> rowValue)  
         {
             var offsetRowData = rowValue.Where(x => x.Name.Contains("Offset")).FirstOrDefault();
-            var packet = (IOriginalPacket)header.Packet;
-            packet.MakeDecyrpted();       
-            var RowsOffset = (int)packet.ReadBytesFrom(8, 4, true) + 8;
-            var StringsOffset = (int)packet.ReadBytes(4) + 8;
             var values = Map(header, 0);          
             
             return new TocHeader()
             {
                 Columns = values.Columns,
                 Rows = values.Rows,
-                Packet = packet,
+                Packet = header.Packet,
                 PacketLength = header.Packet.PacketBytes.Count(),
                 MetaOffsetPosition = offsetRowData.RowOffset,
                 PackageOffsetPosition = (ulong)offsetRowData.Modifier.ReflectedValue("Value")            

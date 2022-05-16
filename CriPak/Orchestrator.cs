@@ -4,6 +4,7 @@ using CriPakInterfaces.Models;
 using CriPakInterfaces.Models.Components2;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -42,6 +43,15 @@ namespace CriPakComplete
             });
             var test = files.SelectMany(x => x.FileMeta);
             return null;
+        }
+
+        public void Patch(CriPak criPak, string patchDir, string cpkDir, bool isNoCompression)
+        {
+            var fileList = Directory.EnumerateFiles(patchDir, "*.*", SearchOption.AllDirectories)
+                                    .Select(x => new KeyValuePair<string, string>(Path.GetFileName(x), x))
+                                    .ToDictionary(x => x.Key, x => x.Value);
+
+            var test = criPak;
         }
     }
 }
