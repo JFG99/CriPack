@@ -54,12 +54,6 @@ namespace MetaRepository
 
         }
 
-        public override IEnumerable<IDisplayList> ReadHeaders()
-        {
-            var initialHeader = Get(_initialReaders);
-            return Get(_readers, initialHeader.OfType<ICpkMeta>().First().Rows);
-        }
-
         public override IEnumerable<IDisplayList> MapForDisplay(IEnumerable<IDisplayList> headers)
         {
             var displayList = new List<DisplayList>();

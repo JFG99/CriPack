@@ -47,7 +47,6 @@ namespace CriPakRepository.Repositories
 
         }
         public abstract IEnumerable<IDisplayList> Read();
-        public abstract IEnumerable<IDisplayList> ReadHeaders();
         public abstract IEnumerable<IDisplayList> MapForDisplay(IEnumerable<IDisplayList> headers);
 
     }
