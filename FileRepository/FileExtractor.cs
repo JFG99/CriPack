@@ -5,6 +5,7 @@ using CriPakRepository.Writers;
 using FileRepository.Mappers;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace FileRepository
@@ -31,7 +32,8 @@ namespace FileRepository
         {
             CreateOutDirectory(OutputDirectory);
             var files = Extract(_extractors, headers);
-            //Write(_writers, files);
+            var test = files.FileMeta.ToList().Where(x => x.FileName.ToLower().Contains("wipeset"));
+            Write(_writers, files);
 
             return null;
         }

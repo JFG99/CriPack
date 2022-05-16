@@ -19,7 +19,7 @@ namespace MetaRepository.Mappers
             packet.MakeDecyrpted();       
             var RowsOffset = (int)packet.ReadBytesFrom(8, 4, true) + 8;
             var StringsOffset = (int)packet.ReadBytes(4) + 8;
-            var values = Map(header, StringsOffset + RowsOffset + 7);          
+            var values = Map(header, 0);          
             
             return new TocHeader()
             {

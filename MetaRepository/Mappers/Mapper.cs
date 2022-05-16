@@ -9,33 +9,40 @@ namespace MetaRepository.Mappers
 {
     public class Mapper 
     {
-        public Meta Map(IDisplayList header, int aggregateModifier)
+        public Meta Map(IDisplayList header, int endColumnOffset)
         {
             var packet = (IOriginalPacket)header.Packet;
             packet.MakeDecyrpted();
             var TableSize = (int)packet.ReadBytesFrom(4, 4, true);
-            // CPK Header & UTF Header are ignored, so add 8 to each offset
+            // CPK Header & UTF Header are ignored, so add 8 to each primary offset
             var RowsOffset = (int)packet.ReadBytes(4) + 8;
             var StringsOffset = (int)packet.ReadBytes(4) + 8;
             var DataOffset = (int)packet.ReadBytes(4) + 8;
-            var TableName = (int)packet.ReadBytes(4);
+            var TableNameOffset = (int)packet.ReadBytes(4) + StringsOffset;
             var NumColumns = (short)packet.ReadBytes(2);
             var RowLength = (short)packet.ReadBytes(2);
             var NumRows = (int)packet.ReadBytes(4);
             var NullSpacer = 7;//+ 7 for <NULL>. spacer
 
 
-            var headerBytes = packet.GetBytes(NumColumns * 5).ToList();
-            var skip = headerBytes.Where((x, i) => i % 5 == 0).ToList().FindIndex(x => x == 0);//locate block data where byte[0] == 0, because this is an empty column string
-            while (skip > -1)//iterate and delete 4 byte blocks where byte[0] == 0, then append 4 more bytes each time
+            var columnBytes = packet.GetBytes(RowsOffset - 32).ToList();//Chunk of offsets that point to Column titles.  Add each to StringOffset to get specific locations.
+            var skip = columnBytes.Where((x, i) => i % 5 == 0).ToList().FindIndex(x => x == 0);//locate block data where byte[0] == 0, because this is an empty column string and needs to be ignored.
+            var skipCount = 0;// need to know how many are deleted for later.
+            while (skip > -1)//iterate and delete 4 byte blocks where byte[0] == 0
             {
-                headerBytes.RemoveRange(skip * 5, 4);
-                headerBytes.AddRange(packet.GetBytes(4));
-                skip = headerBytes.Where((x, i) => i % 5 == 0).ToList().FindIndex(x => x == 0);
-            }//This gets us a corrected byte header list where byte[0] is flag and byte 1-4 is padding size.
+                columnBytes.RemoveRange(skip * 5, 4);
+                skip = columnBytes.Where((x, i) => i % 5 == 0).ToList().FindIndex(x => x == 0);
+                skipCount++;
+            }//This gets us a corrected column offset lists where byte[0] is flag and byte 1-4 is padding size.
 
-            var columnLocations = headerBytes.ParseColumnLocations(aggregateModifier, StringsOffset);
-            var columns = headerBytes.GetColumns(columnLocations, packet);
+            // Some headers(the CPK META) are a little odd. The String Data offset from it is obtained from a mapping and isn't really obtainable through basic inspection.
+            // That mapper supplies a specific value that is used to locate the end of the Column offset values.  Otherwise, we can figure out exactly how to find with this simple subtraction. 
+            if (endColumnOffset == 0)
+            {
+                endColumnOffset = DataOffset - (TableSize - StringsOffset - RowsOffset + skipCount);
+            }
+            var columnLocations = columnBytes.ParseColumnLocations(endColumnOffset, StringsOffset);
+            var columns = columnBytes.GetColumns(columnLocations, packet);
 
 #if DEBUG // For Debugging, these extra data break values are useful, but splitting the annonymous linq requires more reflection and takes an extra 1-2 seconds.  
             var byteRows = packet.GetByteRows(RowsOffset, RowLength, StringsOffset);

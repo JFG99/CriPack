@@ -36,7 +36,7 @@ namespace CriPakComplete
         {
             var files = new List<IFiles>();
             _extractors.ToList().ForEach(x => {
-                x.FileName = criPak.Name;
+                x.FileName = criPak.FilePath;
                 x.OutputDirectory = criPak.OutputDirectory;
                 files.Add(x.Extract(criPak.Headers)); 
             });
