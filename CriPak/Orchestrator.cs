@@ -2,6 +2,7 @@
 using CriPakInterfaces.IComponents;
 using CriPakInterfaces.Models;
 using CriPakInterfaces.Models.Components2;
+using PatchRepository;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -51,7 +52,8 @@ namespace CriPakComplete
                                     .Select(x => new KeyValuePair<string, string>(Path.GetFileName(x), x))
                                     .ToDictionary(x => x.Key, x => x.Value);
 
-            var test = criPak;
+            var patcher = new Patcher();
+            patcher.Patch(criPak, cpkDir, fileList);
         }
     }
 }

@@ -47,6 +47,7 @@ namespace CriPakRepository.Helpers
                 .GroupBy(x => x.Index / rowLength)
                 .Select(x => x.Select(y => y.Value));
         }
+
         public static IEnumerable<IEnumerable<object>> GetRowMeta(this IEnumerable<IEnumerable<byte>> bytes, IEnumerable<Column> columns, int packetRowOffset, int rowLength)
         {
             return bytes.Select((x, i) =>

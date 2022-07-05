@@ -1,32 +1,23 @@
 ﻿Goals:
 
-Rewrite the bulk of the code to be clean, readable, easily debugged.
-Fix the patching bug.
-
-Nice to have:
-Code to interfaces and then implement Depency Injection.
-
-
-
+- Rewrite the bulk of the code to be clean, readable, easily debugged.
+- Fix the patching bugs by deciphering the mystery meta data.  
+- Clean up the DI.
+- Potentionally rewrite the sources. File, Meta and Patch, at first seemed like the right source types but after getting into Patch I see that is wrong. 
+	These should be in the base Repo and the sources should be the different types of archive structures. ie: Content, Toc, Etoc, etc.  
+- Clean up naming and ensure conventions 
 
 
 TODO:
-Code is being implemented with interfaces in mind, but they are not built yet.  As things start to wrap up, 
-	refactor concrete type to interfaces.
-
-Utlize DI with the Interfaces in the repository to eliminate repeated code structures for different parsers and writers.
-
-DEFINETLY eliminate all the switch statements.  
-	
-For the most part I did not spend much time with the column and row classes.  
-	They are horribly used and really need some attention.
-
-Row class is odd.  Lots of properties that are used independently for identification.  
+- Utlize DI with the Interfaces in the repository to eliminate repeated code structures for different parsers and writers.
+- DEFINETLY eliminate all the switch statements.  
+- Row class is odd.  Lots of properties that are used independently for identification.  
 	Should be able to refactor into a small number of interfaced properties that could 
-	then be single source selected through a reflection like linq query.  
-
-
+	then be single source selected through a reflection like linq query. (Try to handle this without reflection) 
 
 
 Current Work:
-	Initial parsing is finished. Moving on to the beginExtractCPK method from MainWindow.  
+- (Complete) Initial parsing is finished. Moving on to the beginExtractCPK method from MainWindow. 
+- Patching requires a lot of sight to various headers as a single change in byte length has to be propogated everywhere and must iterate through all files in the archive. 
+- Decide if source refactoring is worth the effort now or after patching algorithm is figured out. 
+

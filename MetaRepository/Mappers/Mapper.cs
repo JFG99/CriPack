@@ -33,7 +33,7 @@ namespace MetaRepository.Mappers
                 columnBytes.RemoveRange(skip * 5, 4);
                 skip = columnBytes.Where((x, i) => i % 5 == 0).ToList().FindIndex(x => x == 0);
                 skipCount++;
-            }//This gets us a corrected column offset lists where byte[0] is flag and byte 1-4 is padding size.
+            }//This gets us a corrected column offset lists where byte[0] is flag and byte[1..4] is padding size.
 
             // Some headers(the CPK META) are a little odd. The String Data offset from it is obtained from a mapping and isn't really obtainable through basic inspection.
             // That mapper supplies a specific value that is used to locate the end of the Column offset values.  Otherwise, we can figure out exactly how to find with this simple subtraction. 
@@ -44,7 +44,7 @@ namespace MetaRepository.Mappers
             var columnLocations = columnBytes.ParseColumnLocations(endColumnOffset, StringsOffset);
             var columns = columnBytes.GetColumns(columnLocations, packet);
 
-#if DEBUG // For Debugging, these extra data break values are useful, but splitting the annonymous linq requires more reflection and takes an extra 1-2 seconds.  
+#if DEBUG // For Debugging, these extra data break values are useful, but splitting the annonymous linq requires more reflection and takes an extra 1-3 seconds depending on archive size.  
             var byteRows = packet.GetByteRows(RowsOffset, RowLength, StringsOffset);
             var rowMeta = byteRows.GetRowMeta(columns, RowsOffset, RowLength);
             var stringData = rowMeta.SelectMany(x => x).GetStringData(packet, DataOffset, StringsOffset);

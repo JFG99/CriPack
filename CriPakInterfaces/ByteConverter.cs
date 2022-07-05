@@ -17,6 +17,7 @@ namespace CriPakInterfaces
             {8, (value, index) => BitConverter.ToInt64(value, index) },
 
         };
+
         public static Dictionary<int, Func<byte[], int, ulong>> MapUInt = new Dictionary<int, Func<byte[], int, ulong>>()
         {
             {2, (value, index) => BitConverter.ToUInt16(value, index) }, 
@@ -27,11 +28,12 @@ namespace CriPakInterfaces
             {7, (value, index) => BitConverter.ToUInt64(value, index) },
 
         };
-        public static Dictionary<int, Func<byte[], int, float>> Map = new Dictionary<int, Func<byte[], int, float>>()
-        {
-            {8, (value, index) => BitConverter.ToSingle(value, index) }
 
-        };
+        //public static Dictionary<int, Func<byte[], int, float>> Map = new Dictionary<int, Func<byte[], int, float>>()
+        //{
+        //    {8, (value, index) => BitConverter.ToSingle(value, index) }
+        //};
+
         [Obsolete]
         public static Dictionary<int, Func<IOriginalPacket, int, IRowValue>> MapRow = new Dictionary<int, Func<IOriginalPacket, int, IRowValue>>()
         {
