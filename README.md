@@ -1,5 +1,5 @@
 This is a rewrite of CriPakTools.  I lost the specific fork from which it came(maybe this https://github.com/wmltogether/CriPakTools), but the original fork chain can be found below.  
-It is an extensively rewritten and updated code base.  Much of the original code was inaccurate, missing details, and did not take into account headers during updates.  
+It is an extensively rewritten and updated code base.  Much of the original code was inaccurate, missing significant details, and did not take into account headers during updates. This prevented any changes that were not byte perfect.  
 
 
 
