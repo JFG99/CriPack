@@ -2,6 +2,7 @@
 using CriPakInterfaces.Models;
 using CriPakInterfaces.Models.Components;
 using CriPakInterfaces.Models.Components;
+using CriPakInterfaces.Models.Components.Enums;
 using CriPakRepository.Helpers;
 using System;
 using System.Collections.Generic;
@@ -22,13 +23,11 @@ namespace CriPakRepository.Mappers
                 displayList.Add(new DisplayList
                 {
                     Id = x.Key + 1,
-                    DisplayName = x.Where(y => y.Name == "FileName").First().StringName,
-                    PackageOffset = (ulong)x.Where(y => y.Name == "FileOffset").First().Modifier.ReflectedValue("Value") + 0x800,// This is the header offset of 2048.  
-                    Size = size,
-                    FileKb = $"{string.Format("{0:##,###}", Math.Ceiling(extractedSize / 1024.0))} KB",
-                    ExtractedSize = extractedSize,
-                    Type = "FILE",
-                    Percentage = (float)Math.Ceiling(size / (float)extractedSize * 100)
+                    FileName = x.Where(y => y.Name == "FileName").First().StringName,
+                    Offset = (ulong)x.Where(y => y.Name == "FileOffset").First().Modifier.ReflectedValue("Value") + 0x800,// This is the header offset of 2048.  
+                    ArchiveLength = size,                    
+                    ExtractedLength = extractedSize,
+                    Type = Category.FILE
                 }) ;
             });
             return displayList;

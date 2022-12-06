@@ -12,7 +12,7 @@ namespace PatchRepository
         {
             var oldFile = new BinaryReader(File.OpenRead(package.FilePath));
             var newCPK = new BinaryWriter(File.OpenWrite(cpkDir));
-            var patchList = package.DisplayList.Where(x => fileList.Keys.Any(y => x.DisplayName.ToLower().Equals(y.ToLower())));
+            var patchList = package.DisplayList.Where(x => fileList.Keys.Any(y => x.FileName.ToLower().Equals(y.ToLower())));
              var test = newCPK;
             //var entries = package.CriFileList.OrderBy(x => x.FileOffset).ToList();
             //var badEntries = package.CriFileList.Where(x => x.FileOffsetType == null); 

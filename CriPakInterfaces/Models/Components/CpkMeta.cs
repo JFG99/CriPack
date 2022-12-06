@@ -6,7 +6,7 @@ namespace CriPakInterfaces.Models.Components
     {
         public CpkMeta()
         {
-            DisplayName = "CPK_HDR";
+            FileName = "CPK_HDR";
             SelectionName = "CPK";
             ValidationName = "CPK "; //Has space at end of string(4 bytes)
         }

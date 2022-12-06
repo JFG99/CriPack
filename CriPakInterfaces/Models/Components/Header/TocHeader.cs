@@ -6,7 +6,7 @@ namespace CriPakInterfaces.Models.Components
     {
         public TocHeader()
         {
-            DisplayName = "TOC_HDR"; 
+            FileName = "TOC_HDR"; 
             SelectionName = "Toc";
             ValidationName = "TOC "; // Has space at end
         }

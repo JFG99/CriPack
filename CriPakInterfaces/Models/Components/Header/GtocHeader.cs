@@ -9,7 +9,7 @@ namespace CriPakInterfaces.Models.Components
     {
         public GtocHeader()
         {
-            DisplayName = "GTOC_HDR";
+            FileName = "GTOC_HDR";
             SelectionName = "Gtoc";
             ValidationName = "GTOC";
         }

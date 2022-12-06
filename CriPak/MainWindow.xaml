@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CriPakComplete"
         mc:Ignorable="d"
-        Title="CriPak Complete" Height="360" Width="725" ResizeMode="CanResizeWithGrip" SizeToContent="Width" MinWidth="725" MaxWidth="725" MinHeight="358" Icon="Resources/1.ico" >
+        Title="CriPak Manager" Height="360" Width="725" ResizeMode="CanResizeWithGrip" SizeToContent="Width" MinWidth="725" MaxWidth="725" MinHeight="358" Icon="Resources/1.ico" >
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="0*"/>
@@ -77,13 +77,13 @@
         <DataGrid x:Name="datagrid_cpk" CanUserAddRows="False" Margin="0,62,0,30" Grid.Column="2" VerticalScrollBarVisibility="Visible" IsReadOnly="True" FrozenColumnCount="8" AutoGenerateColumns="False" CanUserResizeColumns="False" CanUserReorderColumns="False" CanUserSortColumns="False" AlternationCount="2" RowHeight="17" AreRowDetailsFrozen="True" CanUserResizeRows="False" HorizontalContentAlignment="Stretch" IsTextSearchEnabled="True" RowBackground="#FFF1F7F4">
             <DataGrid.Columns>
                 <DataGridTextColumn x:Name="colume_number" Header="No." MinWidth="40" Binding="{Binding Id}"/>
-                <DataGridTextColumn x:Name="colume_filename" Header="FileName" MinWidth="200" Binding="{Binding DisplayName}"/>
-                <DataGridTextColumn x:Name="colume_offset" Header="Offset" MinWidth="100" Binding="{Binding PackageOffset , StringFormat=\{0:X8\}}"/>
-                <DataGridTextColumn x:Name="colume_size" Header="Data Size" MinWidth="80" Binding="{Binding Size , StringFormat=\{0:X8\}}"/>
-                <DataGridTextColumn x:Name="colume_extractsize" Header="Original Size" MinWidth="80" Binding="{Binding ExtractedSize , StringFormat=\{0:X8\}}"/>
-                <DataGridTextColumn x:Name="colume_filesize" Header="Size KB" MinWidth="80" Binding="{Binding FileKb}" />
-                <DataGridTextColumn x:Name="culume_type" Header="Data Type" MinWidth="40" Binding="{Binding Type}"/>
-                <DataGridTextColumn x:Name="colume_pt" Header="%" MinWidth="40" Binding="{Binding Percentage}"/>
+                <DataGridTextColumn x:Name="culume_type" Header="Data Type" MinWidth="40" Binding="{Binding CategoryType}"/>
+                <DataGridTextColumn x:Name="colume_filename" Header="FileName" MinWidth="200" Binding="{Binding FileName}"/>
+                <DataGridTextColumn x:Name="colume_offset" Header="Offset" MinWidth="100" Binding="{Binding Offset , StringFormat=\{0:X8\}}"/>
+                <DataGridTextColumn x:Name="colume_size" Header="Archive Length" MinWidth="80" Binding="{Binding ArchiveLength , StringFormat=\{0:X8\}}"/>
+                <DataGridTextColumn x:Name="colume_extractsize" Header="Extrated Length" MinWidth="80" Binding="{Binding ExtractedLength , StringFormat=\{0:X8\}}"/>
+                <DataGridTextColumn x:Name="colume_pt" Header="Ratio" MinWidth="40" Binding="{Binding Percentage}"/>
+                <DataGridTextColumn x:Name="colume_filesize" Header="Size" MinWidth="80" Binding="{Binding Size}" />
             </DataGrid.Columns>
             <DataGrid.ContextMenu>
                 <ContextMenu Name="dgmenu1" StaysOpen="true"  PreviewMouseRightButtonDown="dgmenu1_Cilck">
@@ -93,8 +93,8 @@
             </DataGrid.ContextMenu>
         </DataGrid>
         <Grid Grid.ColumnSpan="3" Height="37" Margin="0,25,0,0" VerticalAlignment="Top" Background="{DynamicResource {x:Static SystemColors.MenuBarBrushKey}}">
-            <Button x:Name="button_importassets" Content="Patch CPK" HorizontalAlignment="Left" Margin="142,10,0,0" VerticalAlignment="Top" Width="86" IsEnabled="False" Click="Patch_Click"/>
-            <Button x:Name="button_extract" Content="Extract me!" HorizontalAlignment="Left" Margin="37,10,0,0" VerticalAlignment="Top" Width="86" IsEnabled="False" Click="Extract_Click"/>
+            <Button x:Name="button_importassets" Content="Patch" HorizontalAlignment="Left" Margin="142,10,0,0" VerticalAlignment="Top" Width="86" IsEnabled="False" Click="Patch_Click"/>
+            <Button x:Name="button_extract" Content="Extract" HorizontalAlignment="Left" Margin="37,10,0,0" VerticalAlignment="Top" Width="86" IsEnabled="False" Click="Extract_Click"/>
 
         </Grid>
     </Grid>

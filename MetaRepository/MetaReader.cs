@@ -58,7 +58,7 @@ namespace MetaRepository
             var displayList = new List<DisplayList>();
             displayList.AddRange(headers.OfType<IHeader>().MapHeaderRowsToDisplay());
             displayList.AddRange(headers.OfType<ITocHeader>().First().MapTocRowsToDisplay());
-            return displayList.OrderBy(x => x.PackageOffset).ThenBy(x => x.Id);
+            return displayList.OrderBy(x => x.Offset).ThenBy(x => x.Id);
         }
     }
 }

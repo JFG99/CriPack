@@ -10,7 +10,7 @@ namespace CriPakInterfaces.Models.Components
     {
         public ContentHeader()
         {
-            DisplayName = "CONTENT_OFFSET";
+            FileName = "CONTENT_OFFSET";
             SelectionName = "Content";
             ValidationName = "";
         }        
