@@ -1,7 +1,7 @@
 ﻿using CriPakInterfaces;
 using CriPakInterfaces.IComponents;
 using CriPakInterfaces.Models.Components;
-using CriPakInterfaces.Models.Components2;
+using CriPakInterfaces.Models.Components;
 using CriPakRepository.Helpers;
 using System;
 using System.Collections.Generic;
@@ -12,7 +12,7 @@ namespace MetaRepository.Mappers
 {
     public class ItocMapper : IDetailMapper<ItocHeader>
     {
-        public ItocHeader Map(IDisplayList header, IEnumerable<CriPakInterfaces.Models.ComponentsNew.Row> rowValue)
+        public ItocHeader Map(IDisplayList header, IEnumerable<Row> rowValue)
         {
             //Not Currently Implemented. Old code is below.
 

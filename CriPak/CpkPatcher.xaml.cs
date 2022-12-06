@@ -1,16 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Windows;
+﻿using System.Windows;
 using System.IO;
 using System.Diagnostics;
 using Ookii.Dialogs.Wpf;
-using System.Threading;
-using CriPakInterfaces.Models.Components;
-using CriPakRepository.Helpers;
 using CriPakInterfaces.Models;
 using System.Threading.Tasks;
-using System.Text;
 
 namespace CriPakComplete
 {
@@ -85,16 +78,16 @@ namespace CriPakComplete
             
         }
 
-        private void WriteChunkData(BinaryWriter cpk, CriFile entry, byte[] chunkData, int originalDataLength, string msg)
+        private void WriteChunkData(BinaryWriter cpk,/* CriFile entry,*/ byte[] chunkData, int originalDataLength, string msg)
         {
-            Dispatcher.Invoke(() => updateTextblock(msg));
-            Debug.WriteLine(msg);
-            entry.CompressedFileSize = chunkData.Length;
-            entry.ExtractedFileSize = originalDataLength == 0 ? chunkData.Length : originalDataLength;
-           // package.UpdateCriFile(entry);
-            cpk.Write(chunkData);
-            Dispatcher.Invoke(() => updateTextblock(msg));
-            Debug.WriteLine(msg);
+           // Dispatcher.Invoke(() => updateTextblock(msg));
+           // Debug.WriteLine(msg);
+           // entry.CompressedFileSize = chunkData.Length;
+           // entry.ExtractedFileSize = originalDataLength == 0 ? chunkData.Length : originalDataLength;
+           //// package.UpdateCriFile(entry);
+           // cpk.Write(chunkData);
+           // Dispatcher.Invoke(() => updateTextblock(msg));
+           // Debug.WriteLine(msg);
 
         }
         public void WriteCPK(BinaryWriter cpk)

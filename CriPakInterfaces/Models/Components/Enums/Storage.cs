@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace CriPakInterfaces.Models.Components
+namespace CriPakInterfaces.Models.Components.Enums
 {
     public enum STORAGE : int
     {

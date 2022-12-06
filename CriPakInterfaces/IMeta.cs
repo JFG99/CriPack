@@ -9,7 +9,7 @@ namespace CriPakInterfaces
     public interface IMeta : IDisplayList
     {
         IEnumerable<Column> Columns { get; set; }
-        IEnumerable<Models.ComponentsNew.Row> Rows { get; set; }
+        IEnumerable<Models.Components.Row> Rows { get; set; }
         long Offset { get; set; }                
     }
 }

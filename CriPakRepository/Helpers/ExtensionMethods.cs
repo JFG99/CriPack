@@ -1,8 +1,5 @@
 ﻿using CriPakInterfaces;
 using CriPakInterfaces.Models;
-using CriPakInterfaces.Models.Components;
-using CriPakInterfaces.Models.Components2;
-using CriPakRepository.Parsers;
 using CriPakRepository.Repository;
 using System;
 using System.Collections.Generic;
@@ -324,76 +321,76 @@ namespace CriPakRepository.Helpers
             br.Close();
             return result;
         }
-        public static void UpdateCriFile(this ICriPakOld package, CriFile file)
-        {
-            if (file.FileType == "FILE" || file.FileType == "HDR")
-            {
-                byte[] updateMe = null;
-                switch (file.TOCName)
-                {
-                    case "CPK":
-                        updateMe = package.CpkPacket;
-                        break;
-                    case "TOC":
-                        updateMe = package.TocPacket;
-                        break;
-                    case "ITOC":
-                        updateMe = package.ItocPacket;
-                        break;              
-                    case "ETOC":            
-                        updateMe = package.EtocPacket;
-                        break;              
-                    case "GTOC":            
-                        updateMe = package.GtocPacket;
-                        break;
-                    default:
-                        throw new Exception("I need to implement this TOC!");
+        //public static void UpdateCriFile(this ICriPakOld package, CriFile file)
+        //{
+        //    if (file.FileType == "FILE" || file.FileType == "HDR")
+        //    {
+        //        byte[] updateMe = null;
+        //        switch (file.TOCName)
+        //        {
+        //            case "CPK":
+        //                updateMe = package.CpkPacket;
+        //                break;
+        //            case "TOC":
+        //                updateMe = package.TocPacket;
+        //                break;
+        //            case "ITOC":
+        //                updateMe = package.ItocPacket;
+        //                break;              
+        //            case "ETOC":            
+        //                updateMe = package.EtocPacket;
+        //                break;              
+        //            case "GTOC":            
+        //                updateMe = package.GtocPacket;
+        //                break;
+        //            default:
+        //                throw new Exception("I need to implement this TOC!");
 
-                }
+        //        }
 
 
-                //Update ExtractSize
-                if (file.ExtractSizePos > 0)
-                    UpdateValue(ref updateMe, file.ExtractedFileSize, file.ExtractSizePos, file.ExtractSizeType);
+        //        //Update ExtractSize
+        //        if (file.ExtractSizePos > 0)
+        //            UpdateValue(ref updateMe, file.ExtractedFileSize, file.ExtractSizePos, file.ExtractSizeType);
 
-                //Update FileSize
-                if (file.FileSizePos > 0)
-                    UpdateValue(ref updateMe, file.ExtractedFileSize, file.FileSizePos, file.FileSizeType);
+        //        //Update FileSize
+        //        if (file.FileSizePos > 0)
+        //            UpdateValue(ref updateMe, file.ExtractedFileSize, file.FileSizePos, file.FileSizeType);
 
-                //Update FileOffset
-                if (file.FileOffsetPos > 0)
-                    if (file.TOCName == "TOC")
-                    {
-                        UpdateValue(ref updateMe, file.FileOffset - package.TocOffset, file.FileOffsetPos, file.FileOffsetType);
-                    }
-                    else
-                    {
-                        UpdateValue(ref updateMe, file.FileOffset, file.FileOffsetPos, file.FileOffsetType);
-                    }
+        //        //Update FileOffset
+        //        if (file.FileOffsetPos > 0)
+        //            if (file.TOCName == "TOC")
+        //            {
+        //                UpdateValue(ref updateMe, file.FileOffset - package.TocOffset, file.FileOffsetPos, file.FileOffsetType);
+        //            }
+        //            else
+        //            {
+        //                UpdateValue(ref updateMe, file.FileOffset, file.FileOffsetPos, file.FileOffsetType);
+        //            }
 
-                switch (file.TOCName)
-                {
-                    case "CPK":
-                       package.CpkPacket = updateMe;
-                        break;
-                    case "TOC":
-                        package.TocPacket = updateMe;
-                        break;
-                    case "ITOC":
-                        package.ItocPacket = updateMe;
-                        break;
-                    case "ETOC":
-                        updateMe = package.EtocPacket;
-                        break;
-                    case "GTOC":
-                        updateMe = package.GtocPacket;
-                        break;
-                    default:
-                        throw new Exception("I need to implement this TOC!");
+        //        switch (file.TOCName)
+        //        {
+        //            case "CPK":
+        //               package.CpkPacket = updateMe;
+        //                break;
+        //            case "TOC":
+        //                package.TocPacket = updateMe;
+        //                break;
+        //            case "ITOC":
+        //                package.ItocPacket = updateMe;
+        //                break;
+        //            case "ETOC":
+        //                updateMe = package.EtocPacket;
+        //                break;
+        //            case "GTOC":
+        //                updateMe = package.GtocPacket;
+        //                break;
+        //            default:
+        //                throw new Exception("I need to implement this TOC!");
 
-                }
-            }
-        }
+        //        }
+        //    }
+        //}
         public static void UpdateValue(ref byte[] packet, object value, long pos, Type type)
         {
             MemoryStream temp = new MemoryStream();
@@ -448,26 +445,26 @@ namespace CriPakRepository.Helpers
             br.BaseStream.Seek(backup, SeekOrigin.Begin);
             return result;
         }
-        [Obsolete]
-        public static void ReadUTFData(this ICriPakOld package)
-        {
-            package.IsUtfEncrypted = false;
-            package.Reader.IsLittleEndian = true;
+        //[Obsolete]
+        //public static void ReadUTFData(this ICriPakOld package)
+        //{
+        //    package.IsUtfEncrypted = false;
+        //    package.Reader.IsLittleEndian = true;
 
-            package.Unk1 = package.Reader.ReadInt32();
-            package.UtfSize = package.Reader.ReadInt64();
-            package.UtfPacket = package.Reader.ReadBytes((int)package.UtfSize);
-            package.OriginalPacket = package.UtfPacket;
+        //    package.Unk1 = package.Reader.ReadInt32();
+        //    package.UtfSize = package.Reader.ReadInt64();
+        //    package.UtfPacket = package.Reader.ReadBytes((int)package.UtfSize);
+        //    package.OriginalPacket = package.UtfPacket;
 
-            if (package.UtfPacket[0] != 0x40 && package.UtfPacket[1] != 0x55 && package.UtfPacket[2] != 0x54 && package.UtfPacket[3] != 0x46) //@UTF
-            {
-                package.DecryptedPacket = package.UtfPacket.DecryptUTF();
-                package.UtfPacket = package.DecryptedPacket;
-                package.IsUtfEncrypted = true;
-            }
+        //    if (package.UtfPacket[0] != 0x40 && package.UtfPacket[1] != 0x55 && package.UtfPacket[2] != 0x54 && package.UtfPacket[3] != 0x46) //@UTF
+        //    {
+        //        package.DecryptedPacket = package.UtfPacket.DecryptUTF();
+        //        package.UtfPacket = package.DecryptedPacket;
+        //        package.IsUtfEncrypted = true;
+        //    }
 
-            package.Reader.IsLittleEndian = false;
-        }
+        //    package.Reader.IsLittleEndian = false;
+        //}
         [Obsolete]
         public static byte[] DecryptUTF(this byte[] input)
         {
@@ -482,39 +479,39 @@ namespace CriPakRepository.Helpers
             var test = decrypted.Select(x => string.Join(" ", string.Format("{0:X2}", x)));
             return decrypted.ToArray();
         }
-        [Obsolete]
-        public static bool ReadDataRows(this ICriPakOld package)
-        {
-            package.SubReader = new EndianReader<MemoryStream, EndianData>(new MemoryStream(package.UtfPacket), new EndianData(package.Reader.IsLittleEndian));
-            var parser = new UtfParser();
-            if (!parser.Parse((CriPakOld)package))
-            {
-                package.SubReader.Close();
-                return false;
-            }
-            return true;
-        }
-        [Obsolete]
-        public static bool CheckListRedundant(this List<CriFile> input)
-        {
+        //[Obsolete]
+        //public static bool ReadDataRows(this ICriPakOld package)
+        //{
+        //    package.SubReader = new EndianReader<MemoryStream, EndianData>(new MemoryStream(package.UtfPacket), new EndianData(package.Reader.IsLittleEndian));
+        //    var parser = new UtfParser();
+        //    if (!parser.Parse((CriPakOld)package))
+        //    {
+        //        package.SubReader.Close();
+        //        return false;
+        //    }
+        //    return true;
+        //}
+        //[Obsolete]
+        //public static bool CheckListRedundant(this List<CriFile> input)
+        //{
 
-            bool result = false;
-            List<string> tmp = new List<string>();
-            for (int i = 0; i < input.Count; i++)
-            {
-                string name = ((input[i].DirName != null) ?
-                                        input[i].DirName + "/" : "") + input[i].FileName;
-                if (!tmp.Contains(name))
-                {
-                    tmp.Add(name);
-                }
-                else
-                {
-                    return true;
-                }
-            }
-            return result;
-        }
+        //    bool result = false;
+        //    List<string> tmp = new List<string>();
+        //    for (int i = 0; i < input.Count; i++)
+        //    {
+        //        string name = ((input[i].DirName != null) ?
+        //                                input[i].DirName + "/" : "") + input[i].FileName;
+        //        if (!tmp.Contains(name))
+        //        {
+        //            tmp.Add(name);
+        //        }
+        //        else
+        //        {
+        //            return true;
+        //        }
+        //    }
+        //    return result;
+        //}
         [Obsolete] 
         public static string ReadCString(this IEndianReader br, long offsetLocation = -1, Encoding encoding = null) => br.ReadCString(-1, offsetLocation, encoding);
         [Obsolete]        

@@ -1,7 +1,8 @@
 ﻿using CriPakInterfaces;
 using CriPakInterfaces.IComponents;
 using CriPakInterfaces.Models;
-using CriPakInterfaces.Models.Components2;
+using CriPakInterfaces.Models.Components;
+using CriPakInterfaces.Models.Components;
 using CriPakRepository.Repository;
 using System;
 using System.Collections.Generic;
@@ -18,7 +19,7 @@ namespace CriPakRepository.Repositories
         public string FileName { get; set; }
         public long CurrentPosition { get; set; }
         public IEnumerable<IRowValue> Meta { get; set; }
-        public IEnumerable<CriPakInterfaces.Models.ComponentsNew.Row> MetaNew { get; set; }
+        public IEnumerable<Row> MetaNew { get; set; }
         private int IdSetter { get; set; }
 
         public T GetHeader<TMapper, T>(ReaderDetailRepository<TMapper, T> repository)
@@ -40,7 +41,7 @@ namespace CriPakRepository.Repositories
             return details.Select(x => x.Invoke()).ToList();
 
         }
-        public IEnumerable<IDisplayList> Get(Func<IDisplayList>[] details, IEnumerable<CriPakInterfaces.Models.ComponentsNew.Row> meta)
+        public IEnumerable<IDisplayList> Get(Func<IDisplayList>[] details, IEnumerable<Row> meta)
         {
             MetaNew = meta;   
             return details.Select(x => x.Invoke()).ToList();

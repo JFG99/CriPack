@@ -2,7 +2,7 @@
 using CriPakInterfaces.IComponents;
 using System;
 using System.Collections.Generic;
-using CriPakInterfaces.Models.Components2;
+using CriPakInterfaces.Models.Components;
 using System.Linq;
 using System.Text;
 

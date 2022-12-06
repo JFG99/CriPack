@@ -1,7 +1,6 @@
 ﻿using CriPakInterfaces;
-using CriPakInterfaces.IComponents;
 using CriPakInterfaces.Models.Components;
-using CriPakInterfaces.Models.Components2;
+using CriPakInterfaces.Models.Components;
 using CriPakRepository.Helpers;
 using System;
 using System.Collections.Generic;
@@ -12,7 +11,7 @@ namespace MetaRepository.Mappers
 {
     public class ContentMapper : IDetailMapper<ContentHeader>
     {
-        public ContentHeader Map(IDisplayList header, IEnumerable<CriPakInterfaces.Models.ComponentsNew.Row> rowValue)
+        public ContentHeader Map(IDisplayList header, IEnumerable<Row> rowValue)
         {
             var size = Convert.ToInt64(rowValue.Where(x => x.Name.Contains("Size")).FirstOrDefault().Modifier.ReflectedValue("Value"));
             var offsetRowData = rowValue.Where(x => x.Name.Contains("Offset")).FirstOrDefault();

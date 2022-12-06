@@ -1,6 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
+using CriPakInterfaces.Models.Components.Enums;
 
 namespace CriPakInterfaces.Models.Components
 {

@@ -1,7 +1,7 @@
 ﻿using Autofac;
 using CriPakInterfaces;
 using CriPakInterfaces.IComponents;
-using CriPakInterfaces.Models.Components2;
+using CriPakInterfaces.Models.Components;
 using CriPakRepository.Repositories;
 using FileRepository;
 using MetaRepository;

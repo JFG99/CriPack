@@ -1,7 +1,6 @@
 ﻿using CriPakInterfaces;
 using CriPakInterfaces.IComponents;
 using CriPakInterfaces.Models.Components;
-using CriPakInterfaces.Models.Components2;
 using CriPakRepository.Helpers;
 using System.Linq;
 

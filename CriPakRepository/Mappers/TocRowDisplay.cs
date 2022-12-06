@@ -1,7 +1,7 @@
 ﻿using CriPakInterfaces.IComponents;
 using CriPakInterfaces.Models;
 using CriPakInterfaces.Models.Components;
-using CriPakInterfaces.Models.Components2;
+using CriPakInterfaces.Models.Components;
 using CriPakRepository.Helpers;
 using System;
 using System.Collections.Generic;

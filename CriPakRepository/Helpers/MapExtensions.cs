@@ -1,6 +1,7 @@
 ﻿using CriPakInterfaces;
 using CriPakInterfaces.IComponents;
 using CriPakInterfaces.Models.Components;
+using CriPakInterfaces.Models.Components;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -84,39 +85,39 @@ namespace CriPakRepository.Helpers
                         });
         }
 
-        public static  IEnumerable<CriPakInterfaces.Models.ComponentsNew.Row> Merge(this IEnumerable<object> meta, IEnumerable<object> stringsData)
+        public static  IEnumerable<Row> Merge(this IEnumerable<object> meta, IEnumerable<object> stringsData)
         {
             if (stringsData?.Any() ?? false)
             {
                 return meta.Join(stringsData, ri => ri.ReflectedValue("Id"), sd => sd.ReflectedValue("Index"), (ri, sd) =>
                 {
-                    return new CriPakInterfaces.Models.ComponentsNew.Row
+                    return new Row
                     {
                         Id = (int)ri.ReflectedValue("Id"),
                         Name = ri.ReflectedValue("Name").ToString(),
                         Mask = (int)ri.ReflectedValue("Mask"),
                         StringName = ri.ReflectedValue("Name").ToString() == "FileName" ? sd.ReflectedValue("Name").ToString() : "",
                         ByteSegment = (IEnumerable<byte>)ri.ReflectedValue("ByteSegment"),
-                        Modifier = (CriPakInterfaces.IComponentsNew.IRowValue)ri.ReflectedValue("OffsetModifier"),
+                        Modifier = (CriPakInterfaces.IComponents.IRowValue)ri.ReflectedValue("OffsetModifier"),
                         RowOffset = (int)ri.ReflectedValue("RowOffset")
                     };
                 });
             }
             return meta.Select(x =>
             {
-                return new CriPakInterfaces.Models.ComponentsNew.Row
+                return new Row
                 {
                     Id = (int)x.ReflectedValue("Id"),
                     Name = x.ReflectedValue("Name").ToString(),
                     Mask = (int)x.ReflectedValue("Mask"),
                     ByteSegment = (IEnumerable<byte>)x.ReflectedValue("ByteSegment"),
-                    Modifier = (CriPakInterfaces.IComponentsNew.IRowValue)x.ReflectedValue("OffsetModifier"),
+                    Modifier = (IRowValue)x.ReflectedValue("OffsetModifier"),
                     RowOffset = (int)x.ReflectedValue("RowOffset")
                 };
             });
         }
 #else
-        public static IEnumerable<CriPakInterfaces.Models.ComponentsNew.Row> GetRows(this IOriginalPacket packet, IEnumerable<Column> columns, int packetRowOffset, int rowLength, int dataOffset, int stringsOffset)
+        public static IEnumerable<Row> GetRows(this IOriginalPacket packet, IEnumerable<Column> columns, int packetRowOffset, int rowLength, int dataOffset, int stringsOffset)
         {
 
             var rowBytes = packet.DecryptedBytes
@@ -159,7 +160,7 @@ namespace CriPakRepository.Helpers
             {
                 return rowMeta.SelectMany(x => x).Join(stringData, rm => rm.Id, sd => sd.Index, (rm, sd) =>
                 {
-                    return new CriPakInterfaces.Models.ComponentsNew.Row
+                    return new Row
                     {
                         Id = rm.Id,
                         Name = rm.Name,
@@ -173,7 +174,7 @@ namespace CriPakRepository.Helpers
             }
             return rowMeta.SelectMany(x => x).Select(x =>             
             {
-                return new CriPakInterfaces.Models.ComponentsNew.Row
+                return new Row
                 {
                     Id = x.Id,
                     Name = x.Name,

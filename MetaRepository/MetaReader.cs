@@ -2,7 +2,7 @@
 using CriPakInterfaces.Models;
 using CriPakInterfaces.Models.Components;
 using CriPakInterfaces.IComponents;
-using CriPakInterfaces.Models.Components2;
+using CriPakInterfaces.Models.Components;
 using CriPakRepository.Helpers;
 using CriPakRepository.Repositories;
 using CriPakRepository.Repository;
@@ -12,7 +12,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using CriPakRepository.Mappers;
-using CriPakRepository.Parsers;
 using MetaRepository.Mappers;
 
 namespace MetaRepository

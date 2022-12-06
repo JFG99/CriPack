@@ -1,10 +1,10 @@
 ﻿using CriPakInterfaces;
 using CriPakInterfaces.IComponents;
-using CriPakInterfaces.Models.Components2;
+using CriPakInterfaces.Models.Components;
 using CriPakInterfaces.Models;
 using CriPakRepository.Repository;
 using System.IO;
-using File = CriPakInterfaces.Models.Components2.File;
+using File = CriPakInterfaces.Models.Components.File;
 using System.Collections.Generic;
 using System.Linq;
 using CriPakRepository.Helpers;

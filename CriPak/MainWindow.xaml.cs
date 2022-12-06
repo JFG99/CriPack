@@ -9,9 +9,7 @@ using System.Diagnostics;
 using System.IO;
 using Ookii.Dialogs.Wpf;
 using System.Windows.Threading;
-using CriPakInterfaces.Models.Components;
 using CriPakInterfaces.Models;
-using CriPakRepository.Parsers;
 using CriPakRepository.Helpers;
 using System.Threading.Tasks;
 

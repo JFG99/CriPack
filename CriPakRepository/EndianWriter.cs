@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
-using CriPakInterfaces.Models.Components;
 
 namespace CriPakRepository
-{   
+{
 
     public class EndianWriter : BinaryWriter
     {
@@ -30,32 +29,32 @@ namespace CriPakRepository
             base.Write(someBytes);
         }
 
-        public void Write(CriFile entry)
-        {
-            if (entry.ExtractSizeType == typeof(Byte))
-            {
-                Write((Byte)entry.ExtractedFileSize);
-            }
-            else if (entry.ExtractSizeType == typeof(UInt16))
-            {
-                Write((UInt16)entry.ExtractedFileSize);
-            }
-            else if (entry.ExtractSizeType == typeof(UInt32))
-            {
-                Write((UInt32)entry.ExtractedFileSize);
-            }
-            else if (entry.ExtractSizeType == typeof(UInt64))
-            {
-                Write((UInt64)entry.ExtractedFileSize);
-            }
-            else if (entry.ExtractSizeType == typeof(Single))
-            {
-                Write((Single)entry.ExtractedFileSize);
-            }
-            else
-            {
-                throw new Exception("Not supported type!");
-            }
-        }
+        //public void Write(CriFile entry)
+        //{
+        //    if (entry.ExtractSizeType == typeof(Byte))
+        //    {
+        //        Write((Byte)entry.ExtractedFileSize);
+        //    }
+        //    else if (entry.ExtractSizeType == typeof(UInt16))
+        //    {
+        //        Write((UInt16)entry.ExtractedFileSize);
+        //    }
+        //    else if (entry.ExtractSizeType == typeof(UInt32))
+        //    {
+        //        Write((UInt32)entry.ExtractedFileSize);
+        //    }
+        //    else if (entry.ExtractSizeType == typeof(UInt64))
+        //    {
+        //        Write((UInt64)entry.ExtractedFileSize);
+        //    }
+        //    else if (entry.ExtractSizeType == typeof(Single))
+        //    {
+        //        Write((Single)entry.ExtractedFileSize);
+        //    }
+        //    else
+        //    {
+        //        throw new Exception("Not supported type!");
+        //    }
+        //}
     }
 }

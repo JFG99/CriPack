@@ -1,7 +1,7 @@
 ﻿using CriPakInterfaces;
-using CriPakInterfaces.IComponents;
 using CriPakInterfaces.Models;
-using CriPakInterfaces.Models.Components2;
+using CriPakInterfaces.Models.Components;
+using CriPakInterfaces.Models.Components;
 using CriPakRepository.Helpers;
 using CriPakRepository.Repository;
 using System;
@@ -29,7 +29,7 @@ namespace CriPakRepository.Repositories
             _header = header;
         }
 
-        public TOut Get(string inFile, IEnumerable<CriPakInterfaces.Models.ComponentsNew.Row> rowValue)
+        public TOut Get(string inFile, IEnumerable<Row> rowValue)
         {
             CurrentPosition = Convert.ToInt64(rowValue?.FirstOrDefault(x => x.Name.Contains("Offset"))?.Modifier.ReflectedValue("Value") ?? 0);
             if (ValidatePacketName(inFile, _header.ValidationName))

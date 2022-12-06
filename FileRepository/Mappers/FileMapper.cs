@@ -1,12 +1,13 @@
 ﻿using CriPakInterfaces;
 using CriPakInterfaces.IComponents;
-using CriPakInterfaces.Models.Components2;
-using FileList = CriPakInterfaces.Models.Components2.Files;
+using CriPakInterfaces.Models.Components;
+using FileList = CriPakInterfaces.Models.Components.Files;
 using CriPakRepository.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using CriPakInterfaces.Models.Components;
 
 namespace FileRepository.Mappers
 {
@@ -21,7 +22,7 @@ namespace FileRepository.Mappers
                           new
                           {
                               Index = x.Key,
-                              Value = x.Where(y => y.Name == "FileOffset").Select(y => y.Modifier).Cast<CriPakInterfaces.Models.ComponentsNew.Row64>().ToArray()[0].Value + 0x800
+                              Value = x.Where(y => y.Name == "FileOffset").Select(y => y.Modifier).Cast<Row64>().ToArray()[0].Value + 0x800
                           });
             var filesWithLengths = groups.OrderBy(x => x.Value)
                                          .AggregateDifference(etocOffset, 0);
