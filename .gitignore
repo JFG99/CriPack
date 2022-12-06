@@ -192,7 +192,8 @@ ModelManifest.xml
 /CriPakTools.VC.db
 /CriPakTools.VC.VC.opendb
 *.cpk
-/.vs/CriPakTools/v15
+.vs/*
 /LibCRIComp/ReadMe.txt
-/.vs/CriPakTools/v16
-/.vs/CriPakTools/DesignTimeBuild
+.vs/*.sqlite
+
+/.vs/slnx.sqlite
