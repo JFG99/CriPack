@@ -28,12 +28,14 @@ namespace CriPakComplete
             InitializeComponent();
             SetBasicPrefs();
         }
+
         private void SetBasicPrefs()
         {
             menu_savefiles.IsEnabled = false;
             menu_patch.IsEnabled = false;
             progressbar0.Maximum = 100;
         }
+
         private void menu_openfile_Click(object sender, RoutedEventArgs e)
         {
             Debug.WriteLine("Loading cpk");
@@ -55,6 +57,7 @@ namespace CriPakComplete
 
             }
         }
+
         private void beginLoadCPK(string inFile)
         {
             criPak.FilePath = inFile;
@@ -70,26 +73,29 @@ namespace CriPakComplete
                 })
             );
         }
+
         private void Patch_Click(object sender, RoutedEventArgs e)
         {
             CpkPatcher patcherWindow = new CpkPatcher(_home, criPak, Top, Left);
             patcherWindow.ShowDialog();
         }
+
         private void updateDatagrid(bool value = false)
         {
             datagrid_cpk.IsEnabled = value;
             button_extract.IsEnabled = value;
             button_importassets.IsEnabled = value;
         }
+
         private void beginExtractCPK(string foutDir)
         {
             criPak.OutputDirectory = foutDir;
             _home.Extract(criPak);
             Dispatcher.Invoke(() => progressbar0.Value = 100f);
             Dispatcher.Invoke(() => updateDatagrid(true));
-            MessageBox.Show("Extraction Complete.");
-           
+            MessageBox.Show("Extraction Complete.");           
         }
+
         private void Extract_Click(object sender, RoutedEventArgs e)
         {
             VistaFolderBrowserDialog saveFilesDialog = new VistaFolderBrowserDialog();
@@ -99,12 +105,14 @@ namespace CriPakComplete
                 Debug.Print(saveFilesDialog.SelectedPath + "/" + criPak.Name + "_unpacked");
                 Task.Run(() => beginExtractCPK(saveFilesDialog.SelectedPath));
             }
-        }        
+        }   
+        
         private void menu_aboutgui_Click(object sender, RoutedEventArgs e)
         {
             //WindowAboutGUI aboutwindow = new WindowAboutGUI(this.Top, this.Left);
             //aboutwindow.ShowDialog();
         }
+
         private void dgmenu1_Cilck(object sender, MouseButtonEventArgs e)
         {
             Point p = e.GetPosition(this.datagrid_cpk);
@@ -118,6 +126,7 @@ namespace CriPakComplete
                 dgr.IsSelected = true;
             }
         }
+
         private void dgitem1_Click(object sender, RoutedEventArgs e)
         {
 
