@@ -19,8 +19,7 @@ namespace CriPakComplete
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
-    {
-        public CriPakOld package = new CriPakOld();
+    {        
         public CriPak criPak = new CriPak();
         private readonly Orchestrator _home;
         public MainWindow(Orchestrator home)
@@ -34,7 +33,6 @@ namespace CriPakComplete
             menu_savefiles.IsEnabled = false;
             menu_patch.IsEnabled = false;
             progressbar0.Maximum = 100;
-            package.BasePath = @"C:/";
         }
         private void menu_openfile_Click(object sender, RoutedEventArgs e)
         {
@@ -59,13 +57,7 @@ namespace CriPakComplete
         }
         private void beginLoadCPK(string inFile)
         {
-            package.CpkName = inFile;
-            package.BasePath = Path.GetDirectoryName(inFile);
-            package.BaseName = Path.GetFileName(inFile);
-            package.Encoding = Encoding.GetEncoding(65001);
-
             criPak.FilePath = inFile;
-            criPak.Encoding = Encoding.GetEncoding(65001);
 
             _ = Task.Run(() => 
                 Dispatcher.Invoke(() => 
@@ -101,10 +93,10 @@ namespace CriPakComplete
         private void Extract_Click(object sender, RoutedEventArgs e)
         {
             VistaFolderBrowserDialog saveFilesDialog = new VistaFolderBrowserDialog();
-            saveFilesDialog.SelectedPath = package.BasePath + "/";
+            saveFilesDialog.SelectedPath = criPak.BasePath + "/";
             if (saveFilesDialog.ShowDialog().Value)
             {
-                Debug.Print(saveFilesDialog.SelectedPath + "/" + package.BaseName + "_unpacked");
+                Debug.Print(saveFilesDialog.SelectedPath + "/" + criPak.Name + "_unpacked");
                 Task.Run(() => beginExtractCPK(saveFilesDialog.SelectedPath));
             }
         }        
@@ -135,8 +127,8 @@ namespace CriPakComplete
                 if (t.CompressedFileSize > 0 && t.FileType == "FILE")
                 {
                     VistaSaveFileDialog saveFilesDialog = new VistaSaveFileDialog();
-                    saveFilesDialog.InitialDirectory = package.BasePath;
-                    saveFilesDialog.FileName = package.BasePath + "/" + t.LocalName;
+                    saveFilesDialog.InitialDirectory = criPak.BasePath;
+                    saveFilesDialog.FileName = criPak.BasePath + "/" + t.LocalName;
                     if (saveFilesDialog.ShowDialog().Value)
                     {
                         byte[] chunk = ExtractItem(t);
@@ -155,7 +147,7 @@ namespace CriPakComplete
         }
         private byte[] ExtractItem(PackagedFile entries)
         {
-            BinaryReader oldFile = new BinaryReader(File.OpenRead(package.CpkName));
+            BinaryReader oldFile = new BinaryReader(File.OpenRead(criPak.FilePath));
             oldFile.BaseStream.Seek((long)entries.FileOffset, SeekOrigin.Begin);
 
             string isComp = Encoding.ASCII.GetString(oldFile.ReadBytes(8));

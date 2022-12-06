@@ -11,7 +11,7 @@ namespace CriPakInterfaces
         string BasePath { get; }
         string OutputDirectory { get; set; }
         string FilePath { get; set; }
-        Encoding Encoding { get; set; } 
+        Encoding Encoding { get; } 
         List<DisplayList> DisplayList { get; set; }
     }
 }
