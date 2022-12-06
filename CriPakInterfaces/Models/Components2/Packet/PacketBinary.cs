@@ -5,37 +5,10 @@ using System.Text;
 
 namespace CriPakInterfaces.Models.Components2
 {
-    public partial class Packet : IPacket
+
+    //look at the read and get methods and determine exactly what the differences are and create an override. 
+    public class PacketBinary : PacketEncryption
     {
-        private IEnumerable<byte> Decrypt() => ProcessBytes();
-        protected IEnumerable<byte> ProcessBytes()
-        {
-            var seed = 0x0000655f;
-            var decrypted = new List<byte>();
-            foreach (var entry in PacketBytes)
-            {
-                decrypted.Add((byte)(entry ^ (byte)(seed & 0xff)));
-                //seed modifier
-                seed *= 0x00004115;
-            }
-            return decrypted;
-        }
-
-        private bool CheckEncryption()
-        {
-            return !string.Join("", PacketBytes.Take(4).ToList().Select(x => string.Format("{0:X2}", x))).Equals($"40555446"); //@UTF
-        }
-
-        private IEnumerable<byte> GetDecryptedSegment(int offset, int length)
-        {
-            return DecryptedBytes.Skip(offset).Take(length);
-        }
-
-        private IEnumerable<byte> GetDecryptedSegment(int length)
-        {
-            return GetDecryptedSegment(ReadOffset, length);
-        }
-
         public string ReadCString(int offsetLocation, Encoding encoding, int MaxLength = 255)
         {
             int i = 0;            
@@ -48,20 +21,9 @@ namespace CriPakInterfaces.Models.Components2
             return encoding.GetString(bytes.Take(i).ToArray());
         }
 
-        public string ToDecryptedString()
-        {
-            return string.Join(" ", DecryptedBytes.ToList().Select(x => string.Format("{0:X2}", x))); 
-        }
-        
         public string ReadString(int length)
         {
             var value = Encoding.UTF8.GetString(PacketBytes.Take(length).ToArray()).Replace("\0", "");
-            ReadOffset += length;
-            return value;
-        }
-        public string ReadEncryptedString(int length)
-        {
-            var value = Encoding.UTF8.GetString(GetDecryptedSegment(length).ToArray()).Replace("\0", "");
             ReadOffset += length;
             return value;
         }
@@ -75,6 +37,7 @@ namespace CriPakInterfaces.Models.Components2
         public long ReadBytes(int length)
         {
             var value = ByteConverter.MapInt[length](GetDecryptedSegment(length).Reverse().ToArray(), 0);
+
             ReadOffset += length;
             return value;
         }
@@ -101,11 +64,6 @@ namespace CriPakInterfaces.Models.Components2
         public byte GetByteFrom(int offset)
         {
             return GetDecryptedSegment(offset, 1).First();
-        }                
-
-        public void MakeDecyrpted()
-        {
-            DecryptedBytes = Decrypt();
         }
     }
 }

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace PatchRepository
 {
@@ -11,8 +12,10 @@ namespace PatchRepository
         {
             var oldFile = new BinaryReader(File.OpenRead(package.FilePath));
             var newCPK = new BinaryWriter(File.OpenWrite(cpkDir));
+            var patchList = package.DisplayList.Where(x => fileList.Keys.Any(y => x.DisplayName.ToLower().Equals(y.ToLower())));
+             var test = newCPK;
             //var entries = package.CriFileList.OrderBy(x => x.FileOffset).ToList();
-            //var badEntries = package.CriFileList.Where(x => x.FileOffsetType == null);
+            //var badEntries = package.CriFileList.Where(x => x.FileOffsetType == null); 
             //var i = 0;
             //var msg = "";
             //foreach (var entry in entries)
