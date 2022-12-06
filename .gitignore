@@ -194,6 +194,4 @@ ModelManifest.xml
 *.cpk
 .vs/*
 /LibCRIComp/ReadMe.txt
-.vs/*.sqlite
-
 /.vs/slnx.sqlite
