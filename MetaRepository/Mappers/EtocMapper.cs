@@ -13,7 +13,6 @@ namespace MetaRepository.Mappers
     {
         public EtocHeader Map(IDisplayList header, IEnumerable<Row> rowValue)
         {
-            var offsetRowData = rowValue.Where(x => x.Name.Contains("Offset")).FirstOrDefault();
             var packet = (IOriginalPacket)header.Packet;
             packet.MakeDecyrpted();
             var values = Map(header, (int)packet.ReadBytesFrom(4, 4, true));     
@@ -23,8 +22,8 @@ namespace MetaRepository.Mappers
                 Rows = values.Rows,
                 Packet = header.Packet,
                 PacketLength = (ulong)header.Packet.PacketBytes.Count(),
-                MetaOffsetPosition = offsetRowData.RowOffset,
-                PackageOffsetPosition = (ulong)offsetRowData.Modifier.ReflectedValue("Value")
+                MetaOffsetPosition = rowValue.Where(x => x.Name.Contains("Offset")).FirstOrDefault().RowOffset,
+                PackageOffsetPosition = rowValue.GetModifierWhere<IUint64, ulong>(x => x.Name.Contains("Offset"))
             };
         }
     }

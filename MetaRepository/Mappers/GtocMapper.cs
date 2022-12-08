@@ -13,14 +13,13 @@ namespace MetaRepository.Mappers
     {
         public GtocHeader Map(IDisplayList header, IEnumerable<Row> rowValue) 
         {
-            var offsetRowData = rowValue.Where(x => x.Name.Contains("Offset")).FirstOrDefault();
             var packet = (IOriginalPacket)header.Packet;            
             return new GtocHeader()
             {
                 Packet = packet,
                 PacketLength = (ulong)header.Packet.PacketBytes.Count(),
-                MetaOffsetPosition = offsetRowData.RowOffset,
-                PackageOffsetPosition = (ulong)offsetRowData.Modifier.ReflectedValue("Value")
+                MetaOffsetPosition = rowValue.Where(x => x.Name.Contains("Offset")).FirstOrDefault().RowOffset,
+                PackageOffsetPosition = rowValue.GetModifierWhere<IUint64, ulong>(x => x.Name.Contains("Offset"))
             };            
         }
     }

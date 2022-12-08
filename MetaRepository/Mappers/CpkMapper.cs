@@ -21,8 +21,8 @@ namespace MetaRepository.Mappers
                 Packet = value.Packet,
                 Offset = 0x10,
                 PacketLength = (ulong)(0x10 + value.Packet.PacketBytes.Count()),
-                Files = value.Rows.ToList().Where(x => x.Name == "Files").Select(x => x.Modifier).OfType<IUint32>().First()?.Value ?? 0,
-                Align = value.Rows.ToList().Where(x => x.Name == "Align").Select(x => x.Modifier).OfType<IUint16>().First()?.Value ?? 0,
+                Files = value.Rows.GetModifierWhere<IUint32, uint>(x => x.Name == "Files") ,
+                Align = value.Rows.GetModifierWhere<IUint16, ushort>(x => x.Name == "Align"),
             };
         }
     }
