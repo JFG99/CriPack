@@ -20,9 +20,9 @@ namespace MetaRepository.Mappers
                 Rows = value.Rows,
                 Packet = value.Packet,
                 Offset = 0x10,
-                PacketLength = 0x10 + value.Packet.PacketBytes.Count(),
-                Files = (uint)value.Rows.Where(x => x.Name == "Files").FirstOrDefault().Modifier.ReflectedValue("Value"),
-                Align = (ushort)value.Rows.Where(x => x.Name == "Align").FirstOrDefault().Modifier.ReflectedValue("Value"),
+                PacketLength = (ulong)(0x10 + value.Packet.PacketBytes.Count()),
+                Files = value.Rows.ToList().Where(x => x.Name == "Files").Select(x => x.Modifier).OfType<IUint32>().First()?.Value ?? 0,
+                Align = value.Rows.ToList().Where(x => x.Name == "Align").Select(x => x.Modifier).OfType<IUint16>().First()?.Value ?? 0,
             };
         }
     }

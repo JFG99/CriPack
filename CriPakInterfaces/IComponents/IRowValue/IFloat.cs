@@ -6,7 +6,6 @@ namespace CriPakInterfaces.IComponents
 {
     public interface IFloat : IRowValue
     {
-         float Value { get; set; }
-
+        float Value { get; set; }
     }
 }

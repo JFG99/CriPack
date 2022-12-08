@@ -11,6 +11,6 @@ namespace CriPakInterfaces
         string ValidationName { get; set; }
         string SelectionName { get; set; }
         IPacket Packet { get; set; }
-        long PacketLength {get;set;}
+        ulong PacketLength {get;set;}
     }
 }

@@ -11,6 +11,6 @@ namespace CriPakInterfaces.Models.Components
         public string ValidationName { get; set; }
         public string SelectionName { get; set; }
         public IPacket Packet { get; set; }
-        public long PacketLength { get; set; }
+        public ulong PacketLength { get; set; }
     }
 }

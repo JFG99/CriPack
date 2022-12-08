@@ -1,4 +1,5 @@
 ﻿using CriPakInterfaces;
+using CriPakInterfaces.IComponents;
 using CriPakInterfaces.Models.Components;
 using CriPakRepository.Helpers;
 using System.Collections.Generic;
@@ -10,7 +11,6 @@ namespace MetaRepository.Mappers
     {
         public TocHeader Map(IDisplayList header, IEnumerable<Row> rowValue)  
         {
-            var offsetRowData = rowValue.Where(x => x.Name.Contains("Offset")).FirstOrDefault();
             var values = Map(header, 0);          
             
             return new TocHeader()
@@ -18,9 +18,9 @@ namespace MetaRepository.Mappers
                 Columns = values.Columns,
                 Rows = values.Rows,
                 Packet = header.Packet,
-                PacketLength = header.Packet.PacketBytes.Count(),
-                MetaOffsetPosition = offsetRowData.RowOffset,
-                PackageOffsetPosition = (ulong)offsetRowData.Modifier.ReflectedValue("Value")            
+                PacketLength = (ulong)header.Packet.PacketBytes.Count(),
+                MetaOffsetPosition = rowValue.Where(x => x.Name.Contains("Offset")).FirstOrDefault().RowOffset,
+                PackageOffsetPosition = rowValue.Where(x => x.Name.Contains("Offset")).Select(x => x.Modifier).OfType<IUint64>().First().Value            
             };
         }
     }

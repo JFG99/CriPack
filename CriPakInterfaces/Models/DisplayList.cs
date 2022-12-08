@@ -11,8 +11,8 @@ namespace CriPakInterfaces.Models
         public int Id { get; set; }
         public string FileName { get; set; }
         public ulong Offset { get; set; }
-        public long ArchiveLength { get; set; }
-        public int ExtractedLength { get; set; }
+        public ulong ArchiveLength { get; set; }
+        public uint ExtractedLength { get; set; }
         public ItemType Type { get; set; }
         public string Size => !Type.Equals(ItemType.HDR) ? 
                                     (Math.Ceiling(ExtractedLength / 1024.0) >= 1024 ?
@@ -28,6 +28,6 @@ namespace CriPakInterfaces.Models
         public string ValidationName { get; set ; }
         public string SelectionName { get ; set ; }
         public IPacket Packet { get; set; }
-        public long PacketLength { get; set; }
+        public ulong PacketLength { get; set; }
     }
 }

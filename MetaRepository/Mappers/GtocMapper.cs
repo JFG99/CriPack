@@ -18,7 +18,7 @@ namespace MetaRepository.Mappers
             return new GtocHeader()
             {
                 Packet = packet,
-                PacketLength = header.Packet.PacketBytes.Count(),
+                PacketLength = (ulong)header.Packet.PacketBytes.Count(),
                 MetaOffsetPosition = offsetRowData.RowOffset,
                 PackageOffsetPosition = (ulong)offsetRowData.Modifier.ReflectedValue("Value")
             };            

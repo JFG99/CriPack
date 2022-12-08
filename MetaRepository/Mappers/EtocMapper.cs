@@ -22,7 +22,7 @@ namespace MetaRepository.Mappers
                 Columns = values.Columns,
                 Rows = values.Rows,
                 Packet = header.Packet,
-                PacketLength = header.Packet.PacketBytes.Count(),
+                PacketLength = (ulong)header.Packet.PacketBytes.Count(),
                 MetaOffsetPosition = offsetRowData.RowOffset,
                 PackageOffsetPosition = (ulong)offsetRowData.Modifier.ReflectedValue("Value")
             };

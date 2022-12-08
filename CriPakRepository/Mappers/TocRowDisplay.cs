@@ -14,16 +14,13 @@ namespace CriPakRepository.Mappers
             var displayList = new List<DisplayList>();
             header.Rows.GroupBy(x => x.Id).ToList().ForEach(x =>
             {
-                var size = int.TryParse(x.Where(y => y.Name == "FileSize").First().Modifier.ReflectedValue("Value").ToString(), out var numSize) ? numSize : 0;
-                var test = x.Where(y => y.Name == "FileSize").First().Modifier;
-                var extractedSize = int.TryParse(x.Where(y => y.Name == "ExtractSize").First().Modifier.ReflectedValue("Value").ToString(), out var numExtract) ? numExtract : 0;
                 displayList.Add(new DisplayList
                 {
                     Id = x.Key + 1,
                     FileName = x.Where(y => y.Name == "FileName").First().StringName,
-                    Offset = (ulong)x.Where(y => y.Name == "FileOffset").First().Modifier.ReflectedValue("Value") + 0x800,// This is the header offset of 2048.  
-                    ArchiveLength = size,                    
-                    ExtractedLength = extractedSize,
+                    Offset = x.Where(y => y.Name == "FileOffset").Select(y => y.Modifier).OfType<IUint64>().First().Value + 0x800,// This is the header offset of 2048.  
+                    ArchiveLength = x.Where(y => y.Name == "FileSize").Select(y => y.Modifier).OfType<IUint32>().First().Value,                    
+                    ExtractedLength = x.Where(y => y.Name == "ExtractSize").Select(y => y.Modifier).OfType<IUint32>().First().Value,
                     Type = ItemType.FILE
                 }) ;
             });

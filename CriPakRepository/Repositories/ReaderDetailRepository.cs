@@ -1,4 +1,5 @@
 ﻿using CriPakInterfaces;
+using CriPakInterfaces.IComponents;
 using CriPakInterfaces.Models;
 using CriPakInterfaces.Models.Components;
 using CriPakRepository.Helpers;
@@ -30,11 +31,11 @@ namespace CriPakRepository.Repositories
 
         public TOut Get(string inFile, IEnumerable<Row> rowValue)
         {
-            CurrentPosition = Convert.ToInt64(rowValue?.FirstOrDefault(x => x.Name.Contains("Offset"))?.Modifier.ReflectedValue("Value") ?? 0);
+            CurrentPosition = rowValue?.FirstOrDefault(x => x.Name.Contains("Offset"))?.Modifier is IUint64 position ?  Convert.ToInt64(position.Value) :  0;
             if (ValidatePacketName(inFile, _header.ValidationName))
             {
                 _header.Packet = GetPacket();
-            }
+            }            
             return _mapper.Map(_header, rowValue);
         }
 

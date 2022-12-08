@@ -1,4 +1,5 @@
 ﻿using CriPakInterfaces;
+using CriPakInterfaces.IComponents;
 using CriPakInterfaces.Models.Components;
 using CriPakRepository.Helpers;
 using System;
@@ -11,14 +12,12 @@ namespace MetaRepository.Mappers
     {
         public ContentHeader Map(IDisplayList header, IEnumerable<Row> rowValue)
         {
-            var size = Convert.ToInt64(rowValue.Where(x => x.Name.Contains("Size")).FirstOrDefault().Modifier.ReflectedValue("Value"));
-            var offsetRowData = rowValue.Where(x => x.Name.Contains("Offset")).FirstOrDefault();
             return new ContentHeader()
             {
                 Id = 0,
-                PacketLength = size,
-                MetaOffsetPosition = offsetRowData.RowOffset,
-                PackageOffsetPosition = (ulong)offsetRowData.Modifier.ReflectedValue("Value")
+                PacketLength = rowValue.Where(x => x.Name.Contains("Size")).Select(y => y.Modifier).OfType<IUint64>().First().Value,
+                MetaOffsetPosition = rowValue.Where(x => x.Name.Contains("Offset")).FirstOrDefault().RowOffset,
+                PackageOffsetPosition = rowValue.Where(x => x.Name.Contains("Offset")).Select(y => y.Modifier).OfType<IUint64>().First().Value
             };
         }
     }
