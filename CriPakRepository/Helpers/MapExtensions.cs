@@ -74,12 +74,14 @@ namespace CriPakRepository.Helpers
 
         public static IEnumerable<object> GetStringData(this IEnumerable<object> meta, IOriginalPacket packet, int dataOffset, int stringsOffset)
         {
+            //TODO:  ReflectValue needs removed entirely.  With the refactorings to the IRowValue structures these simply return 0.  
             return meta.Where(x => (bool)x.ReflectedValue("IsStringsModifier"))?
                         .Select(x => new { Index = x.ReflectedValue("Id"), Value = Convert.ToInt32(x.ReflectedValue("OffsetModifier").ReflectedValue("Value")) })?
                         .AggregateDifference(dataOffset - stringsOffset, 0)?
-                        .Select(x => new { 
-                            Index = (int)x.ReflectedValue("Index"), 
-                            Name = packet.ReadStringFrom(stringsOffset + (int)x.ReflectedValue("Offset"), (int)x.ReflectedValue("Length")) 
+                        .Select(x => new
+                        {
+                            Index = (int)x.ReflectedValue("Index"),
+                            Name = packet.ReadStringFrom(stringsOffset + (int)x.ReflectedValue("Offset"), (int)x.ReflectedValue("Length"))
                         });
         }
 

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace CriPakInterfaces.Models.Components
 {
-    public class RowValue<TType> 
+    public class RowValue<TType> : IRowValue<TType> where TType : struct
     {
         protected TType _value;
 

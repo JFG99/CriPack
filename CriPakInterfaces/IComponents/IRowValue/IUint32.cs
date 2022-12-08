@@ -4,7 +4,7 @@ using System.Text;
 
 namespace CriPakInterfaces.IComponents
 {
-    public interface IUint32 : IRowValue
+    public interface IUint32 : IRowValue<uint>
     {
         uint Value { get; set; }
     }

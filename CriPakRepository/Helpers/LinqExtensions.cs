@@ -1,7 +1,8 @@
-﻿using System;
+﻿using CriPakInterfaces.IComponents;
+using CriPakInterfaces.Models.Components;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace CriPakRepository.Helpers
 {
@@ -42,6 +43,27 @@ namespace CriPakRepository.Helpers
         public static object ReflectedValue<T>(this T source, string property)
         {
             return source.GetType().GetProperty(property).GetValue(source, null);
+        }
+
+        public static T GetModifierWhere<IType, T>(this IEnumerable<Row> source, Func<Row, bool> predicate)
+            where T : struct
+            where IType : IRowValue<T>
+        {
+            return source.Where(predicate).SelectRowValue<IType, T>();
+        }
+
+        public static T GetModifierWhere<IType, T>(this IGrouping<int, Row> source, Func<Row, bool> predicate)
+            where T : struct
+            where IType : IRowValue<T>
+        {
+            return source.Where(predicate).SelectRowValue<IType, T>();
+        }
+
+        private static T SelectRowValue<IType, T>(this IEnumerable<Row> source) 
+            where T : struct
+            where IType : IRowValue<T>
+        {
+            return source.Select(x => x.Modifier).OfType<IType>().First().GetRowValue();
         }
     }
 }

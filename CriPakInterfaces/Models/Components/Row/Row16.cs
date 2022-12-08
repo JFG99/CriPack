@@ -7,12 +7,9 @@ using System.Text;
 
 namespace CriPakInterfaces.Models.Components
 {
-    public class Row16 : IRowValue, IUint16
+    public class Row16 : RowValue<ushort>, IUint16
     {
-        public Row16(ushort value) 
-        {
-            Value = value;
-        }
+        public Row16(ushort value) : base(value) { }
 
         [DefaultValue(0xFFFF)]
         public ushort Value { get; set; }

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace CriPakInterfaces.IComponents
 {
-    public interface IUint64 : IRowValue
+    public interface IUint64 : IRowValue<ulong>
     {
         ulong Value { get; set; }
     }

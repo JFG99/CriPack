@@ -4,8 +4,8 @@ using System.Text;
 
 namespace CriPakInterfaces.IComponents
 {
-    public interface IUint16 : IRowValue
-    {
+    public interface IUint16 : IRowValue<ushort>
+    { 
         ushort Value { get; set; }
     }
 }

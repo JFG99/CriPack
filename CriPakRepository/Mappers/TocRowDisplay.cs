@@ -18,9 +18,9 @@ namespace CriPakRepository.Mappers
                 {
                     Id = x.Key + 1,
                     FileName = x.Where(y => y.Name == "FileName").First().StringName,
-                    Offset = x.Where(y => y.Name == "FileOffset").Select(y => y.Modifier).OfType<IUint64>().First().Value + 0x800,// This is the header offset of 2048.  
-                    ArchiveLength = x.Where(y => y.Name == "FileSize").Select(y => y.Modifier).OfType<IUint32>().First().Value,                    
-                    ExtractedLength = x.Where(y => y.Name == "ExtractSize").Select(y => y.Modifier).OfType<IUint32>().First().Value,
+                    Offset = x.GetModifierWhere<IUint64, ulong>(y => y.Name == "FileOffset") + 0x800, // This is the header offset of 2048.  
+                    ArchiveLength = x.GetModifierWhere<IUint32, uint>(y => y.Name == "FileSize"),
+                    ExtractedLength = x.GetModifierWhere<IUint32, uint>(y => y.Name == "ExtractSize"),
                     Type = ItemType.FILE
                 }) ;
             });

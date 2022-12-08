@@ -11,8 +11,8 @@ namespace MetaRepository.Mappers
     {
         public TocHeader Map(IDisplayList header, IEnumerable<Row> rowValue)  
         {
-            var values = Map(header, 0);          
-            
+            var values = Map(header, 0);
+
             return new TocHeader()
             {
                 Columns = values.Columns,
@@ -20,7 +20,7 @@ namespace MetaRepository.Mappers
                 Packet = header.Packet,
                 PacketLength = (ulong)header.Packet.PacketBytes.Count(),
                 MetaOffsetPosition = rowValue.Where(x => x.Name.Contains("Offset")).FirstOrDefault().RowOffset,
-                PackageOffsetPosition = rowValue.Where(x => x.Name.Contains("Offset")).Select(x => x.Modifier).OfType<IUint64>().First().Value            
+                PackageOffsetPosition = rowValue.GetModifierWhere<IUint64, ulong>(x => x.Name.Contains("Offset")) //  .Where(x => x.Name.Contains("Offset")).Select(x => x.Modifier).OfType<IUint64>().First().Value            
             };
         }
     }

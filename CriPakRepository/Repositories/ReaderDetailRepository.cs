@@ -31,7 +31,7 @@ namespace CriPakRepository.Repositories
 
         public TOut Get(string inFile, IEnumerable<Row> rowValue)
         {
-            CurrentPosition = rowValue?.FirstOrDefault(x => x.Name.Contains("Offset"))?.Modifier is IUint64 position ?  Convert.ToInt64(position.Value) :  0;
+            CurrentPosition = rowValue?.FirstOrDefault(x => x.Name.Contains("Offset"))?.Modifier is IUint64 position ?  Convert.ToInt64(position.GetRowValue()) :  0;
             if (ValidatePacketName(inFile, _header.ValidationName))
             {
                 _header.Packet = GetPacket();
