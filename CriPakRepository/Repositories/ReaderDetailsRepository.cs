@@ -1,15 +1,9 @@
 ﻿using CriPakInterfaces;
 using CriPakInterfaces.IComponents;
-using CriPakInterfaces.Models;
 using CriPakInterfaces.Models.Components;
-using CriPakInterfaces.Models.Components;
-using CriPakRepository.Repository;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace CriPakRepository.Repositories
 {
@@ -30,7 +24,7 @@ namespace CriPakRepository.Repositories
             if (data != null)
             {
                 data.Id = IdSetter++;
-                //CurrentPosition = data.PacketLength;
+                CurrentPosition = data.PacketLength;
             }
             return data;
         }

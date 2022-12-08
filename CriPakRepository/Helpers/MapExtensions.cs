@@ -1,11 +1,9 @@
 ﻿using CriPakInterfaces;
 using CriPakInterfaces.IComponents;
 using CriPakInterfaces.Models.Components;
-using CriPakInterfaces.Models.Components;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace CriPakRepository.Helpers
 {
@@ -62,8 +60,8 @@ namespace CriPakRepository.Helpers
                     return new
                     {
                         Id = i,
-                        Name = y.Name,
-                        Mask = y.Mask,
+                        y.Name,
+                        y.Mask,
                         ByteSegment = bytes.ToList(),
                         OffsetModifier = ByteConverter.MapBytes[y.Mask](bytes),
                         RowOffset = rowOffset,
@@ -98,7 +96,7 @@ namespace CriPakRepository.Helpers
                         Mask = (int)ri.ReflectedValue("Mask"),
                         StringName = ri.ReflectedValue("Name").ToString() == "FileName" ? sd.ReflectedValue("Name").ToString() : "",
                         ByteSegment = (IEnumerable<byte>)ri.ReflectedValue("ByteSegment"),
-                        Modifier = (CriPakInterfaces.IComponents.IRowValue)ri.ReflectedValue("OffsetModifier"),
+                        Modifier = (IRowValue)ri.ReflectedValue("OffsetModifier"),
                         RowOffset = (int)ri.ReflectedValue("RowOffset")
                     };
                 });

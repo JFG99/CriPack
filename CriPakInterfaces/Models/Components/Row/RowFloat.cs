@@ -6,9 +6,11 @@ using System.Text;
 
 namespace CriPakInterfaces.Models.Components
 {
-    public class RowFloat :  IFloat
+    public class RowFloat : RowValue<float>, IRowValue, IFloat
     {
+        public RowFloat(float value) : base(value) { }
+
         [DefaultValue(0xFFFFFFFFFFFFFFFF)]
-        public  float Value { get; set; }       
+        public float Value { get; set; }       
     }
 }

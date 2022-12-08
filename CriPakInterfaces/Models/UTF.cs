@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Text;
 using CriPakInterfaces.Models.Components;
-using CriPakInterfaces.Models.Components;
 
 namespace CriPakInterfaces.Models
 {

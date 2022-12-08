@@ -6,8 +6,10 @@ using System.Text;
 
 namespace CriPakInterfaces.Models.Components
 {
-    public class Row32 :  IUint32
+    public class Row32 : RowValue<uint>, IRowValue, IUint32
     {
+        public Row32(uint value) : base(value) { }
+
         [DefaultValue(0xFFFFFFFF)]
         public uint Value { get; set; }
     }

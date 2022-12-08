@@ -13,15 +13,15 @@ namespace CriPakInterfaces.Models
         public ulong Offset { get; set; }
         public long ArchiveLength { get; set; }
         public int ExtractedLength { get; set; }
-        public Category Type { get; set; }
-        public string Size => !Type.Equals(Category.HDR) ? 
+        public ItemType Type { get; set; }
+        public string Size => !Type.Equals(ItemType.HDR) ? 
                                     (Math.Ceiling(ExtractedLength / 1024.0) >= 1024 ?
                                         $"{string.Format("{0:##,###}", Math.Ceiling(ExtractedLength / 1048576.0))} MB" :
                                         $"{string.Format("{0:##,###}", Math.Ceiling(ExtractedLength / 1024.0))} KB") :
                                     "";
-        public float Percentage => !Type.Equals(Category.HDR) ? (float)Math.Ceiling(ArchiveLength / (float)ExtractedLength * 100) : 0;
+        public float Percentage => !Type.Equals(ItemType.HDR) ? (float)Math.Ceiling(ArchiveLength / (float)ExtractedLength * 100) : 0;
 
-        public string CategoryType => Type.Equals(Category.HDR) ? "HDR" : "FILE";
+        public string TypeString => Type.Equals(ItemType.HDR) ? "HDR" : "FILE";
 
 
 

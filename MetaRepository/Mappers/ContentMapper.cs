@@ -1,11 +1,9 @@
 ﻿using CriPakInterfaces;
 using CriPakInterfaces.Models.Components;
-using CriPakInterfaces.Models.Components;
 using CriPakRepository.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace MetaRepository.Mappers
 {

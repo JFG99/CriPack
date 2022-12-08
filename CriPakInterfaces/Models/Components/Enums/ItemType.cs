@@ -4,7 +4,7 @@ using System.Text;
 
 namespace CriPakInterfaces.Models.Components.Enums
 {
-    public enum Category
+    public enum ItemType
     {
         HDR = 0,
         FILE = 1

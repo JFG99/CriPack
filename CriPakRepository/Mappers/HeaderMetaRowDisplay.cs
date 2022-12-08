@@ -1,11 +1,8 @@
 ﻿using CriPakInterfaces;
 using CriPakInterfaces.Models;
-using CriPakInterfaces.Models.Components;
 using CriPakInterfaces.Models.Components.Enums;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace CriPakRepository.Mappers
 {
@@ -22,7 +19,7 @@ namespace CriPakRepository.Mappers
                     FileName = x.FileName,
                     Offset = x.PackageOffsetPosition,
                     ArchiveLength = x.PacketLength,
-                    Type = Category.HDR,
+                    Type = ItemType.HDR,
                 });
             });
             return displayList;
