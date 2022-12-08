@@ -77,7 +77,7 @@
         <DataGrid x:Name="datagrid_cpk" CanUserAddRows="False" Margin="0,62,0,30" Grid.Column="2" VerticalScrollBarVisibility="Visible" IsReadOnly="True" FrozenColumnCount="8" AutoGenerateColumns="False" CanUserResizeColumns="False" CanUserReorderColumns="False" CanUserSortColumns="False" AlternationCount="2" RowHeight="17" AreRowDetailsFrozen="True" CanUserResizeRows="False" HorizontalContentAlignment="Stretch" IsTextSearchEnabled="True" RowBackground="#FFF1F7F4">
             <DataGrid.Columns>
                 <DataGridTextColumn x:Name="colume_number" Header="No." MinWidth="40" Binding="{Binding Id}"/>
-                <DataGridTextColumn x:Name="culume_type" Header="Data Type" MinWidth="40" Binding="{Binding TypeString}"/>
+                <DataGridTextColumn x:Name="colume_type" Header="Data Type" MinWidth="40" Binding="{Binding TypeString}"/>
                 <DataGridTextColumn x:Name="colume_filename" Header="FileName" MinWidth="200" Binding="{Binding FileName}"/>
                 <DataGridTextColumn x:Name="colume_offset" Header="Offset" MinWidth="100" Binding="{Binding Offset , StringFormat=\{0:X8\}}"/>
                 <DataGridTextColumn x:Name="colume_size" Header="Archive Length" MinWidth="80" Binding="{Binding ArchiveLength , StringFormat=\{0:X8\}}"/>
