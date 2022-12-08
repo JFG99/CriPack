@@ -24,7 +24,7 @@ namespace CriPakRepository.Repositories
             if (data != null)
             {
                 data.Id = IdSetter++;
-                CurrentPosition = data.PacketLength;
+                //CurrentPosition = data.PacketLength;
             }
             return data;
         }
