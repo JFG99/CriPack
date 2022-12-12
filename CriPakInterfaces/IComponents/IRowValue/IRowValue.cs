@@ -10,5 +10,7 @@ namespace CriPakInterfaces.IComponents
         TType GetRowValue();
     }
 
+    
+
     public interface IRowValue { }
 }

@@ -42,15 +42,14 @@ namespace MetaRepository.Mappers
             }
             var columnLocations = columnBytes.ParseColumnLocations(endColumnOffset, StringsOffset);
             var columns = columnBytes.GetColumns(columnLocations, packet);
-
-#if DEBUG // For Debugging, these extra data break values are useful, but splitting the annonymous linq requires more reflection and takes an extra 1-3 seconds depending on archive size.  
-            var byteRows = packet.GetByteRows(RowsOffset, RowLength, StringsOffset);
-            var rowMeta = byteRows.GetRowMeta(columns, RowsOffset, RowLength);
-            var stringData = rowMeta.SelectMany(x => x).GetStringData(packet, DataOffset, StringsOffset);
-            var rows = rowMeta.SelectMany(x => x).Merge(stringData);
-#else
             var rows = packet.GetRows(columns, RowsOffset, RowLength, DataOffset, StringsOffset);
-#endif                       
+
+            //For Debugging, these extra data break values are useful.
+            //var byteRows = packet.GetByteRows(RowsOffset, RowLength, StringsOffset);
+            //var rowMeta = byteRows.GetRowMeta(columns, RowsOffset, RowLength);
+            //var stringData = rowMeta.SelectMany(x => x).GetStringData(packet, DataOffset, StringsOffset);
+            //var rows = rowMeta.SelectMany(x => x).Merge(stringData);
+
             return new Meta()
             {
                 Rows = rows,

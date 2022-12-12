@@ -16,7 +16,7 @@ namespace CriPakInterfaces.Models.Components
 
         public TType GetRowValue()
         {
-            return _value;
+            return _value;            
         }
     }
 }

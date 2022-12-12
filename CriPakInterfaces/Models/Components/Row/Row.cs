@@ -5,7 +5,7 @@ using System.Text;
 
 namespace CriPakInterfaces.Models.Components
 {
-    public class Row 
+    public class Row : IModifier
     {
         public int Id { get; set; }
         public string Name { get; set; }
