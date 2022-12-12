@@ -28,6 +28,7 @@ namespace CriPakRepository.Writers
                 }
                 WriteFile(bytes, entry.FileName);
                 fileCount++;
+                //this is slow, but progress bar is functional again
                 Progress.Report((int)(fileCount / (float)data.FileMeta.Count() * 100));
             }
 
