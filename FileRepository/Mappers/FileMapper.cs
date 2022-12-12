@@ -20,7 +20,7 @@ namespace FileRepository.Mappers
                           new
                           {
                               Index = x.Key,
-                              Value = x.Where(y => y.Name == "FileOffset").Select(y => y.Modifier).Cast<IUint64>().ToArray()[0].Value + 0x800
+                              Value = x.GetModifierWhere<IUint64, ulong>(x => x.Name == "FileOffset") + 0x800
                           })
                           .OfType<ITabularRecord>();
             var filesWithLengths = groups.OrderBy(x => x.Value)
