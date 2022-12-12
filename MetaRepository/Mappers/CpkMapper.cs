@@ -11,9 +11,7 @@ namespace MetaRepository.Mappers
     {
         public CpkMeta Map(IDisplayList header, IEnumerable<Row> rowValue)
         {
-            var packet = (IOriginalPacket)header.Packet;
-            packet.MakeDecyrpted();
-            var value = Map(header, (int)packet.ReadBytesFrom(4, 4, true) - 21);
+            var value = Map(header.Packet, (int)header.Packet.ReadBytesFrom(4, 4, true) - 21);
             return new CpkMeta()
             {
                 Columns = value.Columns,

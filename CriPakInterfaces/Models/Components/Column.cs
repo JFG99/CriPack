@@ -25,7 +25,7 @@ namespace CriPakInterfaces.Models.Components
             {7, 8},
             {8, 4},
             {0xA, 4},
-            {0xB, 4}
+            {0xB, 8}
         };
     }
 }

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace CriPakInterfaces.IComponents
 {
-    public interface IOriginalPacket : IPacket
+    public interface IOriginalPacket 
     {
         
     }

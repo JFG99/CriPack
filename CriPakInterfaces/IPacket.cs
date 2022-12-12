@@ -22,7 +22,7 @@ namespace CriPakInterfaces
         IEnumerable<byte> GetBytes(int length);
         IEnumerable<byte> GetBytesFrom(int offset, int length);
         byte GetByteFrom(int offset);        
-        void MakeDecyrpted();
+        void MakeDecrypted();
         string ToDecryptedString();
     }
 }

@@ -6,7 +6,7 @@ namespace CriPakInterfaces.Models.Components
 {
     public class PacketEncryption : PacketBase
     {
-        public void MakeDecyrpted()
+        public void MakeDecrypted()
         {
             DecryptedBytes = Decrypt();
         }
@@ -24,15 +24,19 @@ namespace CriPakInterfaces.Models.Components
 
         public IEnumerable<byte> ProcessBytes()
         {
-            var seed = 0x0000655f;
-            var decrypted = new List<byte>();
-            foreach (var entry in PacketBytes)
+            if (CheckEncryption())
             {
-                decrypted.Add((byte)(entry ^ (byte)(seed & 0xff)));
-                //seed modifier
-                seed *= 0x00004115;
+                var seed = 0x0000655f;
+                var decrypted = new List<byte>();
+                foreach (var entry in PacketBytes)
+                {
+                    decrypted.Add((byte)(entry ^ (byte)(seed & 0xff)));
+                    //seed modifier
+                    seed *= 0x00004115;
+                }
+                return decrypted;
             }
-            return decrypted;
+            return PacketBytes;
         }
 
         public bool CheckEncryption()

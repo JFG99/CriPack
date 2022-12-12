@@ -13,9 +13,7 @@ namespace MetaRepository.Mappers
     {
         public EtocHeader Map(IDisplayList header, IEnumerable<Row> rowValue)
         {
-            var packet = (IOriginalPacket)header.Packet;
-            packet.MakeDecyrpted();
-            var values = Map(header, (int)packet.ReadBytesFrom(4, 4, true));     
+            var values = Map(header.Packet, (int)header.Packet.ReadBytesFrom(4, 4, true));     
             return new EtocHeader()
             {
                 Columns = values.Columns,

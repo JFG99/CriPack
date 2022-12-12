@@ -11,7 +11,7 @@ namespace MetaRepository.Mappers
     {
         public TocHeader Map(IDisplayList header, IEnumerable<Row> rowValue)  
         {
-            var values = Map(header, 0);
+            var values = Map(header.Packet, 0);
 
             return new TocHeader()
             {

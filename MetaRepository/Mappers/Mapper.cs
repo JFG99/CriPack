@@ -3,6 +3,7 @@ using CriPakInterfaces.IComponents;
 using CriPakInterfaces.Models.Components;
 using CriPakRepository.Helpers;
 using System.Linq;
+using System.Net.Sockets;
 
 namespace MetaRepository.Mappers
 {
@@ -10,8 +11,14 @@ namespace MetaRepository.Mappers
     {
         public Meta Map(IDisplayList header, int endColumnOffset)
         {
-            var packet = (IOriginalPacket)header.Packet;
-            packet.MakeDecyrpted();
+            return Map(header.Packet, endColumnOffset);
+            
+        }
+
+        public Meta Map(IPacket packet, int endColumnOffset) 
+        {
+
+            packet.MakeDecrypted();
             var TableSize = (int)packet.ReadBytesFrom(4, 4, true);
             // CPK Header & UTF Header are ignored, so add 8 to each primary offset
             var RowsOffset = (int)packet.ReadBytes(4) + 8;
@@ -21,8 +28,6 @@ namespace MetaRepository.Mappers
             var NumColumns = (short)packet.ReadBytes(2);
             var RowLength = (short)packet.ReadBytes(2);
             var NumRows = (int)packet.ReadBytes(4);
-            var NullSpacer = 7;//+ 7 for <NULL>. spacer
-
 
             var columnBytes = packet.GetBytes(RowsOffset - 32).ToList();//Chunk of offsets that point to Column titles.  Add each to StringOffset to get specific locations.
             var skip = columnBytes.Where((x, i) => i % 5 == 0).ToList().FindIndex(x => x == 0);//locate block data where byte[0] == 0, because this is an empty column string and needs to be ignored.
@@ -54,7 +59,7 @@ namespace MetaRepository.Mappers
             {
                 Rows = rows,
                 Columns = columns,
-                Packet = header.Packet
+                Packet = packet
             };
         }
     }

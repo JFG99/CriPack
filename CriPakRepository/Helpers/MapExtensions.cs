@@ -21,7 +21,7 @@ namespace CriPakRepository.Helpers
                 .AggregateDifference(modifier, offset);
         }
 
-        public static IEnumerable<Column> GetColumns(this IEnumerable<byte> bytes, IEnumerable<ITabularRecord> locations, IOriginalPacket packet)
+        public static IEnumerable<Column> GetColumns(this IEnumerable<byte> bytes, IEnumerable<ITabularRecord> locations, IPacket packet)
         {
             return bytes.Select((x, i) => new { Index = i, Value = x })
                 .GroupBy(x => x.Index % 5 == 0)
@@ -38,7 +38,7 @@ namespace CriPakRepository.Helpers
         }
 
         [Obsolete]
-        public static IEnumerable<IEnumerable<byte>> GetByteRows(this IOriginalPacket packet, int rowOffset, int rowLength, int stringsOffset)
+        public static IEnumerable<IEnumerable<byte>> GetByteRows(this IPacket packet, int rowOffset, int rowLength, int stringsOffset)
         {
             return packet.DecryptedBytes
                 .Skip(rowOffset)
@@ -75,7 +75,7 @@ namespace CriPakRepository.Helpers
         }
 
         [Obsolete]
-        public static IEnumerable<IStringsRow> GetStringData(this IEnumerable<IStringsRow> meta, IOriginalPacket packet, int dataOffset, int stringsOffset)
+        public static IEnumerable<IStringsRow> GetStringData(this IEnumerable<IStringsRow> meta, IPacket packet, int dataOffset, int stringsOffset)
         {
             return meta.Where(x => x.IsStringsModifier)?
                         .Select(x => {
@@ -138,7 +138,7 @@ namespace CriPakRepository.Helpers
             });
         }
 
-        public static IEnumerable<Row> GetRows(this IOriginalPacket packet, IEnumerable<Column> columns, int packetRowOffset, int rowLength, int dataOffset, int stringsOffset)
+        public static IEnumerable<Row> GetRows(this IPacket packet, IEnumerable<Column> columns, int packetRowOffset, int rowLength, int dataOffset, int stringsOffset)
         {
 
             var rowBytes = packet.DecryptedBytes
