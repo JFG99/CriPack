@@ -12,6 +12,7 @@ namespace CriPakRepository.Repositories
     {
         private IEnumerable<IDisplayList> Headers { get; set; }
         private IFiles Files { get; set; }
+        public IProgress<int> Progress { get; set; }    
         public string OutputDirectory { get; set; }
         public string FileName { get; set; }
 
@@ -33,7 +34,7 @@ namespace CriPakRepository.Repositories
            where TWriter : IWriter<T>
            where T : IFiles
         {
-            repository.Write(Files, FileName, OutputDirectory);
+            repository.Write(Files, Progress, FileName, OutputDirectory);
             return null;
         }        
 
@@ -52,6 +53,6 @@ namespace CriPakRepository.Repositories
             OutputDirectory = outDir;
         }
 
-        public abstract IFiles Extract(IEnumerable<IDisplayList> tocHeader);
+        public abstract IFiles Extract(IEnumerable<IDisplayList> tocHeader, IProgress<int> progress);
     }
 }

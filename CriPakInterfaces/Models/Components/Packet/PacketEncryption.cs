@@ -48,6 +48,10 @@ namespace CriPakInterfaces.Models.Components
 
         public IEnumerable<byte> GetDecryptedSegment(int offset, int length)
         {
+            if(DecryptedBytes is null)
+            {
+                MakeDecrypted();
+            }
             return DecryptedBytes.Skip(offset).Take(length);
         }
 

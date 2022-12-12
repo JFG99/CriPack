@@ -9,6 +9,6 @@ namespace CriPakInterfaces
     {
         string OutputDirectory { get; set; }
         string FileName { get; set; }  
-        IFiles Extract(IEnumerable<IDisplayList> headers);
+        IFiles Extract(IEnumerable<IDisplayList> headers, IProgress<int> progress);
     }
 }

@@ -87,10 +87,10 @@ namespace CriPakComplete
             button_importassets.IsEnabled = value;
         }
 
-        private void beginExtractCPK(string foutDir)
+        private void beginExtractCPK(string foutDir, IProgress<int> progress)
         {
             criPak.OutputDirectory = foutDir;
-            _home.Extract(criPak);
+            _home.Extract(criPak, progress);
             Dispatcher.Invoke(() => progressbar0.Value = 100f);
             Dispatcher.Invoke(() => updateDatagrid(true));
             MessageBox.Show("Extraction Complete.");           
@@ -103,7 +103,8 @@ namespace CriPakComplete
             if (saveFilesDialog.ShowDialog().Value)
             {
                 Debug.Print(saveFilesDialog.SelectedPath + "/" + criPak.Name + "_unpacked");
-                Task.Run(() => beginExtractCPK(saveFilesDialog.SelectedPath));
+                var progress = new Progress<int>(value => { progressbar0.Value = value; });
+                Task.Run(() => beginExtractCPK(saveFilesDialog.SelectedPath, progress));
             }
         }   
         

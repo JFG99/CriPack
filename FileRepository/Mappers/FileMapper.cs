@@ -6,6 +6,7 @@ using CriPakRepository.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using CriPakInterfaces.Models;
 
 namespace FileRepository.Mappers
 {
@@ -17,12 +18,11 @@ namespace FileRepository.Mappers
             var toc = headers.OfType<ITocHeader>().First().Rows;            
             var groups = toc.GroupBy(x => x.Id)
                           .Select(x =>
-                          new
+                          new TabularRecord
                           {
                               Index = x.Key,
                               Value = x.GetModifierWhere<IUint64, ulong>(x => x.Name == "FileOffset") + 0x800
-                          })
-                          .OfType<ITabularRecord>();
+                          });
             var filesWithLengths = groups.OrderBy(x => x.Value)
                                          .AggregateDifference(etocOffset, 0);
             var tocFiles = toc.GroupBy(x => x.Id)

@@ -9,15 +9,8 @@ namespace MetaRepository.Mappers
 {
     public class Mapper 
     {
-        public Meta Map(IDisplayList header, int endColumnOffset)
-        {
-            return Map(header.Packet, endColumnOffset);
-            
-        }
-
         public Meta Map(IPacket packet, int endColumnOffset) 
         {
-
             packet.MakeDecrypted();
             var TableSize = (int)packet.ReadBytesFrom(4, 4, true);
             // CPK Header & UTF Header are ignored, so add 8 to each primary offset

@@ -10,6 +10,7 @@ namespace CriPakInterfaces
     {
         string OutputDirectory { get; set; }
         string FileName { get; set; }
+        IProgress<int> Progress { get; set; }
         void Write(IFiles data);
     }
 }

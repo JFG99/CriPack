@@ -17,6 +17,7 @@ namespace CriPakRepository.Writers
         public IEndianReader Stream { get; set; }
         public override void Write(IFiles data)
         {
+            var fileCount = 0;
             foreach(var entry in data.FileMeta)
             {
                 var fileData = GetFileData(entry);
@@ -26,6 +27,8 @@ namespace CriPakRepository.Writers
                     bytes = fileData.PacketBytes.ToArray().DecompressLegacyCRI(); 
                 }
                 WriteFile(bytes, entry.FileName);
+                fileCount++;
+                Progress.Report((int)(fileCount / (float)data.FileMeta.Count() * 100));
             }
 
             //Debug.WriteLine(" FileName :{0}\n    FileOffset:{1:x8}    ExtractSize:{2:x8}   ChunkSize:{3:x8} {4}",

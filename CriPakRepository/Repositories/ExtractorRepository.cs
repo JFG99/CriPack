@@ -3,6 +3,7 @@ using CriPakInterfaces.IComponents;
 using CriPakInterfaces.Models;
 using CriPakInterfaces.Models.Components;
 using CriPakRepository.Repository;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -31,10 +32,11 @@ namespace CriPakRepository.Repositories
             return _mapper.Map(headers);
         }
 
-        public void Write(IFiles files, string fileName, string outDir)
+        public void Write(IFiles files, IProgress<int> progress, string fileName, string outDir)
         {
             _writer.OutputDirectory = outDir;
             _writer.FileName = fileName;
+            _writer.Progress = progress;
             var fileBlocks = new List<IFiles>();
             fileBlocks.Add(new Files { FileMeta = files.FileMeta.Where(x => x.IsCompressed) });
             fileBlocks.Add(new Files { FileMeta = files.FileMeta.Where(x => !x.IsCompressed) });

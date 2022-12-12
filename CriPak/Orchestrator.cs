@@ -34,13 +34,13 @@ namespace CriPakComplete
             return criPak;
         }
 
-        public IEnumerable<ITocHeader> Extract(CriPak criPak)
+        public IEnumerable<ITocHeader> Extract(CriPak criPak, IProgress<int> progress)
         {
             var files = new List<IFiles>();
             _extractors.ToList().ForEach(x => {
                 x.FileName = criPak.FilePath;
                 x.OutputDirectory = criPak.OutputDirectory;
-                files.Add(x.Extract(criPak.Headers)); 
+                files.Add(x.Extract(criPak.Headers, progress)); 
             });
             var test = files.SelectMany(x => x.FileMeta);
             return null;
