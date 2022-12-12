@@ -30,17 +30,17 @@ namespace CriPakInterfaces
         
         public static Dictionary<int, Func<IEnumerable<byte>, IRowValue>> MapBytes = new Dictionary<int, Func<IEnumerable<byte>, IRowValue>>()
         {
-            {0, (bytes) => new Row8(bytes.First()) },
-            {1, (bytes) => new Row8(bytes.First()) },
-            {2, (bytes) => new Row16(BitConverter.ToUInt16(bytes.Reverse().ToArray(), 0)){ } },
-            {3, (bytes) => new Row16(BitConverter.ToUInt16(bytes.Reverse().ToArray(), 0)){ } },
-            {4, (bytes) => new Row32(BitConverter.ToUInt32(bytes.Reverse().ToArray(), 0)){ } },
-            {5, (bytes) => new Row32(BitConverter.ToUInt32(bytes.Reverse().ToArray(), 0)){ } },
-            {6, (bytes) => new Row64(BitConverter.ToUInt64(bytes.Reverse().ToArray(), 0)){ } },
-            {7, (bytes) => new Row64(BitConverter.ToUInt64(bytes.Reverse().ToArray(), 0)){ } },
-            {8, (bytes) => new RowFloat(BitConverter.ToUInt64(bytes.Reverse().ToArray(), 0)){ } },
-            {0xA, (bytes) => new Row32(BitConverter.ToUInt32(bytes.Reverse().ToArray(), 0)){ } },
-            {0xB, (bytes) => new Row32(BitConverter.ToUInt32(bytes.Reverse().ToArray(), 0)){ } }
+            {0, (bytes) => new UInt8(bytes.First()) },
+            {1, (bytes) => new UInt8(bytes.First()) },
+            {2, (bytes) => new Models.Components.UInt16(BitConverter.ToUInt16(bytes.Reverse().ToArray(), 0)){ } },
+            {3, (bytes) => new Models.Components.UInt16(BitConverter.ToUInt16(bytes.Reverse().ToArray(), 0)){ } },
+            {4, (bytes) => new Models.Components.UInt32(BitConverter.ToUInt32(bytes.Reverse().ToArray(), 0)){ } },
+            {5, (bytes) => new Models.Components.UInt32(BitConverter.ToUInt32(bytes.Reverse().ToArray(), 0)){ } },
+            {6, (bytes) => new Models.Components.UInt64(BitConverter.ToUInt64(bytes.Reverse().ToArray(), 0)){ } },
+            {7, (bytes) => new Models.Components.UInt64(BitConverter.ToUInt64(bytes.Reverse().ToArray(), 0)){ } },
+            {8, (bytes) => new Float(BitConverter.ToUInt64(bytes.Reverse().ToArray(), 0)){ } },
+            {0xA, (bytes) => new Models.Components.UInt32(BitConverter.ToUInt32(bytes.Reverse().ToArray(), 0)){ } },
+            {0xB, (bytes) => new Models.Components.UInt32(BitConverter.ToUInt32(bytes.Reverse().ToArray(), 0)){ } }
         };
     }
 }

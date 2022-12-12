@@ -5,12 +5,12 @@ using System.ComponentModel;
 using System.Text;
 
 namespace CriPakInterfaces.Models.Components
-{
-    public class RowFloat : RowValue<float>, IFloat
+{ 
+    public class UInt64 : RowValue<ulong>, IUint64
     {
-        public RowFloat(float value) : base(value) { }        
+        public UInt64(ulong value) : base(value) { }
 
         [DefaultValue(0xFFFFFFFFFFFFFFFF)]
-        public float Value { get; set; }   
+        public ulong Value { get; set; }
     }
 }
