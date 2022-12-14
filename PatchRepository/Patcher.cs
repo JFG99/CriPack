@@ -3,17 +3,89 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using CriPakRepository.Helpers;
 
 namespace PatchRepository
 {
     public class Patcher
     {
+
+        //Current Proof code. Very Bad, Very Slow, not complete.  But Skeleton outline is in place and functions for whats here.
+        //TODO:
+        //      Implement Cascading offset adjustments, while CPK is being written.
+        //      Fix Header offsets and sizes.
+        //      Clean up the newly patch CPK for final write.
+
+
         public void Patch(CriPak package, string cpkDir, Dictionary<string, string> fileList)
         {
             var oldFile = new BinaryReader(File.OpenRead(package.FilePath));
             var newCPK = new BinaryWriter(File.OpenWrite(cpkDir));
-            var patchList = package.DisplayList.Where(x => fileList.Keys.Any(y => x.FileName.ToLower().Equals(y.ToLower())));
-             var test = newCPK;
+            var patchList = package.DisplayList.Where(x => fileList.Keys.Any(y => x.FileName.ToLower().Equals(y.ToLower())));           
+            var unpatchedList = package.DisplayList;
+            var patchLoc = unpatchedList.IndexOf(patchList.First());
+            var patchedFilesForRepack = MapPatchList(fileList, package.DisplayList);
+            var test = newCPK;
+            /*TODO:
+                Read in PatchList and Compress as need for a populated DisplayList ordered by Offset.
+                Foreach item in patch list:   
+                    Find index from unpatched.
+                    Set Flag on file that is being patched
+                    Get archive length difference between the 2.
+                     --That difference will move the offset of ALL files remaining in the unpatched list
+                    Cascade the difference in the Offset values.                    
+                Process corrected "unpatched list" for final values and locations to update the Headers
+                Foreach item in "new" full list
+                    check patched flag and either
+                        stream binary from old CPK to new CPK
+                        or
+                        read binary from patched file 
+                        compress if needed
+                        stream to new CPK   
+            */
+
+
+        }
+
+        //After this runs the new CPK needs to be written so the compression can also be written without losing it.
+        //Compression method is the Really slow.  Need to improve speeds.  
+        //Some files get higher compression, some get less.  Why is this crilayla method not exact in its compression for same size files? Especially the Textures.
+
+        private IEnumerable<PatchList> MapPatchList(Dictionary<string,string> filePathsForPatch, IEnumerable<DisplayList> currentFiles)
+        {
+            var currentFilesForPatch = currentFiles.Where(x => filePathsForPatch.Keys.Any(y => x.FileName.ToLower().Equals(y.ToLower())));
+            var tempPatch = new List<PatchList>();
+            foreach (var item in currentFilesForPatch)
+            {
+                var newFile = new PatchList();
+                newFile.IndexInArchive = currentFiles.ToList().IndexOf(item);
+                var oldFile = currentFiles.ToArray()[newFile.IndexInArchive];
+                newFile.Id = oldFile.Id;
+                newFile.FileName = oldFile.FileName;
+                newFile.Offset = oldFile.Offset;
+                newFile.Type = oldFile.Type;
+                tempPatch.Add(newFile);
+            }
+            var patch = new List<PatchList>();
+            foreach(var file in filePathsForPatch.Values.ToList())
+            {
+                var newFile = tempPatch.Where(x => file.ToUpper().Contains(x.FileName)).First();
+                var oldFile = currentFiles.ToArray()[newFile.IndexInArchive];
+                var patchFile = new BinaryReader(File.OpenRead(file));
+                var bytes = File.ReadAllBytes(file);
+                var compressedFile = bytes;
+                if (oldFile.Percentage < 100)
+                {
+                    compressedFile = bytes.CompressCRILAYLA();
+                }                
+                newFile.LengthDifference = (ulong)bytes.Length - oldFile.ArchiveLength;
+                newFile.ArchiveLength = (ulong)compressedFile.Length;
+                newFile.ExtractedLength = (uint)bytes.Length;
+                newFile.IsPatched = true;                
+                patch.Add(newFile);
+            }
+            return patch;
+
             //var entries = package.CriFileList.OrderBy(x => x.FileOffset).ToList();
             //var badEntries = package.CriFileList.Where(x => x.FileOffsetType == null); 
             //var i = 0;
