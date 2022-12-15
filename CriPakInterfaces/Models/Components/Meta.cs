@@ -1,4 +1,5 @@
-﻿using CriPakInterfaces.Models.Components;
+﻿using CriPakInterfaces.IComponents;
+using CriPakInterfaces.Models.Components;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,5 +17,6 @@ namespace CriPakInterfaces.Models.Components
         public IEnumerable<Column> Columns { get; set; }
         public IEnumerable<Row> Rows { get; set; }
         public long Offset { get; set; }
+        public string Name { get; set; }
     }
 }

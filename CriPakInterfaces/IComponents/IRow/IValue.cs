@@ -5,12 +5,12 @@ using System.Text;
 
 namespace CriPakInterfaces.IComponents
 {
-    public interface IRowValue<TType> : IRowValue where TType : struct
+    public interface IValue<TType> : IValue where TType : struct
     {
-        TType GetRowValue();
+        TType GetValue();
     }
 
     
 
-    public interface IRowValue { }
+    public interface IValue { }
 }

@@ -14,5 +14,6 @@ namespace CriPakInterfaces.Models.Components
         public ushort Align { get; set; }
         public long MetaOffsetPosition { get; set; }
         public ulong PackageOffsetPosition { get; set; }
+        ulong IHeader.Offset { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
     }          
 }

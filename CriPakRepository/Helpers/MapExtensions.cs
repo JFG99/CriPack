@@ -83,7 +83,7 @@ namespace CriPakRepository.Helpers
                                 return new TabularRecord()
                                 {
                                     Index = x.Id,
-                                    Value = modifier32.GetRowValue()
+                                    Value = modifier32.Value
                                 }; 
                             }
                             if (x.Modifier is IUint64 modifier64)
@@ -91,7 +91,7 @@ namespace CriPakRepository.Helpers
                                 return new TabularRecord()
                                 {
                                     Index = x.Id,
-                                    Value = modifier64.GetRowValue()
+                                    Value = modifier64.Value
                                 };
                             }
                             return null;
@@ -178,7 +178,7 @@ namespace CriPakRepository.Helpers
                                             return new TabularRecord()
                                             {
                                                 Index = x.Id,
-                                                Value = modifier32.GetRowValue()
+                                                Value = modifier32.Value
                                             };
                                         }
                                         if (x.Modifier is IUint64 modifier64)
@@ -186,7 +186,7 @@ namespace CriPakRepository.Helpers
                                             return new TabularRecord()
                                             {
                                                 Index = x.Id,
-                                                Value = modifier64.GetRowValue()
+                                                Value = modifier64.Value
                                             };
                                         }
                                         return null;

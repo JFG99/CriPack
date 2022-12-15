@@ -6,11 +6,11 @@ using System.Text;
 
 namespace CriPakInterfaces.Models.Components
 {
-    public class UInt8 : RowValue<byte>, IUint8
+    public class UInt8 : Value<byte>, IUint8
     {
         public UInt8(byte value) : base(value) { }
 
         [DefaultValue(0xFF)]
-        public byte Value { get; set; }
+        public byte Value => GetValue();
     }
 }

@@ -42,7 +42,7 @@ namespace MetaRepository.Mappers
 //    //uint FilesL = (uint)GetColumnData(files, 0, "FilesL");
 //    //uint FilesH = (uint)GetColumnData(files, 0, "FilesH");
 
-//    byte[] DataL = (byte[])package.Utf.GetRowValue("DataL");
+//    byte[] DataL = (byte[])package.Utf.GetValue("DataL");
 //    long DataLPos = package.Utf.GetRowPostion("DataL");
 
 //byte[] DataH = (byte[])GetColumnData(files, 0, "DataH");

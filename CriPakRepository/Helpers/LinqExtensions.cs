@@ -43,23 +43,29 @@ namespace CriPakRepository.Helpers
 
         public static T GetModifierWhere<IType, T>(this IEnumerable<Row> source, Func<Row, bool> predicate)
             where T : struct
-            where IType : IRowValue<T>
+            where IType : IValue<T>
         {
-            return source.Where(predicate).SelectRowValue<IType, T>();
+            return source.Where(predicate).SelectValue<IType, T>();
         }
 
         public static T GetModifierWhere<IType, T>(this IGrouping<int, Row> source, Func<Row, bool> predicate)
             where T : struct
-            where IType : IRowValue<T>
+            where IType : IValue<T>
         {
-            return source.Where(predicate).SelectRowValue<IType, T>();
+            return source.Where(predicate).SelectValue<IType, T>();
         }
 
-        private static T SelectRowValue<IType, T>(this IEnumerable<IModifier> source) 
+        public static T GetModifierWhere<IType, T>(this IEnumerable<Row> source, int index)
             where T : struct
-            where IType : IRowValue<T>
+            where IType : IValue<T>
         {
-            return source.Select(x => x.Modifier).OfType<IType>().First().GetRowValue();
+            return source.Select(x => x.Modifier).OfType<IType>().ToArray()[index].GetValue();
+        }
+        private static T SelectValue<IType, T>(this IEnumerable<IModifier> source) 
+            where T : struct
+            where IType : IValue<T>
+        {
+            return source.Select(x => x.Modifier).OfType<IType>().First().GetValue();
         }
 
     }

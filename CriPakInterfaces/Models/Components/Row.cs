@@ -12,7 +12,7 @@ namespace CriPakInterfaces.Models.Components
         public int Mask { get; set; }
         public string StringName { get; set; }
         public IEnumerable<byte> ByteSegment { get; set; }
-        public IRowValue Modifier { get; set; }
+        public IValue Modifier { get; set; }
         public int RowOffset { get; set; }
     }
 }

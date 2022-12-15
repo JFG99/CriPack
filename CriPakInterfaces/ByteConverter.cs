@@ -28,7 +28,7 @@ namespace CriPakInterfaces
 
         };
         
-        public static Dictionary<int, Func<IEnumerable<byte>, IRowValue>> MapBytes = new Dictionary<int, Func<IEnumerable<byte>, IRowValue>>()
+        public static Dictionary<int, Func<IEnumerable<byte>, IValue>> MapBytes = new Dictionary<int, Func<IEnumerable<byte>, IValue>>()
         {
             {0, (bytes) => new UInt8(bytes.First()) },
             {1, (bytes) => new UInt8(bytes.First()) },

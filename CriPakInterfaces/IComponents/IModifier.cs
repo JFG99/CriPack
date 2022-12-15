@@ -7,6 +7,6 @@ namespace CriPakInterfaces.IComponents
     public interface IModifier
     {
         int Id { get; set; }
-        IRowValue Modifier { get; set; }
+        IValue Modifier { get; set; }
     }
 }

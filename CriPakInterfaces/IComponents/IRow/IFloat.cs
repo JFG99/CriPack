@@ -4,8 +4,8 @@ using System.Text;
 
 namespace CriPakInterfaces.IComponents
 {
-    public interface IFloat : IRowValue<float>
+    public interface IFloat : IValue<float>
     {
-        float Value { get; set; }
+        float Value { get; }
     }
 }

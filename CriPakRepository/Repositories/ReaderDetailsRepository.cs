@@ -12,7 +12,7 @@ namespace CriPakRepository.Repositories
     {    
         public string FileName { get; set; }
         public long CurrentPosition { get; set; }
-        public IEnumerable<IRowValue> Meta { get; set; }
+        public IEnumerable<IValue> Meta { get; set; }
         public IEnumerable<Row> MetaNew { get; set; }
         private int IdSetter { get; set; }
 
