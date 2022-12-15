@@ -5,6 +5,9 @@ namespace CriPakInterfaces.Models.Components
 {
     public class Column
     {
+        public int Id { get; set; } 
+        public byte[] ByteSegment { get; set; }
+        public bool IsRemoved { get; set; }
         public byte Flag { get; set; }
         public string Name { get; set; }
         public int NameOffset { get; set; }

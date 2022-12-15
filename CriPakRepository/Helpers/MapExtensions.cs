@@ -23,18 +23,23 @@ namespace CriPakRepository.Helpers
 
         public static IEnumerable<Column> GetColumns(this IEnumerable<byte> bytes, IEnumerable<ITabularRecord> locations, IPacket packet)
         {
-            return bytes.Select((x, i) => new { Index = i, Value = x })
+            var test = bytes.Select((x, i) => new { Index = i, Value = x })
                 .GroupBy(x => x.Index % 5 == 0)
                 .Select(x =>
                 {
                     return locations.Select(y =>
                            new Column()
-                           {
+                           {                               
                                Name = packet.ReadStringFrom((int)y.Offset, (int)y.Length),
                                NameOffset = (int)y.Offset,
                                Flag = x.ToArray()[y.Index].Value
                            });
                 }).First().ToList();
+            var test2 = bytes.Select((x, i) => new { Index = i, Value = x })
+                .GroupBy(x => x.Index / 5);
+            var test3 = test2.SelectMany(x => x.Select(y => new TabularRecord { Index = x.Key, Offset = (ulong)y.Index, Value = y.Value }));
+            var test4 = test2.Select(x => x.Select(y => y.Value).Skip(1).ToList()).ToArray();
+            return test;
         }
 
         [Obsolete]

@@ -8,9 +8,7 @@ namespace CriPakInterfaces.IComponents
     public interface IValue<TType> : IValue where TType : struct
     {
         TType GetValue();
-    }
-
-    
+    }   
 
     public interface IValue { }
 }

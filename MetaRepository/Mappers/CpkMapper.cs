@@ -16,7 +16,7 @@ namespace MetaRepository.Mappers
         {
             var MetaData = MapMeta(header.Packet);
             var value = Map(header.Packet, (int)header.Packet.ReadBytesFrom(4, 4, true) - 21);
-
+            var HeaderData = MapHeader(value);
             return new CpkMeta()
             {
                 Columns = value.Columns,
@@ -32,7 +32,7 @@ namespace MetaRepository.Mappers
         {
             packet.MakeDecrypted();
             _ = (int)packet.ReadBytes(4); // Encoding 
-            var test = new SectionMeta()
+            return new SectionMeta()
             {
                 TableSize = (int)packet.ReadBytes(4),
                 ColumnOffset = 32,
@@ -43,11 +43,18 @@ namespace MetaRepository.Mappers
                 NumColumns = (short)packet.ReadBytes(2),
                 RowLength = (short)packet.ReadBytes(2),
                 NumRows = (int)packet.ReadBytes(4),
-            };
-            //The Mapped Rows and Columns can be used to extract a Section Header that matches with Section Meta for easier parsing and manipulation
-            
+            };                  
 
-            return test;
+        }
+
+        public SectionHeader MapHeader(Meta value)
+        {
+            return new SectionHeader()
+            {
+                Columns = value.Columns,
+                Rows = value.Rows
+            };
+
         }
     }
 }
