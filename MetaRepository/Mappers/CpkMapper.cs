@@ -17,41 +17,6 @@ namespace MetaRepository.Mappers
             var MetaData = MapMeta(header.Packet);
             var value = Map(header.Packet, (int)header.Packet.ReadBytesFrom(4, 4, true) - 21);
 
-            var test = new Section()
-            {
-                Id = header.Id,
-                Name = header.FileName,
-                MetaData = new Meta()
-                {
-                    Id = header.Id,
-                    Rows = rowValue.Select(x => new Row()
-                    {
-                        Id = x.Id,
-                        Name = x.Name,
-                        StringName = x.StringName,
-                        ByteSegment = x.ByteSegment,
-                        RowOffset = x.RowOffset
-                    })
-                    //Name = rowValue.Where(x => x.Name.Contains("Offset")).FirstOrDefault().Name,
-                    //Offset = rowValue.Where(x => x.Name.Contains("Offset")).FirstOrDefault().RowOffset
-                },
-                HeaderData = new Header()
-                {
-                    Id = header.Id,
-                    Rows = rowValue.Select((x, i) => new Row()
-                    {
-                        Id = x.Id,
-                        Name = x.Name,
-                        StringName = x.StringName,
-                        ByteSegment = x.ByteSegment,
-                        RowOffset = (int)rowValue.GetModifierWhere<IUint64, ulong>(i)
-                    })
-                    //Name = rowValue.Where(x => x.Name.Contains("Offset")).FirstOrDefault().Name,
-                    //Offset = Convert.ToInt64(rowValue.GetModifierWhere<IUint64, ulong>(x => x.Name.Contains("Offset")))
-                }
-
-            };
-
             return new CpkMeta()
             {
                 Columns = value.Columns,
@@ -79,14 +44,8 @@ namespace MetaRepository.Mappers
                 RowLength = (short)packet.ReadBytes(2),
                 NumRows = (int)packet.ReadBytes(4),
             };
-            // CPK Header & UTF Header are ignored, so add 8 to each primary offset
-            var RowsOffset = (int)packet.ReadBytes(4) + 8;
-            var StringsOffset = (int)packet.ReadBytes(4) + 8;
-            var DataOffset = (int)packet.ReadBytes(4) + 8;
-            var TableNameOffset = (int)packet.ReadBytes(4) + StringsOffset;
-            var NumColumns = (short)packet.ReadBytes(2);
-            var RowLength = (short)packet.ReadBytes(2);
-            var NumRows = (int)packet.ReadBytes(4);
+            //The Mapped Rows and Columns can be used to extract a Section Header that matches with Section Meta for easier parsing and manipulation
+            
 
             return test;
         }
