@@ -13,17 +13,8 @@ namespace CriPakRepository.Helpers
     {
         public static IEnumerable<ITabularRecord> ParseColumnLocations(this IEnumerable<byte> bytes, IEnumerable<Column> columnSegments, int modifier, int offset)
         {
-            var segTest = columnSegments.Select(x => new TabularRecord { Index = x.Id, Value = x.OffsetInData });
-            var test = bytes.Select((x, i) => new { Index = i, Value = x })
-                .GroupBy(x => x.Index / 5);
-            var test2 = test
-                .SelectMany(x =>
-                    x.GroupBy(y => y.Index % 5 == 3 || y.Index % 5 == 4)
-                    .Where(y => y.Key))
-                .Select(z => new TabularRecord() { Index = z.Last().Index / 5, Value = (ulong)BitConverter.ToInt16(z.Select(y => y.Value).Reverse().ToArray(), 0) });
-            var test3 = test2
+            return columnSegments.Select(x => new TabularRecord { Index = x.Id, Value = x.OffsetInData })            
                 .AggregateDifference(modifier, offset);
-            return test3;
         }
 
         public static IEnumerable<Column> GetNames(this IEnumerable<Column> columnSegments, IEnumerable<ITabularRecord> locations, IPacket packet)
