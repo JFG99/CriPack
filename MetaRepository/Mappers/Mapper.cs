@@ -83,17 +83,6 @@ namespace MetaRepository.Mappers
                 .Select(x => new Column() { Id = x.Key + segmentCount, ByteSegment = x.Select(y => y.Value).ToArray(), IsRemoved = false }));
             columnBytes.RemoveRange(0, skip * 5);    
             return ParseColumnSegments(columnSegments, columnBytes);
-            //while (skip > -1)//iterate and delete 4 byte blocks where byte[0] == 0
-            //{
-            //    columnSegments.Add(new Column() { Id = skip, ByteSegment = columnBytes.Take(4).ToArray(), IsRemoved = true });
-            //    columnBytes.RemoveRange(0, 4);
-            //    skip = columnBytes.Where((x, i) => i % 5 == 0).ToList().FindIndex(x => x == 0);
-            //    columnSegments.AddRange(columnBytes.Select((x, i) => new { Index = i, Value = x })
-            //    .GroupBy(x => x.Index / 5)
-            //    .Take(skip)
-            //    .Select(x => new Column() { Id = x.Key + columnSegments.Count(), ByteSegment = x.Select(y => y.Value).ToArray(), IsRemoved = false }));
-            //    columnBytes.RemoveRange(0, skip * 5);
-            //}
         }
     }
 }
