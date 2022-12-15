@@ -1,7 +1,9 @@
 ﻿using CriPakInterfaces;
 using CriPakInterfaces.IComponents;
+using CriPakInterfaces.Models;
 using CriPakInterfaces.Models.Components;
 using CriPakRepository.Helpers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
@@ -25,9 +27,10 @@ namespace MetaRepository.Mappers
             var NumRows = (int)packet.ReadBytes(4);
 
             var columnBytes = packet.GetBytes(RowsOffset - 32).ToList();//Chunk of offsets that point to Column titles.  Add each to StringOffset to get specific locations.
-            var columnsSegments = new List<Column>();
-            columnsSegments = ParseColumnSegments(columnsSegments, columnBytes).ToList();
+            var columnSegments = new List<Column>();
+            columnSegments = ParseColumnSegments(columnSegments, columnBytes).ToList();            
 
+            //TODO: Refactor ParseColumnLocations to columnSegments 
             columnBytes = packet.GetBytesFrom(32, RowsOffset - 32).ToList();
             var skip = columnBytes.Where((x, i) => i % 5 == 0).ToList().FindIndex(x => x == 0);//locate block data where byte[0] == 0, because this is an empty column string and needs to be ignored.
             var skipCount = 0;// need to know how many are deleted for later.
@@ -45,9 +48,9 @@ namespace MetaRepository.Mappers
                 endColumnOffset = DataOffset - (TableSize - StringsOffset - RowsOffset + skipCount);
             }
 
-            var columnLocations = columnBytes.ParseColumnLocations(endColumnOffset, StringsOffset);
-            var columns = columnBytes.GetColumns(columnLocations, packet);
-            var rows = packet.GetRows(columns, RowsOffset, RowLength, DataOffset, StringsOffset);
+            var nameLocations = columnBytes.ParseColumnLocations(columnSegments, endColumnOffset, StringsOffset);
+            var columns = columnSegments.GetNames(nameLocations, packet);
+            var rows = packet.GetRows(columnSegments, RowsOffset, RowLength, DataOffset, StringsOffset);
 
             //For Debugging, these extra data break values are useful.
             //var byteRows = packet.GetByteRows(RowsOffset, RowLength, StringsOffset);
@@ -68,19 +71,19 @@ namespace MetaRepository.Mappers
             var segmentCount = columnSegments.Count();
             if (skip == 0)
             {
-                columnSegments.Add(new Column() { Id = skip + segmentCount, ByteSegment = columnBytes.Take(4).ToArray(), IsRemoved = true });
+                columnSegments.Add(new Column() { Id = skip + segmentCount, ByteSegment = columnBytes.Take(4).ToArray(), IsSegmentRemoved = true });
                 columnBytes.RemoveRange(0, 4);
                 return ParseColumnSegments(columnSegments, columnBytes);
             }
             var groupedColumnBytes = columnBytes.Select((x, i) => new { Index = i, Value = x }).GroupBy(x => x.Index / 5);
             if (skip == -1)
             {
-                columnSegments.AddRange(groupedColumnBytes.Select(x => new Column() { Id = x.Key + segmentCount, ByteSegment = x.Select(y => y.Value).ToArray(), IsRemoved = false }));
+                columnSegments.AddRange(groupedColumnBytes.Select(x => new Column() { Id = x.Key + segmentCount, ByteSegment = x.Select(y => y.Value).ToArray(), IsSegmentRemoved = false }));
                 return columnSegments;   
             }
             columnSegments.AddRange(groupedColumnBytes
                 .Take(skip)
-                .Select(x => new Column() { Id = x.Key + segmentCount, ByteSegment = x.Select(y => y.Value).ToArray(), IsRemoved = false }));
+                .Select(x => new Column() { Id = x.Key + segmentCount, ByteSegment = x.Select(y => y.Value).ToArray(), IsSegmentRemoved = false }));
             columnBytes.RemoveRange(0, skip * 5);    
             return ParseColumnSegments(columnSegments, columnBytes);
         }

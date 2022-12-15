@@ -4,42 +4,40 @@ using CriPakInterfaces.Models;
 using CriPakInterfaces.Models.Components;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
 namespace CriPakRepository.Helpers
 {
     public static class MapExtensions
     {
-        public static IEnumerable<ITabularRecord> ParseColumnLocations(this IEnumerable<byte> bytes, int modifier, int offset)
+        public static IEnumerable<ITabularRecord> ParseColumnLocations(this IEnumerable<byte> bytes, IEnumerable<Column> columnSegments, int modifier, int offset)
         {
-            return bytes.Select((x, i) => new { Index = i, Value = x })
-                .GroupBy(x => x.Index / 5)
+            var segTest = columnSegments.Select(x => new TabularRecord { Index = x.Id, Value = x.OffsetInData });
+            var test = bytes.Select((x, i) => new { Index = i, Value = x })
+                .GroupBy(x => x.Index / 5);
+            var test2 = test
                 .SelectMany(x =>
                     x.GroupBy(y => y.Index % 5 == 3 || y.Index % 5 == 4)
                     .Where(y => y.Key))
-                .Select(z => new TabularRecord() { Index = z.Last().Index / 5, Value = (ulong)BitConverter.ToInt16(z.Select(y => y.Value).Reverse().ToArray(), 0) })
+                .Select(z => new TabularRecord() { Index = z.Last().Index / 5, Value = (ulong)BitConverter.ToInt16(z.Select(y => y.Value).Reverse().ToArray(), 0) });
+            var test3 = test2
                 .AggregateDifference(modifier, offset);
+            return test3;
         }
 
-        public static IEnumerable<Column> GetColumns(this IEnumerable<byte> bytes, IEnumerable<ITabularRecord> locations, IPacket packet)
+        public static IEnumerable<Column> GetNames(this IEnumerable<Column> columnSegments, IEnumerable<ITabularRecord> locations, IPacket packet)
         {
-            var test = bytes.Select((x, i) => new { Index = i, Value = x })
-                .GroupBy(x => x.Index % 5 == 0)
-                .Select(x =>
-                {
-                    return locations.Select(y =>
-                           new Column()
-                           {                               
-                               Name = packet.ReadStringFrom((int)y.Offset, (int)y.Length),
-                               NameOffset = (int)y.Offset,
-                               Flag = x.ToArray()[y.Index].Value
-                           });
-                }).First().ToList();
-            var test2 = bytes.Select((x, i) => new { Index = i, Value = x })
-                .GroupBy(x => x.Index / 5);
-            var test3 = test2.SelectMany(x => x.Select(y => new TabularRecord { Index = x.Key, Offset = (ulong)y.Index, Value = y.Value }));
-            var test4 = test2.Select(x => x.Select(y => y.Value).Skip(1).ToList()).ToArray();
-            return test;
+            
+            return columnSegments.Where(x => !x.IsSegmentRemoved)
+                .SelectMany(x => locations.Where(y => x.Id == y.Index)
+                    .Select(y => {
+                        x.Name = packet.ReadStringFrom((int)y.Offset, (int)y.Length);
+                        x.OffsetInTable = (int)y.Offset;
+                        return x;
+                        }
+                ).ToList()
+            ).ToList();            
         }
 
         [Obsolete]
@@ -59,7 +57,7 @@ namespace CriPakRepository.Helpers
             return bytes.Select((x, i) =>
             {
                 var offsets = 0;
-                return columns.Where(y => y.Stored).Select(y =>
+                return columns.Where(y => y.IsStoredInRow).Select(y =>
                 {
                     var bytes = x.Skip(offsets).Take(y.RowReadLength);
                     var rowOffset = offsets + (i * rowLength) + packetRowOffset;
@@ -68,12 +66,12 @@ namespace CriPakRepository.Helpers
                     {
                         Id = i,
                         Name = y.Name,
-                        Mask = y.Mask,
+                        Mask = y.TypeMask,
                         ByteSegment = bytes.ToList(),
-                        Modifier = ByteConverter.MapBytes[y.Mask](bytes),
+                        Modifier = ByteConverter.MapBytes[y.TypeMask](bytes),
                         RowOffset = rowOffset,
-                        IsStringsModifier = y.Mask == 0xA,
-                        IsDataModifier = y.Mask == 0xB
+                        IsStringsModifier = y.TypeMask == 0xA,
+                        IsDataModifier = y.TypeMask == 0xB
                     };
                 });
             });
@@ -155,7 +153,7 @@ namespace CriPakRepository.Helpers
 
             var rowMeta = rowBytes.Select((x, i) => {
                 var offsets = 0;
-                return columns.Where(y => y.Stored).Select(y =>
+                return columns.Where(y => y.IsStoredInRow).Select(y =>
                 {
                     var test = x.Skip(offsets).Take(y.RowReadLength);
                     var rowOffset = offsets + (i * rowLength) + packetRowOffset;
@@ -164,12 +162,12 @@ namespace CriPakRepository.Helpers
                     {
                         Id = i,
                         y.Name,
-                        y.Mask,
+                        y.TypeMask,
                         ByteSegment = test.ToList(),
-                        Modifier = ByteConverter.MapBytes[y.Mask](test),
+                        Modifier = ByteConverter.MapBytes[y.TypeMask](test),
                         RowOffset = rowOffset,
-                        IsStringsModifier = y.Mask == 0xA,
-                        IsDataModifier = y.Mask == 0xB
+                        IsStringsModifier = y.TypeMask == 0xA,
+                        IsDataModifier = y.TypeMask == 0xB
                     };
                 }).ToList();
             })
@@ -208,7 +206,7 @@ namespace CriPakRepository.Helpers
                     {
                         Id = rm.Id,
                         Name = rm.Name,
-                        Mask = rm.Mask,
+                        Mask = rm.TypeMask,
                         StringName = rm.Name == "FileName" ? sd.Name : "",
                         ByteSegment = rm.ByteSegment,
                         Modifier = rm.Modifier,
@@ -222,7 +220,7 @@ namespace CriPakRepository.Helpers
                 {
                     Id = x.Id,
                     Name = x.Name,
-                    Mask = x.Mask,
+                    Mask = x.TypeMask,
                     ByteSegment = x.ByteSegment,
                     Modifier = x.Modifier,
                     RowOffset = x.RowOffset
