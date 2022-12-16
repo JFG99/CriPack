@@ -16,5 +16,7 @@ namespace CriPakInterfaces.Models
         public int NumColumns { get; set; }
         public int RowLength { get; set; }
         public int NumRows { get; set; }
+        public int EndColumnAdjustment { get; set; }
+        public int EndColumnOffset => DataOffset - EndColumnAdjustment;
     }
 }

@@ -7,12 +7,17 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace CriPakRepository.Helpers
 {
     //TODO:  refactor the crilayla methods, maybe
     public static class ExtensionMethods
-    {             
+    {
+        public static string Remove(this string original, string pattern)
+        {
+            return new Regex(pattern).Replace(original, "");
+        }
         public static ushort GetNextBits(byte[] input, ref int offset_p, ref byte bit_pool_p, ref int bits_left_p, int bit_count)
         {
             ushort out_bits = 0;

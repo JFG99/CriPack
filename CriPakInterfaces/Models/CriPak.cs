@@ -10,6 +10,7 @@ namespace CriPakInterfaces.Models
         {
             DisplayList = new List<DisplayList>(); 
             Headers = new List<IDisplayList>();
+            Sections = new List<ISection>();
         }
 
         public string Name => Path.GetFileName(FilePath);
@@ -19,6 +20,7 @@ namespace CriPakInterfaces.Models
         public string OutputDirectory { get; set; }
         public List<DisplayList> DisplayList { get; set; }
         public List<IDisplayList> Headers { get; set; }
+        public List<ISection> Sections { get;set; }
 
     }
 }

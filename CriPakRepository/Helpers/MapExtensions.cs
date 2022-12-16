@@ -158,9 +158,18 @@ namespace CriPakRepository.Helpers
             });
         }
 
+        public static IEnumerable<Row> GetRows(this IPacket packet, IEnumerable<Column> columns, SectionMeta sectionMeta)
+        {
+            var packetRowOffset = sectionMeta.RowOffset;
+            var rowLength = sectionMeta.RowLength;
+            var dataOffset = sectionMeta.DataOffset;
+            var stringsOffset = sectionMeta.ColumnNamesOffset;
+            return packet.GetRows(columns, packetRowOffset, rowLength, dataOffset, stringsOffset);
+
+        }
+
         public static IEnumerable<Row> GetRows(this IPacket packet, IEnumerable<Column> columns, int packetRowOffset, int rowLength, int dataOffset, int stringsOffset)
         {
-
             var rowBytes = packet.DecryptedBytes
                 .Skip(packetRowOffset)
                 .Take(stringsOffset - packetRowOffset)

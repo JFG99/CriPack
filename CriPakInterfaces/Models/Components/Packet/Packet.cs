@@ -25,5 +25,9 @@ namespace CriPakInterfaces.Models.Components
         {
             return LastStringLength;
         }
+        public int GetReadOffset()
+        {
+            return ReadOffset;
+        }
     }
 }

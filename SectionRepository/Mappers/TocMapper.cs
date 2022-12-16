@@ -6,14 +6,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MetaRepository.Mappers
+namespace SectionRepository.Mappers
 {
-    public class TocMapper : Mapper, IDetailMapper<TocHeader>
+    public class TocMapper : Mapper, IDetailMapper<TocHeader>, IDetailMapper2<Section>
     {
         public TocHeader Map(IDisplayList header, IEnumerable<Row> rowValue)  
         {
-            var TocSection = MapSection(header);
-            TocSection.Id = 1;
+            //var TocSection = MapSection(header);
+            //TocSection.Id = 1;
             var values = Map(header.Packet, 0);           
 
             return new TocHeader()
@@ -25,6 +25,11 @@ namespace MetaRepository.Mappers
                 MetaOffsetPosition = rowValue.Where(x => x.Name.Contains("Offset")).FirstOrDefault().RowOffset,
                 PackageOffsetPosition = rowValue.GetModifierWhere<IUint64, ulong>(x => x.Name.Contains("Offset"))            
             };
+        }
+        public Section Map(IPacket packet, IEnumerable<Row> rowValue)
+        {
+            var tocSection = MapSection(packet);
+            return tocSection;
         }
     }
 }

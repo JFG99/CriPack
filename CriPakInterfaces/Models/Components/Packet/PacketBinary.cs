@@ -17,7 +17,8 @@ namespace CriPakInterfaces.Models.Components
             {
                 i += 1;
             }
-            LastStringLength = i;
+            LastStringLength = i; 
+            ReadOffset += i;
             return encoding.GetString(bytes.Take(i).ToArray());
         }
 
@@ -30,6 +31,7 @@ namespace CriPakInterfaces.Models.Components
 
         public string ReadStringFrom(int offset, int length)
         {
+            ReadOffset += length;
             var value = Encoding.UTF8.GetString(GetDecryptedSegment(offset, length).ToArray()).Replace("\0", "");
             return value;
         }
@@ -37,7 +39,6 @@ namespace CriPakInterfaces.Models.Components
         public long ReadBytes(int length)
         {
             var value = ByteConverter.MapInt[length](GetDecryptedSegment(length).Reverse().ToArray(), 0);
-
             ReadOffset += length;
             return value;
         }
@@ -52,7 +53,6 @@ namespace CriPakInterfaces.Models.Components
         public IEnumerable<byte> GetBytes(int length)
         {
             var value = GetDecryptedSegment(length).ToArray();
-            ReadOffset += length;
             return value;
         }
 

@@ -28,8 +28,8 @@
     <ProjectReference Include="..\CriPakInterfaces\CriPakInterfaces.csproj" />
     <ProjectReference Include="..\CriPakRepository\CriPakRepository.csproj" />
     <ProjectReference Include="..\FileRepository\FileRepository.csproj" />
-    <ProjectReference Include="..\MetaRepository\MetaRepository.csproj" />
     <ProjectReference Include="..\PatchRepository\PatchRepository.csproj" />
+    <ProjectReference Include="..\SectionRepository\SectionRepository.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -5,7 +5,7 @@ using CriPakRepository.Helpers;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MetaRepository.Mappers
+namespace SectionRepository.Mappers
 {
     public class Mapper 
     {
@@ -39,9 +39,9 @@ namespace MetaRepository.Mappers
             };
         }
 
-        public Section MapSection(IDisplayList header, int adjustment = 0)
+        public Section MapSection(IPacket packet, int adjustment = 0)
         {
-            var packet = header.Packet;
+            //var packet = header.Packet;
             packet.MakeDecrypted();
             _ = (int)packet.ReadBytes(4); // Encoding 
             var sectionMeta = new SectionMeta()
@@ -74,7 +74,7 @@ namespace MetaRepository.Mappers
 
             return new Section()
             {
-                Name = header.SelectionName, 
+                //Name = header.SelectionName, 
                 MetaData = sectionMeta,
                 HeaderData = sectionHeader
             };
