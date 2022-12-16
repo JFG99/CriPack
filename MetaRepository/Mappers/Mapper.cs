@@ -1,13 +1,8 @@
 ﻿using CriPakInterfaces;
-using CriPakInterfaces.IComponents;
-using CriPakInterfaces.Models;
 using CriPakInterfaces.Models.Components;
 using CriPakRepository.Helpers;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Sockets;
-using System.Runtime.InteropServices;
 
 namespace MetaRepository.Mappers
 {
