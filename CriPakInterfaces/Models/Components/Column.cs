@@ -9,6 +9,7 @@ namespace CriPakInterfaces.Models.Components
     {
         public int Id { get; set; }
         public string Name { get; set; }
+        public int NameLength { get; set; }
         public byte[] ByteSegment { get; set; }
         public bool IsSegmentRemoved { get; set; }
         public int OffsetInTable { get; set; }

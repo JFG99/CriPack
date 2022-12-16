@@ -49,7 +49,7 @@ namespace MetaRepository.Mappers
             }
 
             var nameLocations = columnBytes.ParseColumnLocations(columnSegments, endColumnOffset, StringsOffset);
-            var columns = columnSegments.GetNames(nameLocations, packet);
+            //var columns = columnSegments.GetNames(nameLocations, packet);
             var rows = packet.GetRows(columnSegments, RowsOffset, RowLength, DataOffset, StringsOffset);
 
             //For Debugging, these extra data break values are useful.
@@ -61,7 +61,7 @@ namespace MetaRepository.Mappers
             return new Meta()
             {
                 Rows = rows,
-                Columns = columns,
+               // Columns = columns,
                 Packet = packet
             };
         }

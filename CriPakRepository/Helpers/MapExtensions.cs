@@ -6,19 +6,35 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 
 namespace CriPakRepository.Helpers
 {
     public static class MapExtensions
     {
-        public static IEnumerable<ITabularRecord> ParseColumnLocations(this IEnumerable<byte> bytes, IEnumerable<Column> columnSegments, int modifier, int offset)
+        public static IEnumerable<Column> ParseColumnLocations(this IEnumerable<byte> bytes, IEnumerable<Column> columnSegments, int modifier, int offset)
         {
-            return columnSegments.Select(x => new TabularRecord { Index = x.Id, Value = x.OffsetInData })            
-                .AggregateDifference(modifier, offset);
+            var test = columnSegments//.Select(x => new TabularRecord { Index = x.Id, Value = x.OffsetInData })
+                .SelectWithNext((curr, next) => { curr.NameLength = (int)next.OffsetInData - (int)curr.OffsetInData - 1; return curr; })
+                .WhenLast(x => { x.NameLength = modifier - ((int)x.OffsetInData + offset); return x; })
+                .ToList();
+           
+            
+            return columnSegments.Select(x => new TabularRecord { Index = x.Id, Value = x.OffsetInData })
+                .AggregateDifference(modifier, offset)
+                .SelectMany(x => columnSegments.Where(y => y.Id == x.Index)
+                                .Select(y => { 
+                                    y.OffsetInTable= (int)x.Offset;
+                                    y.NameLength = (int)x.Length; 
+                                    return y; 
+                                })
+                                .ToList())
+                .ToList();
         }
 
         public static IEnumerable<Column> GetNames(this IEnumerable<Column> columnSegments, IEnumerable<ITabularRecord> locations, IPacket packet)
         {
+
             
             return columnSegments.Where(x => !x.IsSegmentRemoved)
                 .SelectMany(x => locations.Where(y => x.Id == y.Index)
@@ -26,9 +42,9 @@ namespace CriPakRepository.Helpers
                         x.Name = packet.ReadStringFrom((int)y.Offset, (int)y.Length);
                         x.OffsetInTable = (int)y.Offset;
                         return x;
-                        }
-                ).ToList()
-            ).ToList();            
+                        })
+                    .ToList())
+                .ToList();            
         }
 
         [Obsolete]

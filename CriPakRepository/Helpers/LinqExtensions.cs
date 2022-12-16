@@ -9,6 +9,29 @@ namespace CriPakRepository.Helpers
 {
     public static class LinqExtensions
     {
+        //TODO:  ADD a WhenLast() Enumerator method...
+        public static IEnumerable<TResult> SelectWithNext<TSource, TResult>(this IEnumerable<TSource> source, Func<TSource, TSource, TResult> projection)
+            where TResult : TSource, new()
+        {
+            using var iterator = source.GetEnumerator();
+            if (!iterator.MoveNext())
+            {
+                yield break;
+            }
+            TSource previous = iterator.Current;
+            while (iterator.MoveNext())
+            {
+                yield return projection(previous, iterator.Current);
+                previous = iterator.Current;
+            }
+            yield return iterator.Current;
+        }
+        public static IEnumerable<TResult> WhenLast<TSource, TResult>(this IEnumerable<TSource> source, Func<TSource, TResult> projection)
+        {
+            yield return projection(source.Last());            
+        }
+
+
         public static IEnumerable<ITabularRecord> AggregateDifference(this IEnumerable<ITabularRecord> source, int size, int offset)
         {
             if (source.Any())
