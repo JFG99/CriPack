@@ -49,7 +49,6 @@ namespace MetaRepository
             var headers = Get(_readers, initialHeader.OfType<ICpkMeta>().First().Rows).ToList();
             headers.AddRange(initialHeader.ToList());
             return headers;
-
         }
 
         public override IEnumerable<IDisplayList> MapForDisplay(IEnumerable<IDisplayList> headers)

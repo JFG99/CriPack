@@ -12,40 +12,51 @@ namespace CriPakRepository.Helpers
 {
     public static class MapExtensions
     {
-        public static IEnumerable<Column> ParseColumnLocations(this IEnumerable<byte> bytes, IEnumerable<Column> columnSegments, int modifier, int offset)
+        public static IEnumerable<Column> ParseSegments(this List<byte> columnBytes, List<Column> columnSegments)
         {
-            var test = columnSegments//.Select(x => new TabularRecord { Index = x.Id, Value = x.OffsetInData })
-                .SelectWithNext((curr, next) => { curr.NameLength = (int)next.OffsetInData - (int)curr.OffsetInData - 1; return curr; })
-                .WhenLast(x => { x.NameLength = modifier - ((int)x.OffsetInData + offset); return x; })
-                .ToList();
-           
-            
-            return columnSegments.Select(x => new TabularRecord { Index = x.Id, Value = x.OffsetInData })
-                .AggregateDifference(modifier, offset)
-                .SelectMany(x => columnSegments.Where(y => y.Id == x.Index)
-                                .Select(y => { 
-                                    y.OffsetInTable= (int)x.Offset;
-                                    y.NameLength = (int)x.Length; 
-                                    return y; 
-                                })
-                                .ToList())
+            var skip = columnBytes.Where((x, i) => i % 5 == 0).ToList().FindIndex(x => x == 0);
+            var segmentCount = columnSegments.Count();
+            if (skip == 0)
+            {
+                columnSegments.Add(new Column() { Id = skip + segmentCount, ByteSegment = columnBytes.Take(4).ToArray(), IsSegmentRemoved = true });
+                columnBytes.RemoveRange(0, 4);
+                return columnBytes.ParseSegments(columnSegments);
+            }
+            var groupedColumnBytes = columnBytes.Select((x, i) => new { Index = i, Value = x }).GroupBy(x => x.Index / 5);
+            if (skip == -1)
+            {
+                columnSegments.AddRange(groupedColumnBytes.Select(x => new Column() { Id = x.Key + segmentCount, ByteSegment = x.Select(y => y.Value).ToArray(), IsSegmentRemoved = false }));
+                return columnSegments;
+            }
+            columnSegments.AddRange(groupedColumnBytes
+                .Take(skip)
+                .Select(x => new Column() { Id = x.Key + segmentCount, ByteSegment = x.Select(y => y.Value).ToArray(), IsSegmentRemoved = false }));
+            columnBytes.RemoveRange(0, skip * 5);
+            return columnBytes.ParseSegments(columnSegments);
+        }
+
+        public static IEnumerable<Column> ThenData(this IEnumerable<Column> columnSegments, IPacket packet, int modifier, int offset)
+        {
+            modifier -= columnSegments.Where(x => x.IsSegmentRemoved).Count();
+            return columnSegments
+                .SelectWithNextWhere(x => !x.IsIgnoredForName, (curr, next) => {
+                    curr.NameLength = (int)next.OffsetInData - (int)curr.OffsetInData - 1;
+                    curr.OffsetInTable = offset + (int)curr.OffsetInData;
+                    return curr;
+                }).ToList()
+                .WhenLastWhere(x => !x.IsIgnoredForName, x => {
+                        x.NameLength = modifier - ((int)x.OffsetInData + offset); 
+                    x.OffsetInTable = offset + (int)x.OffsetInData;  
+                    return x; 
+                })
+                .Select(x => {
+                    x.Name = packet.ReadStringFrom(x.OffsetInTable, x.NameLength);
+                    return x;
+                })
                 .ToList();
         }
 
-        public static IEnumerable<Column> GetNames(this IEnumerable<Column> columnSegments, IEnumerable<ITabularRecord> locations, IPacket packet)
-        {
 
-            
-            return columnSegments.Where(x => !x.IsSegmentRemoved)
-                .SelectMany(x => locations.Where(y => x.Id == y.Index)
-                    .Select(y => {
-                        x.Name = packet.ReadStringFrom((int)y.Offset, (int)y.Length);
-                        x.OffsetInTable = (int)y.Offset;
-                        return x;
-                        })
-                    .ToList())
-                .ToList();            
-        }
 
         [Obsolete]
         public static IEnumerable<IEnumerable<byte>> GetByteRows(this IPacket packet, int rowOffset, int rowLength, int stringsOffset)

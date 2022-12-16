@@ -12,6 +12,7 @@ namespace CriPakInterfaces.Models.Components
         public int NameLength { get; set; }
         public byte[] ByteSegment { get; set; }
         public bool IsSegmentRemoved { get; set; }
+        public bool IsIgnoredForName => IsSegmentRemoved && OffsetInData == 0;
         public int OffsetInTable { get; set; }
         public ulong OffsetInData => (ulong)BitConverter.ToInt16(ByteSegment.Skip(1).Reverse().ToArray(), 0);
         public byte Flag => ByteSegment[0];

@@ -9,60 +9,38 @@ namespace CriPakRepository.Helpers
 {
     public static class LinqExtensions
     {
-        //TODO:  ADD a WhenLast() Enumerator method...
-        public static IEnumerable<TResult> SelectWithNext<TSource, TResult>(this IEnumerable<TSource> source, Func<TSource, TSource, TResult> projection)
-            where TResult : TSource, new()
+        public static IEnumerable<TSource> SelectWithNextWhere<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> predicate, Func<TSource, TSource, TSource> projection)
         {
-            using var iterator = source.GetEnumerator();
+            return source.Where(predicate).SelectWithNext(projection).Union(source);
+        }
+
+        public static IEnumerable<TSource> SelectWithNext<TSource>(this IEnumerable<TSource> source, Func<TSource, TSource, TSource> projection)
+        {
+            var iterator = source.GetEnumerator();
             if (!iterator.MoveNext())
             {
                 yield break;
             }
-            TSource previous = iterator.Current;
+            TSource realCurrent = iterator.Current;
             while (iterator.MoveNext())
             {
-                yield return projection(previous, iterator.Current);
-                previous = iterator.Current;
+                TSource next = iterator.Current;
+                yield return projection(realCurrent, next);
+                realCurrent = iterator.Current;
             }
-            yield return projection(previous, iterator.Current);
-        }
-        public static IEnumerable<TResult> WhenLast<TSource, TResult>(this IEnumerable<TSource> source, Func<TSource, TResult> projection)
-        {
-            yield return projection(source.Last());            
+            yield return realCurrent;
         }
 
-
-        public static IEnumerable<ITabularRecord> AggregateDifference(this IEnumerable<ITabularRecord> source, int size, int offset)
+        public static IEnumerable<TSource> WhenLastWhere<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> predicate, Func<TSource, TSource> projection)
         {
-            if (source.Any())
-            {
-                var data = source.ToArray();
-                var last = data.Last().Index;
-                var data2 = data.Select(x =>
-                {
-                    var length = x.Index == last ? size - ((int)data[x.Index].Value + offset) : (int)(data[x.Index + 1].Value - data[x.Index].Value - 1);
-                    return new TabularRecord(){Index = x.Index, Offset = x.Value + (ulong)offset, Length = (ulong)length };
-                });
-                return data2;
-            }
-            return null;
+            return source.Where(predicate).WhenLast(projection).Union(source);
         }
 
-        public static IEnumerable<ITabularRecord> AggregateDifference(this IEnumerable<ITabularRecord> source, ulong size, ulong offset)
+        public static IEnumerable<TSource> WhenLast<TSource>(this IEnumerable<TSource> source, Func<TSource, TSource> projection)
         {
-            if (source.Any())
-            {
-                var data = source.Select((x, i) => new { Index = i, FileId = x.Index, x.Value }).ToArray();
-                var last = data.Last().Index;
-                var data2 = data.Select(x =>
-                {
-                    var length = x.Index == last ? size - (data[x.Index].Value + offset) : data[x.Index + 1].Value - data[x.Index].Value ;
-                    return new TabularRecord() { Index = x.FileId, Offset = x.Value + offset, Length = length };
-                });
-                return data2;
-            }
-            return null;
-        }        
+            projection(source.Last());
+            return source;           
+        }       
 
         public static T GetModifierWhere<IType, T>(this IEnumerable<Row> source, Func<Row, bool> predicate)
             where T : struct
@@ -89,6 +67,40 @@ namespace CriPakRepository.Helpers
             where IType : IValue<T>
         {
             return source.Select(x => x.Modifier).OfType<IType>().First().GetValue();
+        }
+
+        //Get rid of these in favor of Enumerator methods above.
+        [Obsolete]
+        public static IEnumerable<ITabularRecord> AggregateDifference(this IEnumerable<ITabularRecord> source, int size, int offset)
+        {
+            if (source.Any())
+            {
+                var data = source.ToArray();
+                var last = data.Last().Index;
+                var data2 = data.Select(x =>
+                {
+                    var length = x.Index == last ? size - ((int)data[x.Index].Value + offset) : (int)(data[x.Index + 1].Value - data[x.Index].Value - 1);
+                    return new TabularRecord() { Index = x.Index, Offset = x.Value + (ulong)offset, Length = (ulong)length };
+                });
+                return data2;
+            }
+            return null;
+        }
+        [Obsolete]
+        public static IEnumerable<ITabularRecord> AggregateDifference(this IEnumerable<ITabularRecord> source, ulong size, ulong offset)
+        {
+            if (source.Any())
+            {
+                var data = source.Select((x, i) => new { Index = i, FileId = x.Index, x.Value }).ToArray();
+                var last = data.Last().Index;
+                var data2 = data.Select(x =>
+                {
+                    var length = x.Index == last ? size - (data[x.Index].Value + offset) : data[x.Index + 1].Value - data[x.Index].Value;
+                    return new TabularRecord() { Index = x.FileId, Offset = x.Value + offset, Length = length };
+                });
+                return data2;
+            }
+            return null;
         }
 
     }
