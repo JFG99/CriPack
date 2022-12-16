@@ -24,7 +24,7 @@ namespace CriPakRepository.Helpers
                 yield return projection(previous, iterator.Current);
                 previous = iterator.Current;
             }
-            yield return iterator.Current;
+            yield return projection(previous, iterator.Current);
         }
         public static IEnumerable<TResult> WhenLast<TSource, TResult>(this IEnumerable<TSource> source, Func<TSource, TResult> projection)
         {
