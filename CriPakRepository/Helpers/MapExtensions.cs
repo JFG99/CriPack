@@ -43,17 +43,16 @@ namespace CriPakRepository.Helpers
                     curr.NameLength = (int)next.OffsetInData - (int)curr.OffsetInData - 1;
                     curr.OffsetInTable = offset + (int)curr.OffsetInData;
                     return curr;
-                }).ToList()
+                })
                 .WhenLastWhere(x => !x.IsIgnoredForName, x => {
-                        x.NameLength = modifier - ((int)x.OffsetInData + offset); 
+                    x.NameLength = modifier - ((int)x.OffsetInData + offset); 
                     x.OffsetInTable = offset + (int)x.OffsetInData;  
                     return x; 
                 })
                 .Select(x => {
                     x.Name = packet.ReadStringFrom(x.OffsetInTable, x.NameLength);
                     return x;
-                })
-                .ToList();
+                });
         }
 
 
