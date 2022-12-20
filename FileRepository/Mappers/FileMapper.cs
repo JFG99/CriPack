@@ -12,7 +12,7 @@ namespace FileRepository.Mappers
 {
     public class FileMapper : Mapper, IExtractorMapper<FileList>
     {
-        public FileList Map(IEnumerable<IDisplayList> headers)
+        public FileList Map(IEnumerable<IFileViewer> headers)
         {
             var etocOffset = headers.OfType<EtocHeader>().First().PackageOffsetPosition;
             var toc = headers.OfType<ITocHeader>().First().Rows;            

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using CriPakRepository.Helpers;
+using CriPakInterfaces;
 
 namespace PatchRepository
 {
@@ -21,10 +22,10 @@ namespace PatchRepository
         {
             var oldFile = new BinaryReader(File.OpenRead(package.FilePath));
             var newCPK = new BinaryWriter(File.OpenWrite(cpkDir));
-            var patchList = package.DisplayList.Where(x => fileList.Keys.Any(y => x.FileName.ToLower().Equals(y.ToLower())));           
-            var unpatchedList = package.DisplayList;
+            var patchList = package.ViewList.Where(x => fileList.Keys.Any(y => x.FileName.ToLower().Equals(y.ToLower())));           
+            var unpatchedList = package.ViewList;
             var patchLoc = unpatchedList.IndexOf(patchList.First());
-            var patchedFilesForRepack = MapPatchList(fileList, package.DisplayList);
+            var patchedFilesForRepack = MapPatchList(fileList, package.ViewList);
             var test = newCPK;
             /*TODO:
                 Read in PatchList and Compress as need for a populated DisplayList ordered by Offset.
@@ -51,7 +52,7 @@ namespace PatchRepository
         //Compression method is the Really slow.  Need to improve speeds.  
         //Some files get higher compression, some get less.  Why is this crilayla method not exact in its compression for same size files? Especially the Textures.
 
-        private IEnumerable<PatchList> MapPatchList(Dictionary<string,string> filePathsForPatch, IEnumerable<DisplayList> currentFiles)
+        private IEnumerable<PatchList> MapPatchList(Dictionary<string,string> filePathsForPatch, IEnumerable<IFileViewer> currentFiles)
         {
             var currentFilesForPatch = currentFiles.Where(x => filePathsForPatch.Keys.Any(y => x.FileName.ToLower().Equals(y.ToLower())));
             var tempPatch = new List<PatchList>();

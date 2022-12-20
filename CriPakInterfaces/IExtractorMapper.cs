@@ -7,6 +7,6 @@ namespace CriPakInterfaces
 {
     public interface IExtractorMapper<out T>
     {
-        T Map(IEnumerable<IDisplayList> headers);
+        T Map(IEnumerable<IFileViewer> headers);
     }
 }

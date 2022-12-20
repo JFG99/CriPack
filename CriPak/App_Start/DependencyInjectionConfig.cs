@@ -24,17 +24,12 @@ namespace CriPakComplete.App_Start
             builder.RegisterType<MainWindow>().AsSelf().InstancePerLifetimeScope();
             builder.RegisterType<Orchestrator>().AsSelf().InstancePerLifetimeScope();
             builder.RegisterTypes(
-                 typeof(MetaReader)
-            ).AsSelf().As<IReaderDetailsRepository<IDisplayList>>().InstancePerLifetimeScope(); 
-            builder.RegisterTypes(
                   typeof(FileExtractor)
              ).AsSelf().As<IExtractorsRepository<IFiles>>().InstancePerLifetimeScope();
             builder.RegisterGeneric(typeof(DetailRepository<,>)).As(typeof(DetailRepository<,>)).InstancePerLifetimeScope();
-            builder.RegisterGeneric(typeof(ReaderDetailRepository<,>)).As(typeof(ReaderDetailRepository<,>)).InstancePerLifetimeScope();
             builder.RegisterGeneric(typeof(ExtractorRepository<,,>)).As(typeof(ExtractorRepository<,,>)).InstancePerLifetimeScope();
             var assemblies = typeof(DependencyInjectionConfig).Assembly.GetReferencedAssemblies().Where(x => x.Name.EndsWith("Repository")).Select(Assembly.Load).ToArray();
             builder.RegisterAssemblyTypes(assemblies).AsClosedTypesOf(typeof(IDetailMapper<>)).InstancePerLifetimeScope();
-            builder.RegisterAssemblyTypes(assemblies).AsClosedTypesOf(typeof(IDetailMapper2<>)).InstancePerLifetimeScope();
             builder.RegisterAssemblyTypes(assemblies).AsClosedTypesOf(typeof(IExtractorMapper<>)).InstancePerLifetimeScope();
             builder.RegisterAssemblyTypes(assemblies).AsClosedTypesOf(typeof(IWriter<>)).InstancePerLifetimeScope();
             builder.RegisterType<CpkMeta>().AsSelf().As<IMeta>().InstancePerLifetimeScope();

@@ -4,8 +4,8 @@ using System.Text;
 
 namespace CriPakInterfaces.Models.Components
 {
-    public class Entity : IDisplayList
-    {
+    public class Entity 
+    { 
         public int Id { get; set; }
         public string FileName { get; set; }
         public string ValidationName { get; set; }

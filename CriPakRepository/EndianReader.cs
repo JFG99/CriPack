@@ -12,10 +12,12 @@ namespace CriPakRepository.Repository
         where T : IEndian, new()
     {
         private readonly T _endian;
+        public bool IsOpen { get; private set; }
 
         public EndianReader(TStream stream, T endian) : base(stream, Encoding.UTF8)
         {
             _endian = endian;
+            IsOpen = true;
         }
 
         public override Stream BaseStream => base.BaseStream;
@@ -31,7 +33,11 @@ namespace CriPakRepository.Repository
             set => _endian.Buffer = value;
         }
 
-        public override void Close() => base.Close();
+        public override void Close()
+        {
+            IsOpen = false;
+            base.Close();
+        }
         public override byte ReadByte() => base.ReadByte();
 
         public override double ReadDouble()

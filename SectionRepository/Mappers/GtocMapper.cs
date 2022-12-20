@@ -9,22 +9,13 @@ using System.Text;
 
 namespace SectionRepository.Mappers
 {
-    public class GtocMapper : Mapper, IDetailMapper<GtocHeader>, IDetailMapper2<Section>
+    public class GtocMapper : Mapper, IDetailMapper<Section>
     {
-        public GtocHeader Map(IDisplayList header, IEnumerable<Row> rowValue) 
+        public Section Map(IPacket packet, IEnumerable<Row> rowValue)
         {
-            //Im not sure if 154 is accurate to all GTOC.  It is for my testing, but GTOC doesn't seem to have any need for parsing.
-            var values = Map(header.Packet, 154);
-            GetGtocInnerTables(header.Packet, values.Rows);
-            return new GtocHeader()
-            {
-                Columns = values.Columns,
-                Rows = values.Rows,
-                Packet = header.Packet,
-                PacketLength = (ulong)header.Packet.PacketBytes.Count(),
-                MetaOffsetPosition = rowValue.Where(x => x.Name.Contains("Offset")).FirstOrDefault().RowOffset,
-                PackageOffsetPosition = rowValue.GetModifierWhere<IUint64, ulong>(x => x.Name.Contains("Offset"))
-            };            
+            var section = MapSection(packet, 154);
+            section.Offset = (long)rowValue.GetModifierWhere<IUint64, ulong>(x => x.Name.Contains("Offset"));
+            return section;
         }
 
         //Just going to leave this here.  Each inner GTOC table has speciallized headers.  GLink and Attr, don't really seem necessary, and FLink has some kind of sequential file link in it. 
@@ -43,12 +34,6 @@ namespace SectionRepository.Mappers
                        ).ToList();
             var tables = segments.Select(x => new Packet(packet.GetBytesFrom(x.Offset + 160, x.Length)));                  
             return;
-        }
-
-        public Section Map(IPacket packet, IEnumerable<Row> rowValue)
-        {
-            var section = MapSection(packet, 154);
-            return section;
         }
     }
 }

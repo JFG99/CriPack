@@ -44,18 +44,16 @@ namespace SectionRepository
 
         public override IEnumerable<ISection> Read()
         {
+            //TODO:  Change the view to display directory when needed.
             var initialSection = Get(_initialReaders);
-            var sections = Get(_readers, initialSection.Where(x => x.Name.Contains("CPK")).First().HeaderData.Rows).ToList();
+            var sections = Get(_readers, initialSection.Where(x => x.Name.Contains("CPK")).First().HeaderData.Rows).Where(x => x != null).ToList();
             sections.AddRange(initialSection.ToList());
             return sections;
         }
 
-        public override IEnumerable<ISection> MapForDisplay(IEnumerable<ISection> headers)
+        public override IEnumerable<IFileViewer> MapForViewer(IEnumerable<ISection> sections)
         {
-            var displayList = new List<ISection>();
-            //displayList.AddRange(headers.OfType<IHeader>().MapHeaderRowsToDisplay());
-            //displayList.AddRange(headers.OfType<ITocHeader>().First().MapTocRowsToDisplay());
-            return displayList; // displayList.OrderBy(x => x.Offset).ThenBy(x => x.Id);
+            return sections.MapToViewer().OrderBy(x => x.Offset).ThenBy(x => x.Id);
         }
     }
 }

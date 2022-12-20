@@ -17,23 +17,20 @@ namespace CriPakComplete
     public class Orchestrator 
     {
         private readonly IEnumerable<IDetailsRepository> _sections;
-        private readonly IEnumerable<IReaderDetailsRepository<IDisplayList>> _readers; 
         private readonly IEnumerable<IExtractorsRepository<IFiles>> _extractors;
 
-        public Orchestrator( IEnumerable<IReaderDetailsRepository<IDisplayList>> readers,
-                            IEnumerable<IExtractorsRepository<IFiles>> extractors)
+        public Orchestrator(IEnumerable<IExtractorsRepository<IFiles>> extractors)
         {
             _sections = new List<SectionReader>()
             {
                 new SectionReader(
-                   new DetailRepository<CpkMapper, Section>(new CpkMapper(), new Section()),
-                   new DetailRepository<ContentMapper, Section>(new ContentMapper(), new Section()),
-                   new DetailRepository<TocMapper, Section>(new TocMapper(), new Section()),
-                   new DetailRepository<EtocMapper, Section>(new EtocMapper(), new Section()),
-                   new DetailRepository<GtocMapper, Section>(new GtocMapper(), new Section())
+                   new DetailRepository<CpkMapper, Section>(new CpkMapper()),
+                   new DetailRepository<ContentMapper, Section>(new ContentMapper()),
+                   new DetailRepository<TocMapper, Section>(new TocMapper()),
+                   new DetailRepository<EtocMapper, Section>(new EtocMapper()),
+                   new DetailRepository<GtocMapper, Section>(new GtocMapper())
                 )
             };
-            _readers = readers;
             _extractors = extractors;
         }
          
@@ -42,15 +39,11 @@ namespace CriPakComplete
             _sections.ToList().ForEach(s =>
             {
                 s.FileName = criPak.FilePath;
+                criPak.Sections.Clear();
+                criPak.ViewList.Clear();
                 criPak.Sections.AddRange(s.Read());
-            });
-
-            _readers.ToList().ForEach(x => {
-                x.FileName = criPak.FilePath;
-                criPak.Headers.AddRange(x.Read());
-                criPak.DisplayList.AddRange(x.MapForDisplay(criPak.Headers).OfType<DisplayList>().ToList());
-            }); 
-            
+                criPak.ViewList.AddRange(s.MapForViewer(criPak.Sections).ToList());
+            });            
             return criPak;
         }
 
@@ -60,7 +53,7 @@ namespace CriPakComplete
             _extractors.ToList().ForEach(x => {
                 x.FileName = criPak.FilePath;
                 x.OutputDirectory = criPak.OutputDirectory;
-                files.Add(x.Extract(criPak.Headers, progress)); 
+                files.Add(x.Extract(criPak.ViewList, progress)); 
             });
             var test = files.SelectMany(x => x.FileMeta);
             return null;

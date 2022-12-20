@@ -11,13 +11,11 @@ namespace CriPakRepository.Repositories
         where TOut : ISection, new()
     {
         public string FileName { get; set; }
-        //public long CurrentPosition { get; set; }
-        //public IEnumerable<IValue> Meta { get; set; }
         public IEnumerable<Row> MetaNew { get; set; }
         private int IdSetter { get; set; }
 
         public T GetHeader<TMapper, T>(DetailRepository<TMapper, T> repository)
-            where TMapper : IDetailMapper2<T>
+            where TMapper : IDetailMapper<T>
             where T : TOut, new()
         {
             //TODO: Move out the Selection Code here. Continue Refactoring Repo to use Sections rather than IDisplayList.
@@ -29,6 +27,7 @@ namespace CriPakRepository.Repositories
                 data.Name = selection;
                 data.Id = IdSetter++;
             }
+            repository.CurrentPosition = 0;
             return data;
         }
         
@@ -44,7 +43,7 @@ namespace CriPakRepository.Repositories
         }
 
         public abstract IEnumerable<ISection> Read();
-        public abstract IEnumerable<ISection> MapForDisplay(IEnumerable<ISection> headers);
+        public abstract IEnumerable<IFileViewer> MapForViewer(IEnumerable<ISection> sections);
 
     }
 }

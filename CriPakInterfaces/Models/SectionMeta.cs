@@ -7,7 +7,7 @@ namespace CriPakInterfaces.Models
 {
     public class SectionMeta
     {
-        public int TableSize { get; set; }
+        public long TableSize { get; set; }
         public int ColumnOffset { get; set; }
         public int RowOffset { get; set; }
         public int ColumnNamesOffset { get; set; }
@@ -17,6 +17,6 @@ namespace CriPakInterfaces.Models
         public int RowLength { get; set; }
         public int NumRows { get; set; }
         public int EndColumnAdjustment { get; set; }
-        public int EndColumnOffset => DataOffset - EndColumnAdjustment;
+        public int EndColumnOffset => EndColumnAdjustment == 0 ? DataOffset - (DataOffset - ColumnNamesOffset - RowOffset - SpacerLength - 1) : DataOffset - EndColumnAdjustment;
     }
 }

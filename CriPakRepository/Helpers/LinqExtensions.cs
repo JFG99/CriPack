@@ -38,7 +38,7 @@ namespace CriPakRepository.Helpers
 
         public static IEnumerable<TSource> WhenLast<TSource>(this IEnumerable<TSource> source, Func<TSource, TSource> projection)
         {
-            projection(source.Last());
+            projection(source.Last());          
             return source;           
         }       
 

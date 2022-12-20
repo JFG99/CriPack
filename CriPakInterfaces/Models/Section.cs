@@ -8,6 +8,7 @@ namespace CriPakInterfaces
     {
         public int Id { get; set; }
         public string Name { get; set; }   
+        public long Offset { get; set; }
         public SectionMeta MetaData { get; set; }
         public SectionHeader HeaderData { get; set; }
         public IContent ContentData { get; set; }

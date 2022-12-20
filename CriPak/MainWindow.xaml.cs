@@ -66,7 +66,7 @@ namespace CriPakComplete
                 Dispatcher.Invoke(() => 
                 {
                     criPak = _home.Read(criPak);
-                    datagrid_cpk.ItemsSource = criPak.DisplayList;
+                    datagrid_cpk.ItemsSource = criPak.ViewList;
                     status_cpkmsg.Content = string.Format($"{datagrid_cpk.Items.Count} file(s) registered.");
                     menu_patch.IsEnabled = true;
                     menu_savefiles.IsEnabled = true;

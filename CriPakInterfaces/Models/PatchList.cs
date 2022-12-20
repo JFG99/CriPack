@@ -3,7 +3,7 @@
 
 namespace CriPakInterfaces.Models
 {
-    public class PatchList : DisplayList, IPatchList
+    public class PatchList : FileViewer, IPatchList
     {
         public ulong LengthDifference { get; set; }
         public bool IsPatched { get; set; }

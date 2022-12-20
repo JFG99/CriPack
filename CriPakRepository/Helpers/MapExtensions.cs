@@ -38,17 +38,20 @@ namespace CriPakRepository.Helpers
         public static IEnumerable<Column> ThenData(this IEnumerable<Column> columnSegments, IPacket packet, int modifier, int offset)
         {
             modifier -= columnSegments.Where(x => x.IsSegmentRemoved).Count();
-            return columnSegments
+            var test = columnSegments
                 .SelectWithNextWhere(x => !x.IsIgnoredForName, (curr, next) => {
                     curr.NameLength = (int)next.OffsetInData - (int)curr.OffsetInData - 1;
                     curr.OffsetInTable = offset + (int)curr.OffsetInData;
                     return curr;
-                })
-                .WhenLastWhere(x => !x.IsIgnoredForName, x => {
-                    x.NameLength = modifier - ((int)x.OffsetInData + offset); 
-                    x.OffsetInTable = offset + (int)x.OffsetInData;  
-                    return x; 
-                })
+                });
+            var test2 = test
+                .WhenLastWhere(x => !x.IsIgnoredForName, x =>
+                {
+                    x.NameLength = modifier - ((int)x.OffsetInData + offset);
+                    x.OffsetInTable = offset + (int)x.OffsetInData;
+                    return x;
+                });
+                return test2
                 .Select(x => {
                     x.Name = packet.ReadStringFrom(x.OffsetInTable, x.NameLength);
                     return x;
@@ -104,7 +107,7 @@ namespace CriPakRepository.Helpers
                                 {
                                     Index = x.Id,
                                     Value = modifier32.Value
-                                }; 
+                                };
                             }
                             if (x.Modifier is IUint64 modifier64)
                             {
@@ -116,7 +119,9 @@ namespace CriPakRepository.Helpers
                             }
                             return null;
                         })
-                        .AggregateDifference(dataOffset - stringsOffset, 0)?
+                        .SelectWithNext((curr, next) => { curr.Length = next.Offset - curr.Offset; return curr; })
+                        .WhenLast(x => { x.Length = (ulong)(dataOffset - stringsOffset) - x.Offset; return x; })
+                        //.AggregateDifference(dataOffset - stringsOffset, 0)?
                         .Select(x => new StringsRow()
                         {
                             Id = x.Index,
@@ -198,7 +203,7 @@ namespace CriPakRepository.Helpers
                 }).ToList();
             })
             .ToList();
-
+            //TODO:  Bug in the stringsData with the SelectWithNext method causing the FileNames to get lost. 
             var stringData = rowMeta.SelectMany(x => x)
                                     .Where(x => x.IsStringsModifier)
                                     .Select(x => {
@@ -220,7 +225,7 @@ namespace CriPakRepository.Helpers
                                         }
                                         return null;
                                     })
-                                    .AggregateDifference(dataOffset - stringsOffset, 0)?
+                                    .SelectWithNext((curr, next) => { curr.Length = next.Offset - curr.Offset; return curr; })
                                     .Select(x => new StringsRow { Id = x.Index, Name = packet.ReadStringFrom(stringsOffset + (int)x.Offset, (int)x.Length) })
                                     .ToList();
 
