@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using CriPakRepository.Helpers;
 using System;
+using System.Threading;
 
 namespace CriPakRepository.Writers
 {
@@ -17,55 +18,46 @@ namespace CriPakRepository.Writers
         public IEndianReader Stream { get; set; }
         public override void Write(IFiles data)
         {
+            //TODO: Make use of Async stream.  This is a lot faster than it was, but async streams would speed it up even further. 
             var fileCount = 0;
-            foreach(var entry in data.FileMeta)
+            Stream = new EndianReader<FileStream, EndianData>(System.IO.File.Open(FileName, FileMode.Open, FileAccess.Read, FileShare.Read), new EndianData(true));
+            foreach (var entry in data.FileMeta)
             {
-                var fileData = GetFileData(entry);
-                var bytes  = fileData.PacketBytes;
-                if (CompressionCheck(fileData, entry.CompressedString))
-                {                    
-                    bytes = fileData.PacketBytes.ToArray().DecompressLegacyCRI(); 
+                Stream.BaseStream.Position = Convert.ToInt64(entry.Location);
+                if (entry.IsCompressed)
+                {
+                    WriteFile(Stream.ReadBytes(entry.FileSize).DecompressLegacyCRI(), entry.FileName);                    
                 }
-                WriteFile(bytes, entry.FileName);
+                else
+                {
+                    using (Stream file = System.IO.File.Create(Path.Combine(OutputDirectory, entry.FileName)))
+                    {
+                        CopyStream(file, entry.FileSize);
+                    }                
+                }
                 fileCount++;
-                //this is slow, but progress bar is functional again
                 Progress.Report((int)(fileCount / (float)data.FileMeta.Count() * 100));
             }
-
-            //Debug.WriteLine(" FileName :{0}\n    FileOffset:{1:x8}    ExtractSize:{2:x8}   ChunkSize:{3:x8} {4}",
-            //                                            entries[i].FileName.ToString(),
-            //                                            (long)entries[i].FileOffset,
-            //                                            entries[i].ExtractSize,
-            //                                            entries[i].FileSize,
-            //                                            ((float)i / (float)entries.Count) * 100f);
-            //string dstpath = outDir + "/" + currentName;
         }
 
-        private void WriteFile(IEnumerable<byte> fileData, string fileName)
+        private void WriteFile(byte[] fileData, string fileName)
         {
             if (!Directory.Exists(OutputDirectory))
             {
                 Directory.CreateDirectory(OutputDirectory);
             }
-            System.IO.File.WriteAllBytes(Path.Combine(OutputDirectory, fileName), fileData.ToArray());
+            System.IO.File.WriteAllBytes(Path.Combine(OutputDirectory, fileName), fileData);     
         }
 
-
-        private IPacket GetFileData(File data)
+        private void CopyStream(Stream output, int bytes)
         {
-            Stream = new EndianReader<FileStream, EndianData>(System.IO.File.Open(FileName, FileMode.Open, FileAccess.Read, FileShare.Read), new EndianData(true));
-            Stream.BaseStream.Position = Convert.ToInt64(data.Location);
-            var original = new OriginalPacket()
+            byte[] buffer = new byte[81920];
+            int read;
+            while (bytes > 0 && (read = Stream.BaseStream.Read(buffer, 0, Math.Min(buffer.Length, bytes))) > 0)
             {
-                PacketBytes = Stream.ReadBytes( data.IsCompressed ? data.FileSize : data.ExtractSize)
-            };
-            Stream.Close();
-            return original;
-        }
-
-        private bool CompressionCheck(IPacket file, string compressedName)
-        {
-            return compressedName.Equals(file.ReadString(8));
+                output.Write(buffer, 0, read);
+                bytes -= read;
+            }
         }
     }
 }

@@ -27,7 +27,6 @@ namespace FileRepository
                 };
         }
 
-        //TODO: Figure out best way to read in and decompress files.  Do I need the footers?  What are they?
         public override IFiles Extract(IEnumerable<IFileViewer> headers, IProgress<int> progress)
         {
             Progress = progress;

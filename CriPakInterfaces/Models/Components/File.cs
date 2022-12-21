@@ -9,7 +9,6 @@ namespace CriPakInterfaces.Models.Components
         public int Id { get; set; }
         public string FileName { get; set; }
         public ulong Location { get; set; }
-        public ulong ByteLength  { get; set; }
         public int ExtractSize { get; set; }
         public int FileSize { get; set; }
         public string CompressedString = "CRILAYLA";
