@@ -38,129 +38,22 @@ namespace CriPakRepository.Helpers
         public static IEnumerable<Column> ThenData(this IEnumerable<Column> columnSegments, IPacket packet, int modifier, int offset)
         {
             modifier -= columnSegments.Where(x => x.IsSegmentRemoved).Count();
-            var test = columnSegments
+            return columnSegments
                 .SelectWithNextWhere(x => !x.IsIgnoredForName, (curr, next) => {
                     curr.NameLength = (int)next.OffsetInData - (int)curr.OffsetInData - 1;
                     curr.OffsetInTable = offset + (int)curr.OffsetInData;
                     return curr;
-                });
-            var test2 = test
+                })  
                 .WhenLastWhere(x => !x.IsIgnoredForName, x =>
                 {
                     x.NameLength = modifier - ((int)x.OffsetInData + offset);
                     x.OffsetInTable = offset + (int)x.OffsetInData;
                     return x;
-                });
-                return test2
+                })
                 .Select(x => {
                     x.Name = packet.ReadStringFrom(x.OffsetInTable, x.NameLength);
                     return x;
                 });
-        }
-
-
-
-        [Obsolete]
-        public static IEnumerable<IEnumerable<byte>> GetByteRows(this IPacket packet, int rowOffset, int rowLength, int stringsOffset)
-        {
-            return packet.DecryptedBytes
-                .Skip(rowOffset)
-                .Take(stringsOffset - rowOffset)
-                .Select((x, i) => new { Index = i, Value = x })
-                .GroupBy(x => x.Index / rowLength)
-                .Select(x => x.Select(y => y.Value));
-        }
-
-        [Obsolete]
-        public static IEnumerable<IEnumerable<IStringsRow>> GetRowMeta(this IEnumerable<IEnumerable<byte>> bytes, IEnumerable<Column> columns, int packetRowOffset, int rowLength)
-        {
-            return bytes.Select((x, i) =>
-            {
-                var offsets = 0;
-                return columns.Where(y => y.IsStoredInRow).Select(y =>
-                {
-                    var bytes = x.Skip(offsets).Take(y.RowReadLength);
-                    var rowOffset = offsets + (i * rowLength) + packetRowOffset;
-                    offsets += y.RowReadLength;
-                    return new StringsRow()
-                    {
-                        Id = i,
-                        Name = y.Name,
-                        Mask = y.TypeMask,
-                        ByteSegment = bytes.ToList(),
-                        Modifier = ByteConverter.MapBytes[y.TypeMask](bytes),
-                        RowOffset = rowOffset,
-                        IsStringsModifier = y.TypeMask == 0xA,
-                        IsDataModifier = y.TypeMask == 0xB
-                    };
-                });
-            });
-        }
-
-        [Obsolete]
-        public static IEnumerable<IStringsRow> GetStringData(this IEnumerable<IStringsRow> meta, IPacket packet, int dataOffset, int stringsOffset)
-        {
-            return meta.Where(x => x.IsStringsModifier)?
-                        .Select(x => {
-                            if (x.Modifier is IUint32 modifier32) {
-                                return new TabularRecord()
-                                {
-                                    Index = x.Id,
-                                    Value = modifier32.Value
-                                };
-                            }
-                            if (x.Modifier is IUint64 modifier64)
-                            {
-                                return new TabularRecord()
-                                {
-                                    Index = x.Id,
-                                    Value = modifier64.Value
-                                };
-                            }
-                            return null;
-                        })
-                        .SelectWithNext((curr, next) => { curr.Length = next.Offset - curr.Offset; return curr; })
-                        .WhenLast(x => { x.Length = (ulong)(dataOffset - stringsOffset) - x.Offset; return x; })
-                        //.AggregateDifference(dataOffset - stringsOffset, 0)?
-                        .Select(x => new StringsRow()
-                        {
-                            Id = x.Index,
-                            Name = packet.ReadStringFrom(stringsOffset + (int)x.Offset, (int)x.Length)
-                        });
-
-        }
-
-        [Obsolete]
-        public static  IEnumerable<Row> Merge(this IEnumerable<IStringsRow> meta, IEnumerable<IStringsRow> stringsData)
-        {
-            if (stringsData?.Any() ?? false)
-            {
-                return meta.Join(stringsData, ri => ri.Id, sd => sd.Id, (ri, sd) =>
-                {
-                    return new Row
-                    {
-                        Id = ri.Id,
-                        Name = ri.Name,
-                        Mask = ri.Mask,
-                        StringName = ri.Name == "FileName" ? sd.Name : "",
-                        ByteSegment = ri.ByteSegment,
-                        Modifier = ri.Modifier,
-                        RowOffset = ri.RowOffset
-                    };
-                });
-            }
-            return meta.Select(x =>
-            {
-                return new Row
-                {
-                    Id = x.Id,
-                    Name = x.Name,
-                    Mask = x.Mask,
-                    ByteSegment = x.ByteSegment,
-                    Modifier = x.Modifier,
-                    RowOffset = x.RowOffset
-                };
-            });
         }
 
         public static IEnumerable<Row> GetRows(this IPacket packet, IEnumerable<Column> columns, SectionMeta sectionMeta)
@@ -186,7 +79,7 @@ namespace CriPakRepository.Helpers
                 var offsets = 0;
                 return columns.Where(y => y.IsStoredInRow).Select(y =>
                 {
-                    var test = x.Skip(offsets).Take(y.RowReadLength);
+                    var bytes = x.Skip(offsets).Take(y.RowReadLength);
                     var rowOffset = offsets + (i * rowLength) + packetRowOffset;
                     offsets += y.RowReadLength;
                     return new
@@ -194,8 +87,8 @@ namespace CriPakRepository.Helpers
                         Id = i,
                         y.Name,
                         y.TypeMask,
-                        ByteSegment = test.ToList(),
-                        Modifier = ByteConverter.MapBytes[y.TypeMask](test),
+                        ByteSegment = bytes.ToList(),
+                        Modifier = ByteConverter.MapBytes[y.TypeMask](bytes),
                         RowOffset = rowOffset,
                         IsStringsModifier = y.TypeMask == 0xA,
                         IsDataModifier = y.TypeMask == 0xB
@@ -203,16 +96,17 @@ namespace CriPakRepository.Helpers
                 }).ToList();
             })
             .ToList();
-            //TODO:  Bug in the stringsData with the SelectWithNext method causing the FileNames to get lost. 
+
             var stringData = rowMeta.SelectMany(x => x)
                                     .Where(x => x.IsStringsModifier)
-                                    .Select(x => {
+                                    .Select(x =>
+                                    {
                                         if (x.Modifier is IUint32 modifier32)
                                         {
                                             return new TabularRecord()
                                             {
                                                 Index = x.Id,
-                                                Value = modifier32.Value
+                                                Offset = modifier32.Value
                                             };
                                         }
                                         if (x.Modifier is IUint64 modifier64)
@@ -220,14 +114,15 @@ namespace CriPakRepository.Helpers
                                             return new TabularRecord()
                                             {
                                                 Index = x.Id,
-                                                Value = modifier64.Value
+                                                Offset = modifier64.Value
                                             };
                                         }
                                         return null;
                                     })
                                     .SelectWithNext((curr, next) => { curr.Length = next.Offset - curr.Offset; return curr; })
-                                    .Select(x => new StringsRow { Id = x.Index, Name = packet.ReadStringFrom(stringsOffset + (int)x.Offset, (int)x.Length) })
-                                    .ToList();
+                                    .ToList()//Required due to lazy loading. WhenLast returns 0 to Length, if SelectWithNext has not loaded.
+                                    .WhenLast(x => { x.Length = (ulong)(dataOffset - stringsOffset) - x.Offset; return x; })?
+                                    .Select(x => new StringsRow { Id = x.Index, Name = packet.ReadStringFrom(stringsOffset + (int)x.Offset, (int)x.Length) });
 
             if (stringData?.Any() ?? false)
             {

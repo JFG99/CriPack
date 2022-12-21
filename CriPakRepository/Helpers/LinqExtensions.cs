@@ -4,6 +4,7 @@ using CriPakInterfaces.Models.Components;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 
 namespace CriPakRepository.Helpers
 {
@@ -38,6 +39,11 @@ namespace CriPakRepository.Helpers
 
         public static IEnumerable<TSource> WhenLast<TSource>(this IEnumerable<TSource> source, Func<TSource, TSource> projection)
         {
+            var iterator = source.GetEnumerator();
+            if (!iterator.MoveNext())
+            {
+                return null;
+            }
             projection(source.Last());          
             return source;           
         }       

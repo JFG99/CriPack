@@ -22,7 +22,7 @@ namespace SectionRepository.Mappers
                 RowOffset = (int)packet.ReadBytes(4) + 8,
                 ColumnNamesOffset = (int)packet.ReadBytes(4) + 8,
                 DataOffset = (int)packet.ReadBytes(4) + 8,
-                SpacerLength = (int)packet.ReadBytes(4),
+                SpacerLength = (int)packet.ReadBytes(4) + 1,
                 NumColumns = (short)packet.ReadBytes(2),
                 RowLength = (short)packet.ReadBytes(2),
                 NumRows = (int)packet.ReadBytes(4),

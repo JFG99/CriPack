@@ -37,8 +37,8 @@ namespace CriPakRepository.Mappers
                     entry.Offset = x.Offset; // This is the header offset of 2048.  
                     entry.ArchiveLength = (ulong)x.MetaData.TableSize;
                     entry.FileName = x.Name;
+                    viewList.Add(entry);
                 }
-                viewList.Add(entry);
             });
             return viewList;
         }
