@@ -108,6 +108,17 @@ namespace CriPakRepository.Repository
             return BitConverter.ToUInt64(_endian.Buffer.Take(8).Reverse().ToArray(), 0);
         }
 
+        public void CopyStream(Stream output, int bytes)
+        {
+            byte[] buffer = new byte[81920];
+            int read;
+            while (bytes > 0 && (read = BaseStream.Read(buffer, 0, Math.Min(buffer.Length, bytes))) > 0)
+            {
+                output.Write(buffer, 0, read);
+                bytes -= read;
+            }
+        }
+
         private void FillMyBuffer(int numBytes)
         {
             int offset = 0;

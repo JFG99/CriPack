@@ -6,6 +6,7 @@ namespace CriPakInterfaces
     {
         Stream BaseStream { get; }
         bool IsOpen { get; }
+        void CopyStream(Stream output, int bytes);
         void Close();
         byte ReadByte();
         byte[] ReadBytes(int count);

@@ -32,7 +32,7 @@ namespace CriPakRepository.Writers
                 {
                     using (Stream file = System.IO.File.Create(Path.Combine(OutputDirectory, entry.FileName)))
                     {
-                        CopyStream(file, entry.FileSize);
+                        Stream.CopyStream(file, entry.FileSize);
                     }                
                 }
                 fileCount++;
@@ -47,17 +47,6 @@ namespace CriPakRepository.Writers
                 Directory.CreateDirectory(OutputDirectory);
             }
             System.IO.File.WriteAllBytes(Path.Combine(OutputDirectory, fileName), fileData);     
-        }
-
-        private void CopyStream(Stream output, int bytes)
-        {
-            byte[] buffer = new byte[81920];
-            int read;
-            while (bytes > 0 && (read = Stream.BaseStream.Read(buffer, 0, Math.Min(buffer.Length, bytes))) > 0)
-            {
-                output.Write(buffer, 0, read);
-                bytes -= read;
-            }
         }
     }
 }
