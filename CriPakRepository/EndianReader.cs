@@ -118,6 +118,16 @@ namespace CriPakRepository.Repository
                 bytes -= read;
             }
         }
+        public void CopyStream(Stream output, long bytes)
+        {
+            var buffer = new byte[81920];
+            int read;
+            while (bytes > 0 && (read = BaseStream.Read(buffer, 0, (int)Math.Min(buffer.Length, bytes))) > 0)
+            {
+                output.Write(buffer, 0, read);
+                bytes -= read;
+            }
+        }
 
         private void FillMyBuffer(int numBytes)
         {

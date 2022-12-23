@@ -52,11 +52,15 @@ namespace CriPakRepository.Helpers
 
         unsafe public static int UnsafeCRICompress(byte* dest, int* destLen, byte* src, int srcLen)
         {
+            // THIS IS SUPER SUPER SLOW   
+
+
             //unsafe pointers seem to be unstable under .NET 4.5,
             //sometimes getting "attempt to read or write protected memory,
             //this usually indicates that other memory is corrupt" error
             //Currently the CRICompress method is moved to the CLR class library for use.
             //TODO:  See how this behaves under the new .NET Core 3.1 and refactor the pointers out.
+
             int n = srcLen - 1, m = *destLen - 0x1, T = 0, d = 0;
 
             int p, q = 0, i, j, k;

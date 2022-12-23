@@ -5,6 +5,8 @@ using System.IO;
 using System.Linq;
 using CriPakRepository.Helpers;
 using CriPakInterfaces;
+using CriPakRepository.Repository;
+using CriPakInterfaces.Models.Components;
 
 namespace PatchRepository
 {
@@ -20,29 +22,72 @@ namespace PatchRepository
 
         public void Patch(CriPak package, string cpkDir, Dictionary<string, string> fileList)
         {
-            var oldFile = new BinaryReader(File.OpenRead(package.FilePath));
-            var newCPK = new BinaryWriter(File.OpenWrite(cpkDir));
-            var patchList = package.ViewList.Where(x => fileList.Keys.Any(y => x.FileName.ToLower().Equals(y.ToLower())));           
+            var oldFile = new EndianReader<FileStream, EndianData>(System.IO.File.Open(package.FilePath, FileMode.Open, FileAccess.Read, FileShare.Read), new EndianData(true));
+            var newCPK = new BinaryWriter(System.IO.File.OpenWrite(cpkDir));
+            var patchList = package.ViewList.Where(x => fileList.Keys.Any(y => x.FileName.ToLower().Equals(y.ToLower()))).OrderBy(x => x.Offset).ToList();
+            var firstPatchOffset = patchList.First().Offset;
             var unpatchedList = package.ViewList;
             var patchLoc = unpatchedList.IndexOf(patchList.First());
-            var patchedFilesForRepack = MapPatchList(fileList, package.ViewList);
-            var test = newCPK;
-            /*TODO:
-                Read in PatchList and Compress as need for a populated DisplayList ordered by Offset.
-                Foreach item in patch list:   
-                    Find index from unpatched.
-                    Set Flag on file that is being patched
-                    Get archive length difference between the 2.
-                     --That difference will move the offset of ALL files remaining in the unpatched list
-                    Cascade the difference in the Offset values.                    
-                Process corrected "unpatched list" for final values and locations to update the Headers
-                Foreach item in "new" full list
-                    check patched flag and either
-                        stream binary from old CPK to new CPK
-                        or
-                        read binary from patched file 
-                        compress if needed
-                        stream to new CPK   
+            var testloc = package.Sections[1].HeaderData.Rows.Where(x => x.Id == 390);
+            //var patchedFilesForRepack = MapPatchList(fileList, package.ViewList);
+            //var test = newCPK;
+
+
+            oldFile.CopyStream(newCPK.BaseStream, firstPatchOffset);
+            var tempPatch = new List<PatchList>();
+            foreach (var file in patchList)
+            {
+                //TODO: work out the position coordination.  Crilayla has some footers in oldFile that aren't necessary, and not in the new ones.  
+                //Need to ensure the correct positions are being set and that oldFile is streaming appropriately.  
+                if(file.Offset > newCPK.BaseStream.Position - tempPatch.Sum(x => (long)x.LengthDifference))
+                {
+                    //This.  Copy the distance between current File.Offset and where the oldFile BaseStream is.  BaseStream needs properly handled at the end of each loop.
+                    oldFile.CopyStream(newCPK.BaseStream, (int)file.ArchiveLength);
+                }
+                var newFile = new PatchList();
+                var patchStream = new EndianReader<FileStream, EndianData>(System.IO.File.Open(fileList[file.FileName.ToLower()], FileMode.Open, FileAccess.Read, FileShare.Read), new EndianData(true));
+                
+                newFile.IndexInArchive = unpatchedList.ToList().IndexOf(file);
+                var oldFilea = unpatchedList.ToArray()[newFile.IndexInArchive];
+                newFile.Id = file.Id;
+                newFile.FileName = file.FileName;
+                newFile.Offset = file.Offset;
+                newFile.Type = file.Type;
+                if (file.Percentage < 100)
+                {
+                    var bytes = System.IO.File.ReadAllBytes(fileList[file.FileName.ToLower()]);
+                    var compressedFile = bytes;
+                    compressedFile = bytes.CompressCRILAYLA();
+                    newFile.LengthDifference = (ulong)compressedFile.Length - file.ArchiveLength;
+                    newFile.ArchiveLength = (ulong)compressedFile.Length;
+                    newFile.ExtractedLength = (uint)bytes.Length;
+                    var memStream = new EndianReader<MemoryStream, EndianData>(new MemoryStream(compressedFile), new EndianData(true));
+                    memStream.CopyStream(newCPK.BaseStream, memStream.BaseStream.Length);
+                }
+                else
+                {
+                    newFile.LengthDifference = (ulong)patchStream.BaseStream.Length - file.ArchiveLength;
+                    newFile.ArchiveLength = (ulong)patchStream.BaseStream.Length;
+                    newFile.ExtractedLength = (uint)patchStream.BaseStream.Length;
+                    patchStream.CopyStream(newCPK.BaseStream, patchStream.BaseStream.Length);
+                }
+                tempPatch.Add(newFile); 
+            }
+            var testing = "";
+
+            /*TODO:                
+            comparing patch list(remove the ones that are same as they are processed to shorten comparison time and to stop comparing when list is empty)                        
+            either:
+            
+                stream binary from old CPK to new CPK
+                or
+                read binary from patched file 
+                compress if needed
+                stream to new CPK   
+                
+                Track file size difference for patched files. Cascade location updates in the TOC FileOffset while writing.
+
+            When Finished: Update HDR Meta with new content sizes and ETOC start location.
             */
 
 
@@ -72,8 +117,8 @@ namespace PatchRepository
             {
                 var newFile = tempPatch.Where(x => file.ToUpper().Contains(x.FileName)).First();
                 var oldFile = currentFiles.ToArray()[newFile.IndexInArchive];
-                var patchFile = new BinaryReader(File.OpenRead(file));
-                var bytes = File.ReadAllBytes(file);
+                var patchFile = new BinaryReader(System.IO.File.OpenRead(file));
+                var bytes = System.IO.File.ReadAllBytes(file);
                 var compressedFile = bytes;
                 if (oldFile.Percentage < 100)
                 {

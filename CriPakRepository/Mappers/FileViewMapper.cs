@@ -18,6 +18,10 @@ namespace CriPakRepository.Mappers
             sections.ToList().ForEach(x =>
             {
                 var entry = new FileViewer();
+                entry.Offset = x.Offset; // This is the header offset of 2048.  
+                entry.ArchiveLength = (ulong)x.MetaData.TableSize;
+                entry.FileName = x.Name;
+                viewList.Add(entry);
                 if (x.HeaderData != null && x.HeaderData.Columns.Any(y => y.Name == "FileName"))
                 {
                     x.HeaderData.Rows.GroupBy(y => y.Id).ToList().ForEach(y =>
@@ -31,14 +35,7 @@ namespace CriPakRepository.Mappers
                         entry.Type = ItemType.FILE;
                         viewList.Add(entry);
                     });
-                }
-                else
-                {
-                    entry.Offset = x.Offset; // This is the header offset of 2048.  
-                    entry.ArchiveLength = (ulong)x.MetaData.TableSize;
-                    entry.FileName = x.Name;
-                    viewList.Add(entry);
-                }
+                }              
             });
             return viewList;
         }

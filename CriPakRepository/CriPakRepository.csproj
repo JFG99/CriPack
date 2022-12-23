@@ -14,6 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CriPakInterfaces\CriPakInterfaces.csproj" />
+    <ProjectReference Include="..\LibCRIComp\LibCRIComp.vcxproj" />
   </ItemGroup>
 
 </Project>
