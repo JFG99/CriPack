@@ -173,8 +173,8 @@ namespace CriPakRepository.Helpers
                     //Move cricompress to CLR
                     int destLength = (int)input.Length;
 
-                    int result = UnsafeCRICompress(dst, &destLength, src, input.Length);
-                    //int result = LibCRIComp.CriCompression.CRIcompress(dst, &destLength, src, input.Length);
+                   // int result = UnsafeCRICompress(dst, &destLength, src, input.Length);
+                    int result = LibCRIComp.CriCompression.CRIcompress(dst, &destLength, src, input.Length);
                     byte[] arr = new byte[destLength];
                     Marshal.Copy((IntPtr)dst, arr, 0, destLength);
                     return arr;

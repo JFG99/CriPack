@@ -14,7 +14,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CriPakInterfaces\CriPakInterfaces.csproj" />
-    <ProjectReference Include="..\LibCRIComp\LibCRIComp.vcxproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="LibCRIComp">
+      <HintPath>..\LibCRIComp.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>
