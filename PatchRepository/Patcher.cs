@@ -63,15 +63,17 @@ namespace PatchRepository
                 nextInOld = unpatchedList[currentIndex + 1];
             }
             var lastFile = unpatchedList.Where(x => x.Id != 0).Last();
-            while (nextInOld.Id != 0 && nextInOld.Id <= lastFile.Id)
+            while (currentIndex <= unpatchedList.Count() && nextInOld.Id <= lastFile.Id)
             {
                 modifiedInNewArchive.Add(CreateEntry(nextInOld, newCPK.BaseStream.Position, currentIndex));
+
                 oldFile.CopyStream(newCPK.BaseStream, Convert.ToInt64(nextInOld.ArchiveLength));
+
                 nextInOld = unpatchedList[++currentIndex + 1];
             }
-            oldFile.BaseStream.Position = nextInOld.Offset;
+            //oldFile.BaseStream.Position = nextInOld.Offset;
             //This captures the ETOC table
-            modifiedInNewArchive.Add(CreateEntry(nextInOld, newCPK.BaseStream.Position, currentIndex));
+            //modifiedInNewArchive.Add(CreateEntry(nextInOld, newCPK.BaseStream.Position, currentIndex));
             oldFile.CopyStream(newCPK.BaseStream, oldFile.BaseStream.Length - nextInOld.Offset);
             oldFile.Close();
             UpdateSections(newCPK, package, modifiedInNewArchive);
