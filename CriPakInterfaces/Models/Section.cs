@@ -11,6 +11,6 @@ namespace CriPakInterfaces
         public long Offset { get; set; }
         public SectionMeta MetaData { get; set; }
         public SectionHeader HeaderData { get; set; }
-        public IContent ContentData { get; set; }
+        public IPacket Content { get; set; }
     }
 }

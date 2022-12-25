@@ -9,8 +9,9 @@ namespace SectionRepository.Mappers
     {
         public Section Map(IPacket packet, IEnumerable<Row> rowValue)
         {
-            var cpkMeta = MapSection(packet, 29);
-            return cpkMeta;                     
+            var cpkSection = MapSection(packet, 29);
+            cpkSection.Content = packet;
+            return cpkSection;                     
         }
     }
 }

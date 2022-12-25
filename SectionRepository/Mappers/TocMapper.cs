@@ -13,6 +13,7 @@ namespace SectionRepository.Mappers
         public Section Map(IPacket packet, IEnumerable<Row> rowValue)
         {
             var tocSection = MapSection(packet);
+            tocSection.Content = packet;
             tocSection.Offset = (long)rowValue.GetModifierWhere<IUint64, ulong>(x => x.Name.Contains("Offset"));
             return tocSection;
         }

@@ -7,6 +7,7 @@ using CriPakRepository.Helpers;
 using CriPakInterfaces;
 using CriPakRepository.Repository;
 using CriPakInterfaces.Models.Components;
+using CriPakInterfaces.Models.Components.Enums;
 
 namespace PatchRepository
 {
@@ -20,7 +21,7 @@ namespace PatchRepository
             var oldFile = new EndianReader<FileStream, EndianData>(System.IO.File.Open(package.FilePath, FileMode.Open, FileAccess.Read, FileShare.Read), new EndianData(true));
             var newCPK = new BinaryWriter(System.IO.File.OpenWrite(cpkDir));
             var patchList = package.ViewList.Where(x => fileList.Keys.Any(y => x.FileName.ToLower().Equals(y.ToLower()))).OrderBy(x => x.Offset).ToList();
-            var firstPatchOffset = patchList.First().Offset;
+            var firstPatchOffset = patchList.First().Offset + 2048;
             var unpatchedList = package.ViewList;
             oldFile.CopyStream(newCPK.BaseStream, firstPatchOffset);
             var modifiedInNewArchive = new List<PatchList>(); 
@@ -38,24 +39,24 @@ namespace PatchRepository
                 var patchStream = new EndianReader<FileStream, EndianData>(System.IO.File.Open(fileList[file.FileName.ToLower()], FileMode.Open, FileAccess.Read, FileShare.Read), new EndianData(true));
                 
                 var newFile = CreateEntry(file, newCPK.BaseStream.Position, currentIndex);
-                if (file.Percentage < 100)
-                {
-                    var bytes = System.IO.File.ReadAllBytes(fileList[file.FileName.ToLower()]);
-                    var compressedFile = bytes;
-                    compressedFile = bytes.CompressCRILAYLA();
-                    newFile.LengthDifference = (ulong)compressedFile.Length - file.ArchiveLength;
-                    newFile.ArchiveLength = (ulong)compressedFile.Length;
-                    newFile.ExtractedLength = (uint)bytes.Length;
-                    var memStream = new EndianReader<MemoryStream, EndianData>(new MemoryStream(compressedFile), new EndianData(true));
-                    memStream.CopyStream(newCPK.BaseStream, memStream.BaseStream.Length);
-                }
-                else
-                {
+                //if (file.Percentage < 100)
+                //{
+                //    var bytes = System.IO.File.ReadAllBytes(fileList[file.FileName.ToLower()]);
+                //    var compressedFile = bytes;
+                //    //compressedFile = bytes.CompressCRILAYLA();
+                //    newFile.LengthDifference = (ulong)compressedFile.Length - file.ArchiveLength;
+                //    newFile.ArchiveLength = (ulong)compressedFile.Length;
+                //    newFile.ExtractedLength = (uint)bytes.Length;
+                //    var memStream = new EndianReader<MemoryStream, EndianData>(new MemoryStream(compressedFile), new EndianData(true));
+                //    memStream.CopyStream(newCPK.BaseStream, memStream.BaseStream.Length);
+                //}
+                //else
+                //{
                     newFile.LengthDifference = (ulong)patchStream.BaseStream.Length - file.ArchiveLength;
                     newFile.ArchiveLength = (ulong)patchStream.BaseStream.Length;
                     newFile.ExtractedLength = (uint)patchStream.BaseStream.Length;
                     patchStream.CopyStream(newCPK.BaseStream, patchStream.BaseStream.Length);
-                }
+                //}
                 newFile.IsPatched = true;
                 modifiedInNewArchive.Add(newFile);
                 currentIndex = unpatchedList.ToList().IndexOf(file);
@@ -73,6 +74,7 @@ namespace PatchRepository
             modifiedInNewArchive.Add(CreateEntry(nextInOld, newCPK.BaseStream.Position, currentIndex));
             oldFile.CopyStream(newCPK.BaseStream, oldFile.BaseStream.Length - nextInOld.Offset);
             oldFile.Close();
+            UpdateSections(newCPK, package, modifiedInNewArchive);
             newCPK.Close();
         }       
 
@@ -83,10 +85,59 @@ namespace PatchRepository
             newFile.Offset = offset;
             newFile.FileName = oldFile.FileName;
             newFile.Type = oldFile.Type;
-            newFile.ArchiveLength = oldFile.ArchiveLength;
+            newFile.ArchiveLength = oldFile.ExtractedLength;
             newFile.ExtractedLength = oldFile.ExtractedLength;
             newFile.IndexInArchive = index;
             return newFile;
         }
+
+        private void UpdateSections(BinaryWriter newCpk, CriPak package, List<PatchList> modifiedInNewArchive)
+        {
+            //TODO: Add packet data to Sections so it can be modified easily and then streamed to the file.
+            var cpkSection = package.Sections.First(x => x.Name.Equals("CPK"));
+            var tocSection = package.Sections.First(x => x.Name.Equals("TOC"));
+            var etocOffset = modifiedInNewArchive.First(x => x.FileName == "ETOC").Offset;
+            var contentTableSize = etocOffset - package.Sections.First(x => x.Name == "CONTENT").Offset;
+            var cpkContentSizeRowOffset = cpkSection.HeaderData.Rows.First(x => x.Name.Equals("ContentSize")).RowOffset; 
+            var cpkEtocRowOffset = cpkSection.HeaderData.Rows.First(x => x.Name.Equals("EtocOffset")).RowOffset;
+            var filesToUpdate = modifiedInNewArchive.Where(x => x.Type == ItemType.FILE);
+            var tocPatchedPacket = new PatchedPacket() { PacketBytes = tocSection.Content.PacketBytes }; 
+            tocPatchedPacket.MakeDecrypted(); 
+            foreach (var file in filesToUpdate)
+            {
+                var tocRowData = tocSection.HeaderData.Rows.Where(x => x.Id == file.Id);
+                var tocArchiveSizeRowOffset = tocRowData.First(x => x.Name.Equals("FileSize")).RowOffset;
+                var tocExtractizeRowOffset = tocRowData.First(x => x.Name.Equals("ExtractSize")).RowOffset;
+                var tocFileOffsetRowOffset = tocRowData.First(x => x.Name.Equals("FileOffset")).RowOffset;
+
+                tocPatchedPacket.DecryptedBytes = tocPatchedPacket.DecryptedBytes.ToList()
+                    .Splice(tocArchiveSizeRowOffset, BitConverter.GetBytes(Convert.ToInt32(file.ArchiveLength)).Reverse().ToList())
+                    .Splice(tocExtractizeRowOffset, BitConverter.GetBytes(file.ExtractedLength).Reverse().ToList())
+                    .Splice(tocFileOffsetRowOffset, BitConverter.GetBytes(file.Offset).Reverse().ToList());
+
+            }
+
+            var patchedPacket = new PatchedPacket() { PacketBytes = cpkSection.Content.PacketBytes };
+            patchedPacket.MakeDecrypted();
+            var packet = patchedPacket.DecryptedBytes.ToList();
+            patchedPacket.DecryptedBytes = packet.Splice(cpkContentSizeRowOffset, BitConverter.GetBytes(contentTableSize).Reverse().ToList())
+                .Splice(cpkEtocRowOffset, BitConverter.GetBytes(etocOffset).Reverse().ToList());
+
+            patchedPacket.Encrypt();
+            var cpkStream = new EndianReader<MemoryStream, EndianData>(new MemoryStream(patchedPacket.PacketBytes.ToArray()), new EndianData(true));
+            newCpk.BaseStream.Position = cpkSection.Offset + 16;
+            cpkStream.BaseStream.Position = 0;
+            cpkStream.CopyStream(newCpk.BaseStream, cpkStream.BaseStream.Length);
+
+
+            tocPatchedPacket.Encrypt();
+            var tocStream = new EndianReader<MemoryStream, EndianData>(new MemoryStream(tocPatchedPacket.PacketBytes.ToArray()), new EndianData(true));
+            newCpk.BaseStream.Position = tocSection.Offset + 16;
+            tocStream.BaseStream.Position = 0;
+            tocStream.CopyStream(newCpk.BaseStream, tocStream.BaseStream.Length);
+
+        }
+
+       
     }
 }

@@ -9,7 +9,7 @@ namespace CriPakInterfaces
         long Offset { get; set; }   
         SectionMeta MetaData { get; set; }
         SectionHeader HeaderData { get; set; }
-        IContent ContentData { get; set; }
+        IPacket Content { get; set; }
 
     }
 }

@@ -18,5 +18,10 @@ namespace CriPakInterfaces.Models.Components
         {
             return _value;            
         }
+
+        public void SetValue(TType value)
+        {
+            _value = value;
+        }
     }
 }

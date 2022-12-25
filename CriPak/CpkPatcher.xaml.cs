@@ -62,20 +62,15 @@ namespace CriPakComplete
         {
             if (Directory.Exists(textbox_patchDir.Text))
             {
-                _ = Task.Run(() => 
-                    Dispatcher.Invoke(() => PatchCPK())
+                _ = Task.Run(() =>
+                   Dispatcher.Invoke(() =>
+                   {
+                       _home.Patch(package, textbox_patchDir.Text, textbox_cpkDir.Text, checkbox_donotcompress.IsChecked ?? false);
+                   })
                 );
                 return;
             }
             MessageBox.Show("Error, cpkdata or patchdata not found.");
-        }
-
-        private void PatchCPK()
-        {
-            _home.Patch(package, textbox_patchDir.Text, textbox_cpkDir.Text, checkbox_donotcompress.IsChecked ?? false);
-           
-            
-            
         }
 
         private void WriteChunkData(BinaryWriter cpk,/* CriFile entry,*/ byte[] chunkData, int originalDataLength, string msg)

@@ -22,19 +22,19 @@ namespace CriPakInterfaces.Models.Components
             return string.Join(" ", DecryptedBytes.ToList().Select(x => string.Format("{0:X2}", x)));
         }
 
-        public IEnumerable<byte> ProcessBytes()
+        public IEnumerable<byte> ProcessBytes(IEnumerable<byte> bytes)
         {
             if (CheckEncryption())
             {
                 var seed = 0x0000655f;
-                var decrypted = new List<byte>();
-                foreach (var entry in PacketBytes)
+                var processed = new List<byte>();
+                foreach (var entry in bytes)
                 {
-                    decrypted.Add((byte)(entry ^ (byte)(seed & 0xff)));
+                    processed.Add((byte)(entry ^ (byte)(seed & 0xff)));
                     //seed modifier
                     seed *= 0x00004115;
                 }
-                return decrypted;
+                return processed;
             }
             return PacketBytes;
         }
@@ -44,7 +44,7 @@ namespace CriPakInterfaces.Models.Components
             return !string.Join("", PacketBytes.Take(4).ToList().Select(x => string.Format("{0:X2}", x))).Equals($"40555446"); //@UTF
         }
 
-        public IEnumerable<byte> Decrypt() => ProcessBytes();
+        public IEnumerable<byte> Decrypt() => ProcessBytes(PacketBytes);
 
         public IEnumerable<byte> GetDecryptedSegment(int offset, int length)
         {

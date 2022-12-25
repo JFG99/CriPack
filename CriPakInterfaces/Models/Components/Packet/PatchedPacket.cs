@@ -12,7 +12,7 @@ namespace CriPakInterfaces.Models.Components
         {
             return string.Join(" ", Encrypt().ToList().Select(x => string.Format("{0:X2}", x)));
         }
-        public IEnumerable<byte> Encrypt() => ProcessBytes();
+        public IEnumerable<byte> Encrypt() => PacketBytes = ProcessBytes(DecryptedBytes);
     }
    
 }
