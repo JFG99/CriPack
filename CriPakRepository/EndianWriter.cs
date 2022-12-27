@@ -3,58 +3,60 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
-using CriPakInterfaces.Models.Components;
+using LibCPK.Interfaces;
+using CriPakInterfaces;
 
 namespace CriPakRepository
-{   
+{
 
-    public class EndianWriter : BinaryWriter
+    public class EndianWriter<TStream, T> : BinaryWriter, IEndianWriter
+        where TStream : Stream
+        where T : IEndian, new()
     {
-        //Not really used or needed but I'll leave for now
-        public EndianWriter(Stream input, Encoding encoding, bool isLittleEndian) : base(input, encoding)
+        private readonly T _endian;
+        public bool IsOpen { get; private set; }
+
+        public EndianWriter(TStream stream, T endian) : base(stream, Encoding.UTF8)
         {
-            IsLittleEndian = isLittleEndian;
+            _endian = endian;
+            IsOpen = true;
+        }
+        public override Stream BaseStream => base.BaseStream;
+
+        public bool IsLittleEndian
+        {
+            get => _endian.IsLittleEndian;
+            set => _endian.IsLittleEndian = value;
+        }
+        public byte[] Buffer
+        {
+            get => _endian.Buffer;
+            set => _endian.Buffer = value;
         }
 
-        public EndianWriter(Stream input, bool isLittleEndian) : this(input, Encoding.UTF8, isLittleEndian) { }
-
-        public bool IsLittleEndian { get; set; }
-
-        public void Write<T>(T value)
+        public override void Close()
         {
-            dynamic input = value;
-            byte[] someBytes = BitConverter.GetBytes(input);
-            if (!IsLittleEndian)
-                someBytes = someBytes.Reverse().ToArray();
-
-            base.Write(someBytes);
+            IsOpen = false;
+            base.Close();
         }
-
-        public void Write(CriFile entry)
+        public void CopyFrom(Stream input, int bytes)
         {
-            if (entry.ExtractSizeType == typeof(Byte))
+            byte[] buffer = new byte[81920];
+            int read;
+            while (bytes > 0 && (read = input.Read(buffer, 0, Math.Min(buffer.Length, bytes))) > 0)
             {
-                Write((Byte)entry.ExtractedFileSize);
+                BaseStream.Write(buffer, 0, read);
+                bytes -= read;
             }
-            else if (entry.ExtractSizeType == typeof(UInt16))
+        }
+        public void CopyFrom(Stream input, long bytes)
+        {
+            var buffer = new byte[81920];
+            int read;
+            while (bytes > 0 && (read = input.Read(buffer, 0, (int)Math.Min(buffer.Length, bytes))) > 0)
             {
-                Write((UInt16)entry.ExtractedFileSize);
-            }
-            else if (entry.ExtractSizeType == typeof(UInt32))
-            {
-                Write((UInt32)entry.ExtractedFileSize);
-            }
-            else if (entry.ExtractSizeType == typeof(UInt64))
-            {
-                Write((UInt64)entry.ExtractedFileSize);
-            }
-            else if (entry.ExtractSizeType == typeof(Single))
-            {
-                Write((Single)entry.ExtractedFileSize);
-            }
-            else
-            {
-                throw new Exception("Not supported type!");
+                BaseStream.Write(buffer, 0, read);
+                bytes -= read;
             }
         }
     }

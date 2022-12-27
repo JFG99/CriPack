@@ -1,12 +1,17 @@
-﻿using CriPakInterfaces.IComponents;
+﻿using CriPakInterfaces.Models.Components;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace CriPakInterfaces
 {
-    public interface IDetailMapper<out T>
+    public interface IDetailMapper<out TOut> 
     {
-        T Map(IDisplayList header, IEnumerable<Models.ComponentsNew.Row> rowValue); 
+        TOut Map(IPacket header, IEnumerable<Row> rowValue);
+    }
+
+    public interface IMapper<out T>
+    {
+        T Map(IEnumerable<Row> rowValue);
     }
 }

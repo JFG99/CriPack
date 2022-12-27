@@ -9,9 +9,7 @@ using System.Diagnostics;
 using System.IO;
 using Ookii.Dialogs.Wpf;
 using System.Windows.Threading;
-using CriPakInterfaces.Models.Components;
 using CriPakInterfaces.Models;
-using CriPakRepository.Parsers;
 using CriPakRepository.Helpers;
 using System.Threading.Tasks;
 
@@ -21,8 +19,7 @@ namespace CriPakComplete
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
-    {
-        public CriPakOld package = new CriPakOld();
+    {        
         public CriPak criPak = new CriPak();
         private readonly Orchestrator _home;
         public MainWindow(Orchestrator home)
@@ -31,13 +28,14 @@ namespace CriPakComplete
             InitializeComponent();
             SetBasicPrefs();
         }
+
         private void SetBasicPrefs()
         {
             menu_savefiles.IsEnabled = false;
             menu_patch.IsEnabled = false;
             progressbar0.Maximum = 100;
-            package.BasePath = @"C:/";
         }
+
         private void menu_openfile_Click(object sender, RoutedEventArgs e)
         {
             Debug.WriteLine("Loading cpk");
@@ -59,62 +57,63 @@ namespace CriPakComplete
 
             }
         }
+
         private void beginLoadCPK(string inFile)
         {
-            package.CpkName = inFile;
-            package.BasePath = Path.GetDirectoryName(inFile);
-            package.BaseName = Path.GetFileName(inFile);
-            package.Encoding = Encoding.GetEncoding(65001);
-
             criPak.FilePath = inFile;
-            criPak.Encoding = Encoding.GetEncoding(65001);
 
             _ = Task.Run(() => 
                 Dispatcher.Invoke(() => 
                 {
                     criPak = _home.Read(criPak);
-                    datagrid_cpk.ItemsSource = criPak.DisplayList;
+                    datagrid_cpk.ItemsSource = criPak.ViewList;
                     status_cpkmsg.Content = string.Format($"{datagrid_cpk.Items.Count} file(s) registered.");
                     menu_patch.IsEnabled = true;
                     menu_savefiles.IsEnabled = true;
                 })
             );
         }
+
         private void Patch_Click(object sender, RoutedEventArgs e)
         {
             CpkPatcher patcherWindow = new CpkPatcher(_home, criPak, Top, Left);
             patcherWindow.ShowDialog();
         }
+
         private void updateDatagrid(bool value = false)
         {
             datagrid_cpk.IsEnabled = value;
             button_extract.IsEnabled = value;
             button_importassets.IsEnabled = value;
         }
-        private void beginExtractCPK(string foutDir)
+
+        private void beginExtractCPK(string foutDir, IProgress<int> progress)
         {
             criPak.OutputDirectory = foutDir;
-            _home.Extract(criPak);
+            _home.Extract(criPak, progress);
             Dispatcher.Invoke(() => progressbar0.Value = 100f);
             Dispatcher.Invoke(() => updateDatagrid(true));
-            MessageBox.Show("Extraction Complete.");
-           
+            MessageBox.Show("Extraction Complete.");           
         }
+
         private void Extract_Click(object sender, RoutedEventArgs e)
         {
             VistaFolderBrowserDialog saveFilesDialog = new VistaFolderBrowserDialog();
-            saveFilesDialog.SelectedPath = package.BasePath + "/";
+            saveFilesDialog.SelectedPath = criPak.BasePath + "/";
             if (saveFilesDialog.ShowDialog().Value)
             {
-                Debug.Print(saveFilesDialog.SelectedPath + "/" + package.BaseName + "_unpacked");
-                Task.Run(() => beginExtractCPK(saveFilesDialog.SelectedPath));
+                Debug.Print(saveFilesDialog.SelectedPath + "/" + criPak.Name + "_unpacked");
+                var progress = new Progress<int>(value => { progressbar0.Value = value; });
+                Task.Run(() => beginExtractCPK(saveFilesDialog.SelectedPath, progress));
             }
-        }        
+        }   
+        
         private void menu_aboutgui_Click(object sender, RoutedEventArgs e)
         {
             //WindowAboutGUI aboutwindow = new WindowAboutGUI(this.Top, this.Left);
             //aboutwindow.ShowDialog();
         }
+
         private void dgmenu1_Cilck(object sender, MouseButtonEventArgs e)
         {
             Point p = e.GetPosition(this.datagrid_cpk);
@@ -128,6 +127,7 @@ namespace CriPakComplete
                 dgr.IsSelected = true;
             }
         }
+
         private void dgitem1_Click(object sender, RoutedEventArgs e)
         {
 
@@ -137,8 +137,8 @@ namespace CriPakComplete
                 if (t.CompressedFileSize > 0 && t.FileType == "FILE")
                 {
                     VistaSaveFileDialog saveFilesDialog = new VistaSaveFileDialog();
-                    saveFilesDialog.InitialDirectory = package.BasePath;
-                    saveFilesDialog.FileName = package.BasePath + "/" + t.LocalName;
+                    saveFilesDialog.InitialDirectory = criPak.BasePath;
+                    saveFilesDialog.FileName = criPak.BasePath + "/" + t.LocalName;
                     if (saveFilesDialog.ShowDialog().Value)
                     {
                         byte[] chunk = ExtractItem(t);
@@ -157,7 +157,7 @@ namespace CriPakComplete
         }
         private byte[] ExtractItem(PackagedFile entries)
         {
-            BinaryReader oldFile = new BinaryReader(File.OpenRead(package.CpkName));
+            BinaryReader oldFile = new BinaryReader(File.OpenRead(criPak.FilePath));
             oldFile.BaseStream.Seek((long)entries.FileOffset, SeekOrigin.Begin);
 
             string isComp = Encoding.ASCII.GetString(oldFile.ReadBytes(8));

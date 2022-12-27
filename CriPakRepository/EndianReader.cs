@@ -4,7 +4,7 @@ using System.Text;
 using System.IO;
 using CriPakInterfaces;
 
-namespace CriPakRepository.Repository
+namespace CriPakRepository
 
 {
     public class EndianReader<TStream, T> : BinaryReader, IEndianReader
@@ -12,10 +12,12 @@ namespace CriPakRepository.Repository
         where T : IEndian, new()
     {
         private readonly T _endian;
+        public bool IsOpen { get; private set; }
 
         public EndianReader(TStream stream, T endian) : base(stream, Encoding.UTF8)
         {
             _endian = endian;
+            IsOpen = true;
         }
 
         public override Stream BaseStream => base.BaseStream;
@@ -31,7 +33,11 @@ namespace CriPakRepository.Repository
             set => _endian.Buffer = value;
         }
 
-        public override void Close() => base.Close();
+        public override void Close()
+        {
+            IsOpen = false;
+            base.Close();
+        }
         public override byte ReadByte() => base.ReadByte();
 
         public override double ReadDouble()
@@ -100,6 +106,27 @@ namespace CriPakRepository.Repository
                 return base.ReadUInt64();
             FillMyBuffer(8);
             return BitConverter.ToUInt64(_endian.Buffer.Take(8).Reverse().ToArray(), 0);
+        }
+
+        public void CopyStream(Stream output, int bytes)
+        {
+            byte[] buffer = new byte[81920];
+            int read;
+            while (bytes > 0 && (read = BaseStream.Read(buffer, 0, Math.Min(buffer.Length, bytes))) > 0)
+            {
+                output.Write(buffer, 0, read);
+                bytes -= read;
+            }
+        }
+        public void CopyStream(Stream output, long bytes)
+        {
+            var buffer = new byte[81920];
+            int read;
+            while (bytes > 0 && (read = BaseStream.Read(buffer, 0, (int)Math.Min(buffer.Length, bytes))) > 0)
+            {
+                output.Write(buffer, 0, read);
+                bytes -= read;
+            }
         }
 
         private void FillMyBuffer(int numBytes)

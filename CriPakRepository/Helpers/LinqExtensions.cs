@@ -1,47 +1,86 @@
-﻿using System;
+﻿using CriPakInterfaces.IComponents;
+using CriPakInterfaces.Models;
+using CriPakInterfaces.Models.Components;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
-using System.Text;
+using System.Reflection.Metadata.Ecma335;
 
 namespace CriPakRepository.Helpers
 {
     public static class LinqExtensions
     {
-        public static IEnumerable<object> AggregateDifference<T>(this IEnumerable<T> source, int size, int offset)
+        public static List<byte> Splice(this List<byte> source, int location, List<byte> target)
         {
-            if (source.Any())
-            {
-                var data = source.Select(x => new { Index = (int)x.ReflectedValue("Index"), Value = (int)x.ReflectedValue("Value") }).ToArray();
-                var last = data.Last().Index;
-                var data2 = data.Select(x =>
-                {
-                    var length = x.Index == last ? size - (data[x.Index].Value + offset) : data[x.Index + 1].Value - data[x.Index].Value - 1;
-                    return new { Index = x.Index, Offset = x.Value + offset, Length = length };
-                });
-                return data2;
-            }
-            return null;
+            
+            return source.Take(location).Concat(target).Concat(source.Skip(location + target.Count()).Take(source.Count() - (location + target.Count()))).ToList();
         }
 
-        public static IEnumerable<object> AggregateDifference<T>(this IEnumerable<T> source, ulong size, ulong offset)
+        public static IEnumerable<TSource> SelectWithNextWhere<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> predicate, Func<TSource, TSource, TSource> projection)
         {
-            if (source.Any())
-            {
-                var data = source.Select((x, i) => new { Index = i, FileId = (int)x.ReflectedValue("Index"), Value = (ulong)x.ReflectedValue("Value") }).ToArray();
-                var last = data.Last().Index;
-                var data2 = data.Select(x =>
-                {
-                    var length = x.Index == last ? size - (data[x.Index].Value + offset) : data[x.Index + 1].Value - data[x.Index].Value ;
-                    return new { Index = x.FileId, Offset = x.Value + offset, Length = length };
-                });
-                return data2;
-            }
-            return null;
+            return source.Where(predicate).SelectWithNext(projection).Union(source);
         }
 
-        public static object ReflectedValue<T>(this T source, string property)
+        public static IEnumerable<TSource> SelectWithNext<TSource>(this IEnumerable<TSource> source, Func<TSource, TSource, TSource> projection)
         {
-            return source.GetType().GetProperty(property).GetValue(source, null);
+            var iterator = source.GetEnumerator();
+            if (!iterator.MoveNext())
+            {
+                yield break;
+            }
+            TSource realCurrent = iterator.Current;
+            while (iterator.MoveNext())
+            {
+                TSource next = iterator.Current;
+                yield return projection(realCurrent, next);
+                realCurrent = iterator.Current;
+            }
+            yield return realCurrent;
         }
+
+        public static IEnumerable<TSource> WhenLastWhere<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> predicate, Func<TSource, TSource> projection)
+        {
+            return source.Where(predicate).WhenLast(projection).Union(source);
+        }
+
+        public static IEnumerable<TSource> WhenLast<TSource>(this IEnumerable<TSource> source, Func<TSource, TSource> projection)
+        {
+            var iterator = source.GetEnumerator();
+            if (!iterator.MoveNext())
+            {
+                return null;
+            }
+            projection(source.Last());          
+            return source;           
+        }       
+
+        public static T GetModifierWhere<IType, T>(this IEnumerable<Row> source, Func<Row, bool> predicate)
+            where T : struct
+            where IType : IValue<T>
+        {
+            return source.Where(predicate).SelectValue<IType, T>();
+        }
+
+        public static T GetModifierWhere<IType, T>(this IGrouping<int, Row> source, Func<Row, bool> predicate)
+            where T : struct
+            where IType : IValue<T>
+        {
+            return source.Where(predicate).SelectValue<IType, T>();
+        }
+
+        public static T GetModifierWhere<IType, T>(this IEnumerable<Row> source, int index)
+            where T : struct
+            where IType : IValue<T>
+        {
+            return source.Select(x => x.Modifier).OfType<IType>().ToArray()[index].GetValue();
+        }
+
+        private static T SelectValue<IType, T>(this IEnumerable<IModifier> source) 
+            where T : struct
+            where IType : IValue<T>
+        {
+            return source.Select(x => x.Modifier).OfType<IType>().First().GetValue();
+        }    
     }
 }

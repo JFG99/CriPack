@@ -1,10 +1,10 @@
 ﻿using Autofac;
 using CriPakInterfaces;
 using CriPakInterfaces.IComponents;
-using CriPakInterfaces.Models.Components2;
+using CriPakInterfaces.Models.Components;
 using CriPakRepository.Repositories;
 using FileRepository;
-using MetaRepository;
+using SectionRepository;
 using System.Linq;
 using System.Reflection;
 
@@ -24,12 +24,9 @@ namespace CriPakComplete.App_Start
             builder.RegisterType<MainWindow>().AsSelf().InstancePerLifetimeScope();
             builder.RegisterType<Orchestrator>().AsSelf().InstancePerLifetimeScope();
             builder.RegisterTypes(
-                 typeof(MetaReader)
-            ).AsSelf().As<IReaderDetailsRepository<IDisplayList>>().InstancePerLifetimeScope(); 
-            builder.RegisterTypes(
                   typeof(FileExtractor)
              ).AsSelf().As<IExtractorsRepository<IFiles>>().InstancePerLifetimeScope();
-            builder.RegisterGeneric(typeof(ReaderDetailRepository<,>)).As(typeof(ReaderDetailRepository<,>)).InstancePerLifetimeScope();
+            builder.RegisterGeneric(typeof(DetailRepository<,>)).As(typeof(DetailRepository<,>)).InstancePerLifetimeScope();
             builder.RegisterGeneric(typeof(ExtractorRepository<,,>)).As(typeof(ExtractorRepository<,,>)).InstancePerLifetimeScope();
             var assemblies = typeof(DependencyInjectionConfig).Assembly.GetReferencedAssemblies().Where(x => x.Name.EndsWith("Repository")).Select(Assembly.Load).ToArray();
             builder.RegisterAssemblyTypes(assemblies).AsClosedTypesOf(typeof(IDetailMapper<>)).InstancePerLifetimeScope();

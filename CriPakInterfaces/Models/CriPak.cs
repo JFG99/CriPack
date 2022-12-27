@@ -8,18 +8,17 @@ namespace CriPakInterfaces.Models
     {
         public CriPak()
         {
-            DisplayList = new List<DisplayList>(); 
-            Headers = new List<IDisplayList>();
+            Sections = new List<ISection>();
+            ViewList = new List<IFileViewer>();
         }
 
         public string Name => Path.GetFileName(FilePath);
         public string BasePath => Path.GetDirectoryName(FilePath);
-
+        public Encoding Encoding => Encoding.GetEncoding(65001);
         public string FilePath { get; set; }
         public string OutputDirectory { get; set; }
-        public Encoding Encoding { get; set; }
-        public List<DisplayList> DisplayList { get; set; }
-        public List<IDisplayList> Headers { get; set; }
+        public List<ISection> Sections { get;set; }
+        public List<IFileViewer> ViewList { get; set; }
 
     }
 }

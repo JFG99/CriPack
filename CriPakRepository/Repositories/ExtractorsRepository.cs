@@ -2,7 +2,7 @@
 using CriPakInterfaces.IComponents;
 using System;
 using System.Collections.Generic;
-using CriPakInterfaces.Models.Components2;
+using CriPakInterfaces.Models.Components;
 using System.Linq;
 using System.Text;
 
@@ -10,8 +10,9 @@ namespace CriPakRepository.Repositories
 {
     public abstract class ExtractorsRepository<TOut> : IExtractorsRepository<TOut>
     {
-        private IEnumerable<IDisplayList> Headers { get; set; }
+        private IEnumerable<IFileViewer> Headers { get; set; }
         private IFiles Files { get; set; }
+        public IProgress<int> Progress { get; set; }    
         public string OutputDirectory { get; set; }
         public string FileName { get; set; }
 
@@ -22,7 +23,7 @@ namespace CriPakRepository.Repositories
         {
             return repository.Get(Headers);
         }
-        public IFiles Extract(Func<IFiles>[] details, IEnumerable<IDisplayList> headers)
+        public IFiles Extract(Func<IFiles>[] details, IEnumerable<IFileViewer> headers)
         {
             Headers = headers;
             return details.Select(x => x.Invoke()).ToList().First();
@@ -33,7 +34,7 @@ namespace CriPakRepository.Repositories
            where TWriter : IWriter<T>
            where T : IFiles
         {
-            repository.Write(Files, FileName, OutputDirectory);
+            repository.Write(Files, Progress, FileName, OutputDirectory);
             return null;
         }        
 
@@ -52,6 +53,6 @@ namespace CriPakRepository.Repositories
             OutputDirectory = outDir;
         }
 
-        public abstract IFiles Extract(IEnumerable<IDisplayList> tocHeader);
+        public abstract IFiles Extract(IEnumerable<IFileViewer> tocHeader, IProgress<int> progress);
     }
 }

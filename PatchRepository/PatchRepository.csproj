@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CriPakInterfaces\CriPakInterfaces.csproj" />
+    <ProjectReference Include="..\CriPakRepository\CriPakRepository.csproj" />
   </ItemGroup>
 
 </Project>

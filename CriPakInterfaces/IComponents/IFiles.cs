@@ -1,4 +1,4 @@
-﻿using CriPakInterfaces.Models.Components2;
+﻿using CriPakInterfaces.Models.Components;
 using System;
 using System.Collections.Generic;
 using System.Text;

@@ -6,10 +6,10 @@ using System.Text;
 
 namespace CriPakInterfaces
 {
-    public interface IMeta : IDisplayList
+    public interface IMeta 
     {
         IEnumerable<Column> Columns { get; set; }
-        IEnumerable<Models.ComponentsNew.Row> Rows { get; set; }
-        long Offset { get; set; }                
+        IEnumerable<Models.Components.Row> Rows { get; set; }
+        long Offset { get; set; }             
     }
 }

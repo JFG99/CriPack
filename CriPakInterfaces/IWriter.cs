@@ -1,5 +1,5 @@
 ﻿using CriPakInterfaces.IComponents;
-using CriPakInterfaces.Models.Components2;
+using CriPakInterfaces.Models.Components;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -10,6 +10,7 @@ namespace CriPakInterfaces
     {
         string OutputDirectory { get; set; }
         string FileName { get; set; }
+        IProgress<int> Progress { get; set; }
         void Write(IFiles data);
     }
 }

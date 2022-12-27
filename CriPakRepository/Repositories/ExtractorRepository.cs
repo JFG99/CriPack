@@ -1,8 +1,9 @@
 ﻿using CriPakInterfaces;
 using CriPakInterfaces.IComponents;
 using CriPakInterfaces.Models;
-using CriPakInterfaces.Models.Components2;
-using CriPakRepository.Repository;
+using CriPakInterfaces.Models.Components;
+using CriPakRepository;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -26,38 +27,17 @@ namespace CriPakRepository.Repositories
             _mapper = mapper;
             _writer = writer;
         }
-        public TOut Get(IEnumerable<IDisplayList> headers)
+        public TOut Get(IEnumerable<IFileViewer> headers)
         {
             return _mapper.Map(headers);
         }
 
-        public void Write(IFiles files, string fileName, string outDir)
+        public void Write(IFiles files, IProgress<int> progress, string fileName, string outDir)
         {
             _writer.OutputDirectory = outDir;
             _writer.FileName = fileName;
-            var fileBlocks = new List<IFiles>();
-            fileBlocks.Add(new Files { FileMeta = files.FileMeta.Where(x => x.IsCompressed) });
-            fileBlocks.Add(new Files { FileMeta = files.FileMeta.Where(x => !x.IsCompressed) });
-            var jobs = new List<Task>();
-
-            foreach( var block in fileBlocks)
-            {
-                jobs.Add(new Task(() => _writer.Write(block)));
-            }
-
-            if (jobs.Any())
-            {
-#if DEBUG
-                foreach (var job in jobs)
-                {
-                    job.RunSynchronously();
-                }
-#else
-                jobs.ForEach(x => x.Start());
-#endif
-                var taskResult = Task.WhenAll(jobs).IsCompleted;
-                jobs.Clear();
-            }
+            _writer.Progress = progress;
+            _writer.Write(files);    
         }        
     }
 }

@@ -1,124 +1,73 @@
 ﻿using CriPakInterfaces;
 using CriPakInterfaces.IComponents;
+using CriPakInterfaces.Models;
 using CriPakInterfaces.Models.Components;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Text;
+using System.Reflection.Metadata.Ecma335;
 
 namespace CriPakRepository.Helpers
 {
     public static class MapExtensions
     {
-        public static IEnumerable<object> ParseColumnLocations(this IEnumerable<byte> bytes, int modifier, int offset)
+        public static IEnumerable<Column> ParseSegments(this List<byte> columnBytes, List<Column> columnSegments)
         {
-            return bytes.Select((x, i) => new { Index = i, Value = x })
-                .GroupBy(x => x.Index / 5)
-                .SelectMany(x =>
-                    x.GroupBy(y => y.Index % 5 == 3 || y.Index % 5 == 4)
-                    .Where(y => y.Key)
-                    .Select(z => new { Index = z.Last().Index / 5, Value = (int)BitConverter.ToInt16(z.Select(y => y.Value).Reverse().ToArray(), 0) }))
-                .AggregateDifference(modifier, offset);
-        }
-
-        public static IEnumerable<Column> GetColumns(this IEnumerable<byte> bytes, IEnumerable<object> locations, IOriginalPacket packet)
-        {
-            return bytes.Select((x, i) => new { Index = i, Value = x })
-                .GroupBy(x => x.Index % 5 == 0)
-                .Select(x =>
-                {
-                    return locations.Select(y =>
-                           new Column()
-                           {
-                               Name = packet.ReadStringFrom((int)y.ReflectedValue("Offset"), (int)y.ReflectedValue("Length")),
-                               NameOffset = (int)y.ReflectedValue("Offset"),
-                               Flag = x.ToArray()[(int)y.ReflectedValue("Index")].Value
-                           });
-                }).First().ToList();
-        }
-
-#if DEBUG
-        public static IEnumerable<IEnumerable<byte>> GetByteRows(this IOriginalPacket packet, int rowOffset, int rowLength, int stringsOffset)
-        {
-            return packet.DecryptedBytes
-                .Skip(rowOffset)
-                .Take(stringsOffset - rowOffset)
-                .Select((x, i) => new { Index = i, Value = x })
-                .GroupBy(x => x.Index / rowLength)
-                .Select(x => x.Select(y => y.Value));
-        }
-
-        public static IEnumerable<IEnumerable<object>> GetRowMeta(this IEnumerable<IEnumerable<byte>> bytes, IEnumerable<Column> columns, int packetRowOffset, int rowLength)
-        {
-            return bytes.Select((x, i) =>
+            var skip = columnBytes.Where((x, i) => i % 5 == 0).ToList().FindIndex(x => x == 0);
+            var segmentCount = columnSegments.Count();
+            if (skip == 0)
             {
-                var offsets = 0;
-                return columns.Where(y => y.Stored).Select(y =>
-                {
-                    var bytes = x.Skip(offsets).Take(y.RowReadLength);
-                    var rowOffset = offsets + (i * rowLength) + packetRowOffset;
-                    offsets += y.RowReadLength;
-                    return new
-                    {
-                        Id = i,
-                        Name = y.Name,
-                        Mask = y.Mask,
-                        ByteSegment = bytes.ToList(),
-                        OffsetModifier = ByteConverter.MapBytes[y.Mask](bytes),
-                        RowOffset = rowOffset,
-                        IsStringsModifier = y.Mask == 0xA,
-                        IsDataModifier = y.Mask == 0xB
-                    };
-                });
-            });
-        }
-
-        public static IEnumerable<object> GetStringData(this IEnumerable<object> meta, IOriginalPacket packet, int dataOffset, int stringsOffset)
-        {
-            return meta.Where(x => (bool)x.ReflectedValue("IsStringsModifier"))?
-                        .Select(x => new { Index = x.ReflectedValue("Id"), Value = Convert.ToInt32(x.ReflectedValue("OffsetModifier").ReflectedValue("Value")) })?
-                        .AggregateDifference(dataOffset - stringsOffset, 0)?
-                        .Select(x => new { 
-                            Index = (int)x.ReflectedValue("Index"), 
-                            Name = packet.ReadStringFrom(stringsOffset + (int)x.ReflectedValue("Offset"), (int)x.ReflectedValue("Length")) 
-                        });
-        }
-
-        public static  IEnumerable<CriPakInterfaces.Models.ComponentsNew.Row> Merge(this IEnumerable<object> meta, IEnumerable<object> stringsData)
-        {
-            if (stringsData?.Any() ?? false)
-            {
-                return meta.Join(stringsData, ri => ri.ReflectedValue("Id"), sd => sd.ReflectedValue("Index"), (ri, sd) =>
-                {
-                    return new CriPakInterfaces.Models.ComponentsNew.Row
-                    {
-                        Id = (int)ri.ReflectedValue("Id"),
-                        Name = ri.ReflectedValue("Name").ToString(),
-                        Mask = (int)ri.ReflectedValue("Mask"),
-                        StringName = ri.ReflectedValue("Name").ToString() == "FileName" ? sd.ReflectedValue("Name").ToString() : "",
-                        ByteSegment = (IEnumerable<byte>)ri.ReflectedValue("ByteSegment"),
-                        Modifier = (CriPakInterfaces.IComponentsNew.IRowValue)ri.ReflectedValue("OffsetModifier"),
-                        RowOffset = (int)ri.ReflectedValue("RowOffset")
-                    };
-                });
+                columnSegments.Add(new Column() { Id = skip + segmentCount, ByteSegment = columnBytes.Take(4).ToArray(), IsSegmentRemoved = true });
+                columnBytes.RemoveRange(0, 4);
+                return columnBytes.ParseSegments(columnSegments);
             }
-            return meta.Select(x =>
+            var groupedColumnBytes = columnBytes.Select((x, i) => new { Index = i, Value = x }).GroupBy(x => x.Index / 5);
+            if (skip == -1)
             {
-                return new CriPakInterfaces.Models.ComponentsNew.Row
-                {
-                    Id = (int)x.ReflectedValue("Id"),
-                    Name = x.ReflectedValue("Name").ToString(),
-                    Mask = (int)x.ReflectedValue("Mask"),
-                    ByteSegment = (IEnumerable<byte>)x.ReflectedValue("ByteSegment"),
-                    Modifier = (CriPakInterfaces.IComponentsNew.IRowValue)x.ReflectedValue("OffsetModifier"),
-                    RowOffset = (int)x.ReflectedValue("RowOffset")
-                };
-            });
+                columnSegments.AddRange(groupedColumnBytes.Select(x => new Column() { Id = x.Key + segmentCount, ByteSegment = x.Select(y => y.Value).ToArray(), IsSegmentRemoved = false }));
+                return columnSegments;
+            }
+            columnSegments.AddRange(groupedColumnBytes
+                .Take(skip)
+                .Select(x => new Column() { Id = x.Key + segmentCount, ByteSegment = x.Select(y => y.Value).ToArray(), IsSegmentRemoved = false }));
+            columnBytes.RemoveRange(0, skip * 5);
+            return columnBytes.ParseSegments(columnSegments);
         }
-#else
-        public static IEnumerable<CriPakInterfaces.Models.ComponentsNew.Row> GetRows(this IOriginalPacket packet, IEnumerable<Column> columns, int packetRowOffset, int rowLength, int dataOffset, int stringsOffset)
-        {
 
+        public static IEnumerable<Column> ThenData(this IEnumerable<Column> columnSegments, IPacket packet, int modifier, int offset)
+        {
+            modifier -= columnSegments.Where(x => x.IsSegmentRemoved).Count();
+            return columnSegments
+                .SelectWithNextWhere(x => !x.IsIgnoredForName, (curr, next) => {
+                    curr.NameLength = (int)next.OffsetInData - (int)curr.OffsetInData - 1;
+                    curr.OffsetInTable = offset + (int)curr.OffsetInData;
+                    return curr;
+                })  
+                .WhenLastWhere(x => !x.IsIgnoredForName, x =>
+                {
+                    x.NameLength = modifier - ((int)x.OffsetInData + offset);
+                    x.OffsetInTable = offset + (int)x.OffsetInData;
+                    return x;
+                })
+                .Select(x => {
+                    x.Name = packet.ReadStringFrom(x.OffsetInTable, x.NameLength);
+                    return x;
+                });
+        }
+
+        public static IEnumerable<Row> GetRows(this IPacket packet, IEnumerable<Column> columns, SectionMeta sectionMeta)
+        {
+            var packetRowOffset = sectionMeta.RowOffset;
+            var rowLength = sectionMeta.RowLength;
+            var dataOffset = sectionMeta.DataOffset;
+            var stringsOffset = sectionMeta.ColumnNamesOffset;
+            return packet.GetRows(columns, packetRowOffset, rowLength, dataOffset, stringsOffset);
+
+        }
+
+        public static IEnumerable<Row> GetRows(this IPacket packet, IEnumerable<Column> columns, int packetRowOffset, int rowLength, int dataOffset, int stringsOffset)
+        {
             var rowBytes = packet.DecryptedBytes
                 .Skip(packetRowOffset)
                 .Take(stringsOffset - packetRowOffset)
@@ -128,21 +77,21 @@ namespace CriPakRepository.Helpers
 
             var rowMeta = rowBytes.Select((x, i) => {
                 var offsets = 0;
-                return columns.Where(y => y.Stored).Select(y =>
+                return columns.Where(y => y.IsStoredInRow).Select(y =>
                 {
-                    var test = x.Skip(offsets).Take(y.RowReadLength);
+                    var bytes = x.Skip(offsets).Take(y.RowReadLength);
                     var rowOffset = offsets + (i * rowLength) + packetRowOffset;
                     offsets += y.RowReadLength;
                     return new
                     {
                         Id = i,
-                        Name = y.Name,
-                        Mask = y.Mask,
-                        ByteSegment = test.ToList(),
-                        OffsetModifier = ByteConverter.MapBytes[y.Mask](test),
+                        y.Name,
+                        y.TypeMask,
+                        ByteSegment = bytes.ToList(),
+                        Modifier = ByteConverter.MapBytes[y.TypeMask](bytes),
                         RowOffset = rowOffset,
-                        IsStringsModifier = y.Mask == 0xA,
-                        IsDataModifier = y.Mask == 0xB
+                        IsStringsModifier = y.TypeMask == 0xA,
+                        IsDataModifier = y.TypeMask == 0xB
                     };
                 }).ToList();
             })
@@ -150,41 +99,59 @@ namespace CriPakRepository.Helpers
 
             var stringData = rowMeta.SelectMany(x => x)
                                     .Where(x => x.IsStringsModifier)
-                                    .Select(x => new { Index = x.Id, Value = Convert.ToInt32(x.OffsetModifier.ReflectedValue("Value")) })
-                                    .AggregateDifference(dataOffset - stringsOffset, 0)?
-                                    .Select(x => new { Index = (int)x.ReflectedValue("Index"), Name = packet.ReadStringFrom(stringsOffset + (int)x.ReflectedValue("Offset"), (int)x.ReflectedValue("Length")) })
-                                    .ToList();
+                                    .Select(x =>
+                                    {
+                                        if (x.Modifier is IUint32 modifier32)
+                                        {
+                                            return new TabularRecord()
+                                            {
+                                                Index = x.Id,
+                                                Offset = modifier32.Value
+                                            };
+                                        }
+                                        if (x.Modifier is IUint64 modifier64)
+                                        {
+                                            return new TabularRecord()
+                                            {
+                                                Index = x.Id,
+                                                Offset = modifier64.Value
+                                            };
+                                        }
+                                        return null;
+                                    })
+                                    .SelectWithNext((curr, next) => { curr.Length = next.Offset - curr.Offset; return curr; })
+                                    .ToList()//Required due to lazy loading. WhenLast returns 0 to Length, if SelectWithNext has not loaded.
+                                    .WhenLast(x => { x.Length = (ulong)(dataOffset - stringsOffset) - x.Offset; return x; })?
+                                    .Select(x => new StringsRow { Id = x.Index, Name = packet.ReadStringFrom(stringsOffset + (int)x.Offset, (int)x.Length) });
 
             if (stringData?.Any() ?? false)
             {
-                return rowMeta.SelectMany(x => x).Join(stringData, rm => rm.Id, sd => sd.Index, (rm, sd) =>
+                return rowMeta.SelectMany(x => x).Join(stringData, rm => rm.Id, sd => sd.Id, (rm, sd) =>
                 {
-                    return new CriPakInterfaces.Models.ComponentsNew.Row
+                    return new Row
                     {
                         Id = rm.Id,
                         Name = rm.Name,
-                        Mask = rm.Mask,
+                        Mask = rm.TypeMask,
                         StringName = rm.Name == "FileName" ? sd.Name : "",
                         ByteSegment = rm.ByteSegment,
-                        Modifier = rm.OffsetModifier,
+                        Modifier = rm.Modifier,
                         RowOffset = rm.RowOffset
                     };
                 });
             }
             return rowMeta.SelectMany(x => x).Select(x =>             
             {
-                return new CriPakInterfaces.Models.ComponentsNew.Row
+                return new Row
                 {
                     Id = x.Id,
                     Name = x.Name,
-                    Mask = x.Mask,
+                    Mask = x.TypeMask,
                     ByteSegment = x.ByteSegment,
-                    Modifier = x.OffsetModifier,
+                    Modifier = x.Modifier,
                     RowOffset = x.RowOffset
                 };
             });
         }
-#endif
-
     }
 }

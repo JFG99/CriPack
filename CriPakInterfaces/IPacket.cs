@@ -21,8 +21,9 @@ namespace CriPakInterfaces
         long ReadBytesFrom(int offset, int length, bool setOffset);
         IEnumerable<byte> GetBytes(int length);
         IEnumerable<byte> GetBytesFrom(int offset, int length);
-        byte GetByteFrom(int offset);        
-        void MakeDecyrpted();
+        byte GetByteFrom(int offset);
+        int GetReadOffset();
+        void MakeDecrypted();
         string ToDecryptedString();
     }
 }

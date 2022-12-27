@@ -4,7 +4,7 @@ using System.Text;
 
 namespace CriPakInterfaces.IComponents
 {
-    public interface IPatchedPacket : IPacket
+    public interface IPatchedPacket 
     {
         string ToEncryptedString();
         IEnumerable<byte> Encrypt();
