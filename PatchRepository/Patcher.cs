@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using CriPakRepository.Helpers;
 using CriPakInterfaces;
-using CriPakRepository.Repository;
+using CriPakRepository;
 using CriPakInterfaces.Models.Components;
 using CriPakInterfaces.Models.Components.Enums;
 
@@ -19,26 +19,31 @@ namespace PatchRepository
         public void Patch(CriPak package, string cpkDir, Dictionary<string, string> fileList)
         {
             var oldFile = new EndianReader<FileStream, EndianData>(System.IO.File.Open(package.FilePath, FileMode.Open, FileAccess.Read, FileShare.Read), new EndianData(true));
-            var newCPK = new BinaryWriter(System.IO.File.OpenWrite(cpkDir));
+            var newCPK = new EndianWriter<FileStream, EndianData>(System.IO.File.OpenWrite(cpkDir), new EndianData(true));
             var patchList = package.ViewList.Where(x => fileList.Keys.Any(y => x.FileName.ToLower().Equals(y.ToLower()))).OrderBy(x => x.Offset).ToList();
-            var firstPatchOffset = patchList.First().Offset + 2048;
+            var firstPatchOffset = patchList.First().Offset;
             var unpatchedList = package.ViewList;
-            oldFile.CopyStream(newCPK.BaseStream, firstPatchOffset);
+            newCPK.CopyFrom(oldFile.BaseStream, firstPatchOffset);
             var modifiedInNewArchive = new List<PatchList>(); 
             var currentIndex = unpatchedList.ToList().IndexOf(patchList[0]);
-            var nextInOld = unpatchedList[currentIndex];
+            var nextInOld = unpatchedList[currentIndex + 1];
             foreach (var file in patchList)
             {
                 while (nextInOld.Id < file.Id)
                 {
-                    modifiedInNewArchive.Add(CreateEntry(nextInOld, newCPK.BaseStream.Position, currentIndex)); 
-                    oldFile.CopyStream(newCPK.BaseStream, Convert.ToInt64(nextInOld.ArchiveLength));
-                    nextInOld = unpatchedList[++currentIndex + 1];
+                    // Have to subtract the length of the archive header for all file changes, but not the other archive headers.
+                    modifiedInNewArchive.Add(CreateEntry(nextInOld, newCPK.BaseStream.Position - 2048, currentIndex));
+                    newCPK.CopyFrom(oldFile.BaseStream, Convert.ToInt64(nextInOld.ArchiveLength));
+                    nextInOld = unpatchedList[++currentIndex];
+                    if (oldFile.BaseStream.Position <= nextInOld.Offset)
+                    {
+                        newCPK.CopyFrom(oldFile.BaseStream, nextInOld.Offset - oldFile.BaseStream.Position);
+                    }
                 }
                 
                 var patchStream = new EndianReader<FileStream, EndianData>(System.IO.File.Open(fileList[file.FileName.ToLower()], FileMode.Open, FileAccess.Read, FileShare.Read), new EndianData(true));
                 
-                var newFile = CreateEntry(file, newCPK.BaseStream.Position, currentIndex);
+                var newFile = CreateEntry(file, newCPK.BaseStream.Position - 2048, currentIndex);
                 //if (file.Percentage < 100)
                 //{
                 //    var bytes = System.IO.File.ReadAllBytes(fileList[file.FileName.ToLower()]);
@@ -52,10 +57,11 @@ namespace PatchRepository
                 //}
                 //else
                 //{
-                    newFile.LengthDifference = (ulong)patchStream.BaseStream.Length - file.ArchiveLength;
-                    newFile.ArchiveLength = (ulong)patchStream.BaseStream.Length;
-                    newFile.ExtractedLength = (uint)patchStream.BaseStream.Length;
-                    patchStream.CopyStream(newCPK.BaseStream, patchStream.BaseStream.Length);
+                newFile.LengthDifference = (ulong)patchStream.BaseStream.Length - file.ArchiveLength;
+                newFile.ArchiveLength = (ulong)patchStream.BaseStream.Length;
+                newFile.ExtractedLength = (uint)patchStream.BaseStream.Length;
+                newCPK.CopyFrom(patchStream.BaseStream, patchStream.BaseStream.Length);
+                oldFile.BaseStream.Position = nextInOld.Offset;
                 //}
                 newFile.IsPatched = true;
                 modifiedInNewArchive.Add(newFile);
@@ -63,18 +69,24 @@ namespace PatchRepository
                 nextInOld = unpatchedList[currentIndex + 1];
             }
             var lastFile = unpatchedList.Where(x => x.Id != 0).Last();
-            while (currentIndex <= unpatchedList.Count() && nextInOld.Id <= lastFile.Id)
-            {
-                modifiedInNewArchive.Add(CreateEntry(nextInOld, newCPK.BaseStream.Position, currentIndex));
-
-                oldFile.CopyStream(newCPK.BaseStream, Convert.ToInt64(nextInOld.ArchiveLength));
-
-                nextInOld = unpatchedList[++currentIndex + 1];
+            while (nextInOld.Id != 0 && nextInOld.Id <= lastFile.Id)
+            {                
+                modifiedInNewArchive.Add(CreateEntry(nextInOld, newCPK.BaseStream.Position - 2048, currentIndex));
+                newCPK.CopyFrom(oldFile.BaseStream, Convert.ToInt64(nextInOld.ArchiveLength));
+                nextInOld = unpatchedList[++currentIndex]; 
+                if (oldFile.BaseStream.Position < nextInOld.Offset)
+                {
+                    newCPK.CopyFrom(oldFile.BaseStream, nextInOld.Offset - oldFile.BaseStream.Position);
+                }
             }
-            //oldFile.BaseStream.Position = nextInOld.Offset;
+
             //This captures the ETOC table
-            //modifiedInNewArchive.Add(CreateEntry(nextInOld, newCPK.BaseStream.Position, currentIndex));
-            oldFile.CopyStream(newCPK.BaseStream, oldFile.BaseStream.Length - nextInOld.Offset);
+            if (oldFile.BaseStream.Position < nextInOld.Offset)
+            {
+                newCPK.CopyFrom(oldFile.BaseStream, nextInOld.Offset - oldFile.BaseStream.Position);
+            }
+            modifiedInNewArchive.Add(CreateEntry(nextInOld, newCPK.BaseStream.Position, currentIndex));
+            newCPK.CopyFrom(oldFile.BaseStream, oldFile.BaseStream.Length - nextInOld.Offset);
             oldFile.Close();
             UpdateSections(newCPK, package, modifiedInNewArchive);
             newCPK.Close();
@@ -84,16 +96,16 @@ namespace PatchRepository
         {
             var newFile = new PatchList();
             newFile.Id = oldFile.Id;
-            newFile.Offset = offset;
+            newFile.Offset = offset;  
             newFile.FileName = oldFile.FileName;
             newFile.Type = oldFile.Type;
-            newFile.ArchiveLength = oldFile.ExtractedLength;
+            newFile.ArchiveLength = oldFile.ArchiveLength;
             newFile.ExtractedLength = oldFile.ExtractedLength;
             newFile.IndexInArchive = index;
             return newFile;
         }
 
-        private void UpdateSections(BinaryWriter newCpk, CriPak package, List<PatchList> modifiedInNewArchive)
+        private void UpdateSections(EndianWriter<FileStream, EndianData> newCpk, CriPak package, List<PatchList> modifiedInNewArchive)
         {
             //TODO: Add packet data to Sections so it can be modified easily and then streamed to the file.
             var cpkSection = package.Sections.First(x => x.Name.Equals("CPK"));
@@ -129,14 +141,14 @@ namespace PatchRepository
             var cpkStream = new EndianReader<MemoryStream, EndianData>(new MemoryStream(patchedPacket.PacketBytes.ToArray()), new EndianData(true));
             newCpk.BaseStream.Position = cpkSection.Offset + 16;
             cpkStream.BaseStream.Position = 0;
-            cpkStream.CopyStream(newCpk.BaseStream, cpkStream.BaseStream.Length);
+            newCpk.CopyFrom(cpkStream.BaseStream, cpkStream.BaseStream.Length);
 
 
             tocPatchedPacket.Encrypt();
             var tocStream = new EndianReader<MemoryStream, EndianData>(new MemoryStream(tocPatchedPacket.PacketBytes.ToArray()), new EndianData(true));
             newCpk.BaseStream.Position = tocSection.Offset + 16;
             tocStream.BaseStream.Position = 0;
-            tocStream.CopyStream(newCpk.BaseStream, tocStream.BaseStream.Length);
+            newCpk.CopyFrom(tocStream.BaseStream, tocStream.BaseStream.Length);
 
         }
 

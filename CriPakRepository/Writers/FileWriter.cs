@@ -2,7 +2,7 @@
 using CriPakInterfaces.IComponents;
 using CriPakInterfaces.Models.Components;
 using CriPakInterfaces.Models;
-using CriPakRepository.Repository;
+using CriPakRepository;
 using System.IO;
 using File = CriPakInterfaces.Models.Components.File;
 using System.Collections.Generic;

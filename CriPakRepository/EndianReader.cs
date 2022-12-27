@@ -4,7 +4,7 @@ using System.Text;
 using System.IO;
 using CriPakInterfaces;
 
-namespace CriPakRepository.Repository
+namespace CriPakRepository
 
 {
     public class EndianReader<TStream, T> : BinaryReader, IEndianReader

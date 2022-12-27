@@ -1,9 +1,13 @@
 ﻿
+using CriPakInterfaces;
+using System.IO;
+
 namespace LibCPK.Interfaces
 {
-    public interface IEndianWriter
+    public interface IEndianWriter : IEndian
     {
-        void Write<T>(T value);
-        //void Write(CriFile entry);
+        Stream BaseStream { get; }
+        bool IsOpen { get; }
+        void CopyFrom(Stream input, int bytes);
     }
 }

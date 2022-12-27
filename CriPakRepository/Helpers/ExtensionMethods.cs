@@ -1,5 +1,5 @@
 ﻿using CriPakInterfaces.Models;
-using CriPakRepository.Repository;
+using CriPakRepository;
 using System;
 using System.IO;
 using System.Text.RegularExpressions;

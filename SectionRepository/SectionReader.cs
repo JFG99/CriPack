@@ -4,7 +4,7 @@ using CriPakInterfaces.Models.Components;
 using CriPakInterfaces.IComponents;
 using CriPakRepository.Helpers;
 using CriPakRepository.Repositories;
-using CriPakRepository.Repository;
+using CriPakRepository;
 using System;
 using System.Collections.Generic;
 using System.IO;

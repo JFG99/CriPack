@@ -18,7 +18,7 @@ namespace CriPakRepository.Mappers
             sections.ToList().ForEach(x =>
             {
                 var entry = new FileViewer();
-                entry.Offset = x.Offset; // This is the header offset of 2048.  
+                entry.Offset = x.Offset; 
                 entry.ArchiveLength = (ulong)x.MetaData.TableSize;
                 entry.FileName = x.Name;
                 viewList.Add(entry);
@@ -29,7 +29,7 @@ namespace CriPakRepository.Mappers
                         entry = new FileViewer();
                         entry.Id = (int)y.GetModifierWhere<IUint32, uint>(z => z.Name == "ID");
                         entry.FileName = y.Where(z => z.Name == "FileName").First().StringName;
-                        entry.Offset = (long)y.GetModifierWhere<IUint64, ulong>(z => z.Name == "FileOffset") + 0x800; // This is the header offset of 2048.  
+                        entry.Offset = (long)y.GetModifierWhere<IUint64, ulong>(z => z.Name == "FileOffset") + 0x800; // This is the archive header offset of 2048.  
                         entry.ArchiveLength = y.GetModifierWhere<IUint32, uint>(z => z.Name == "FileSize");
                         entry.ExtractedLength = y.GetModifierWhere<IUint32, uint>(z => z.Name == "ExtractSize");
                         entry.Type = ItemType.FILE;
