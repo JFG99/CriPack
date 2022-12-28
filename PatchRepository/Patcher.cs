@@ -8,6 +8,7 @@ using CriPakInterfaces;
 using CriPakRepository;
 using CriPakInterfaces.Models.Components;
 using CriPakInterfaces.Models.Components.Enums;
+using static System.Net.WebRequestMethods;
 
 namespace PatchRepository
 {
@@ -27,11 +28,17 @@ namespace PatchRepository
             var modifiedInNewArchive = new List<PatchList>(); 
             var currentIndex = unpatchedList.ToList().IndexOf(patchList[0]);
             var nextInOld = unpatchedList[currentIndex + 1];
+            var resetPositionAfterPatch = false;
             foreach (var file in patchList)
             {
                 while (nextInOld.Id < file.Id)
                 {
-                    // Have to subtract the length of the archive header for all file changes, but not the other archive headers.
+                    if (resetPositionAfterPatch)
+                    {
+                        oldFile.BaseStream.Position = nextInOld.Offset;
+                        resetPositionAfterPatch = false;
+                    }
+                    // Have to subtract the length of the archive header for all file changes, but not the other table headers.
                     modifiedInNewArchive.Add(CreateEntry(nextInOld, newCPK.BaseStream.Position - 2048, currentIndex));
                     newCPK.CopyFrom(oldFile.BaseStream, Convert.ToInt64(nextInOld.ArchiveLength));
                     nextInOld = unpatchedList[++currentIndex];
@@ -40,10 +47,9 @@ namespace PatchRepository
                         newCPK.CopyFrom(oldFile.BaseStream, nextInOld.Offset - oldFile.BaseStream.Position);
                     }
                 }
-                
+                                
                 var patchStream = new EndianReader<FileStream, EndianData>(System.IO.File.Open(fileList[file.FileName.ToLower()], FileMode.Open, FileAccess.Read, FileShare.Read), new EndianData(true));
-                
-                var newFile = CreateEntry(file, newCPK.BaseStream.Position - 2048, currentIndex);
+                modifiedInNewArchive.Add(CreateEntry(file, newCPK.BaseStream.Position - 2048, currentIndex));
                 //if (file.Percentage < 100)
                 //{
                 //    var bytes = System.IO.File.ReadAllBytes(fileList[file.FileName.ToLower()]);
@@ -57,16 +63,16 @@ namespace PatchRepository
                 //}
                 //else
                 //{
-                newFile.LengthDifference = (ulong)patchStream.BaseStream.Length - file.ArchiveLength;
-                newFile.ArchiveLength = (ulong)patchStream.BaseStream.Length;
-                newFile.ExtractedLength = (uint)patchStream.BaseStream.Length;
+                modifiedInNewArchive.Last().LengthDifference = (ulong)patchStream.BaseStream.Length - file.ArchiveLength;
+                modifiedInNewArchive.Last().ArchiveLength = (ulong)patchStream.BaseStream.Length;
+                modifiedInNewArchive.Last().ExtractedLength = (uint)patchStream.BaseStream.Length;
+                modifiedInNewArchive.Last().IsPatched = true;
                 newCPK.CopyFrom(patchStream.BaseStream, patchStream.BaseStream.Length);
                 oldFile.BaseStream.Position = nextInOld.Offset;
                 //}
-                newFile.IsPatched = true;
-                modifiedInNewArchive.Add(newFile);
+                resetPositionAfterPatch = true;
                 currentIndex = unpatchedList.ToList().IndexOf(file);
-                nextInOld = unpatchedList[currentIndex + 1];
+                nextInOld = unpatchedList[++currentIndex];
             }
             var lastFile = unpatchedList.Where(x => x.Id != 0).Last();
             while (nextInOld.Id != 0 && nextInOld.Id <= lastFile.Id)
