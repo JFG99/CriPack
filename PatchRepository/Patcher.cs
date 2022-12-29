@@ -47,6 +47,7 @@ namespace PatchRepository
                                 
                 var patchStream = new EndianReader<FileStream, EndianData>(System.IO.File.Open(fileList[file.FileName.ToLower()], FileMode.Open, FileAccess.Read, FileShare.Read), new EndianData(true));
                 modifiedInNewArchive.Add(CreateEntry(file, newCPK.BaseStream.Position - 2048, currentIndex));
+                //For now Im not going to deal with compression. Its slow and I don't think fully accurate.
                 //if (file.Percentage < 100)
                 //{
                 //    var bytes = System.IO.File.ReadAllBytes(fileList[file.FileName.ToLower()]);
@@ -110,7 +111,6 @@ namespace PatchRepository
 
         private void UpdateSections(EndianWriter<FileStream, EndianData> newCpk, CriPak package, List<PatchList> modifiedInNewArchive)
         {
-            //TODO: Add packet data to Sections so it can be modified easily and then streamed to the file.
             var cpkSection = package.Sections.First(x => x.Name.Equals("CPK"));
             var tocSection = package.Sections.First(x => x.Name.Equals("TOC"));
             var etocOffset = modifiedInNewArchive.First(x => x.FileName == "ETOC").Offset;
