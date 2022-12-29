@@ -14,9 +14,6 @@ namespace PatchRepository
 {
     public class Patcher
     {
-        //TODO:
-        //      Fix Header offsets and sizes.
-
         public void Patch(CriPak package, string cpkDir, Dictionary<string, string> fileList)
         {
             var oldFile = new EndianReader<FileStream, EndianData>(System.IO.File.Open(package.FilePath, FileMode.Open, FileAccess.Read, FileShare.Read), new EndianData(true));
