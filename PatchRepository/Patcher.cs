@@ -8,7 +8,6 @@ using CriPakInterfaces;
 using CriPakRepository;
 using CriPakInterfaces.Models.Components;
 using CriPakInterfaces.Models.Components.Enums;
-using static System.Net.WebRequestMethods;
 
 namespace PatchRepository
 {
@@ -155,6 +154,5 @@ namespace PatchRepository
 
         }
 
-       
     }
 }

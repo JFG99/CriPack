@@ -15,7 +15,7 @@ namespace SectionRepository.Mappers
             var tocSection = MapSection(packet);
             tocSection.Content = packet;
             tocSection.Offset = (long)rowValue.GetModifierWhere<IUint64, ulong>(x => x.Name.Contains("Offset"));
-            var testToc = tocSection.HeaderData.Rows.ToList().Where(x => x.Id == 5487 || x.Id == 5488).ToList();
+            //var testToc = tocSection.HeaderData.Rows.ToList().Where(x => x.StringName.Contains("SDIF_CAMP_OPTION"));
             return tocSection;
         }
     }
