@@ -27,7 +27,7 @@ namespace PatchRepository
             var resetPositionAfterPatch = false;
             foreach (var file in patchList)
             {
-                while (nextInOld.Id < file.Id)
+                while (nextInOld.Offset < file.Offset)
                 {
                     if (resetPositionAfterPatch)
                     {

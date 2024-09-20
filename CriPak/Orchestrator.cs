@@ -59,7 +59,7 @@ namespace CriPakComplete
         public void Patch(CriPak criPak, string patchDir, string cpkDir, bool isNoCompression)
         {
             var fileList = Directory.EnumerateFiles(patchDir, "*.*", SearchOption.AllDirectories)
-                                    .Select(x => new KeyValuePair<string, string>(Path.GetFileName(x), x))
+                                    .Select(x => new KeyValuePair<string, string>(Path.GetFileName(x).ToLower(), x))
                                     .ToDictionary(x => x.Key, x => x.Value);
 
             var patcher = new Patcher();
