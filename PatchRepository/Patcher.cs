@@ -27,21 +27,20 @@ namespace PatchRepository
             var resetPositionAfterPatch = false;
             foreach (var file in patchList)
             {
-                while (nextInOld.Offset < file.Offset)
+                while (nextInOld.Id < file.Id)
                 {
+                    nextInOld = unpatchedList[currentIndex];
                     if (resetPositionAfterPatch)
                     {
                         oldFile.BaseStream.Position = nextInOld.Offset;
                         resetPositionAfterPatch = false;
                     }
                     // Have to subtract the length of the archive header for all file changes, but not the other table headers.
+                    //BUG:  End Of File for unmodified files retains checksum data.  need to ignore and add 00's
                     modifiedInNewArchive.Add(CreateEntry(nextInOld, newCPK.BaseStream.Position - 2048, currentIndex));
                     newCPK.CopyFrom(oldFile.BaseStream, Convert.ToInt64(nextInOld.ArchiveLength));
+                    newCPK.PadEndOfFile();
                     nextInOld = unpatchedList[++currentIndex];
-                    if (oldFile.BaseStream.Position <= nextInOld.Offset)
-                    {
-                        newCPK.CopyFrom(oldFile.BaseStream, nextInOld.Offset - oldFile.BaseStream.Position);
-                    }
                 }
                                 
                 var patchStream = new EndianReader<FileStream, EndianData>(System.IO.File.Open(fileList[file.FileName.ToLower()], FileMode.Open, FileAccess.Read, FileShare.Read), new EndianData(true));
@@ -65,28 +64,28 @@ namespace PatchRepository
                 modifiedInNewArchive.Last().ExtractedLength = (uint)patchStream.BaseStream.Length;
                 modifiedInNewArchive.Last().IsPatched = true;
                 newCPK.CopyFrom(patchStream.BaseStream, patchStream.BaseStream.Length);
+                newCPK.PadEndOfFile();
                 oldFile.BaseStream.Position = nextInOld.Offset;
                 //}
                 resetPositionAfterPatch = true;
-                currentIndex = unpatchedList.ToList().IndexOf(file);
-                nextInOld = unpatchedList[++currentIndex];
+                currentIndex = unpatchedList.ToList().IndexOf(nextInOld);
+                nextInOld = unpatchedList[currentIndex + 1];
             }
             var lastFile = unpatchedList.Where(x => x.Id != 0).Last();
+            currentIndex++;
             while (nextInOld.Id != 0 && nextInOld.Id <= lastFile.Id)
             {                
                 modifiedInNewArchive.Add(CreateEntry(nextInOld, newCPK.BaseStream.Position - 2048, currentIndex));
                 newCPK.CopyFrom(oldFile.BaseStream, Convert.ToInt64(nextInOld.ArchiveLength));
-                nextInOld = unpatchedList[++currentIndex]; 
-                if (oldFile.BaseStream.Position < nextInOld.Offset)
-                {
-                    newCPK.CopyFrom(oldFile.BaseStream, nextInOld.Offset - oldFile.BaseStream.Position);
-                }
+                newCPK.PadEndOfFile();
+                nextInOld = unpatchedList[++currentIndex];                 
             }
 
             //This captures the ETOC table
             if (oldFile.BaseStream.Position < nextInOld.Offset)
             {
-                newCPK.CopyFrom(oldFile.BaseStream, nextInOld.Offset - oldFile.BaseStream.Position);
+                newCPK.CopyFrom(oldFile.BaseStream, nextInOld.Offset - oldFile.BaseStream.Position); 
+                newCPK.PadEndOfFile();
             }
             modifiedInNewArchive.Add(CreateEntry(nextInOld, newCPK.BaseStream.Position, currentIndex));
             newCPK.CopyFrom(oldFile.BaseStream, oldFile.BaseStream.Length - nextInOld.Offset);

@@ -1,7 +1,10 @@
 ﻿using CriPakInterfaces.Models;
+using CriPakInterfaces.Models.Components;
 using CriPakRepository;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace CriPakRepository.Helpers
@@ -11,6 +14,14 @@ namespace CriPakRepository.Helpers
         public static string Remove(this string original, string pattern)
         {
             return new Regex(pattern).Replace(original, "");
+        }
+        public static void PadEndOfFile(this EndianWriter<FileStream, EndianData> newCpk)
+        {
+            var length = 2048 - (newCpk.BaseStream.Position % 2048);
+            var zeroArray = Enumerable.Range(0, (int)length).Select(x => (byte)0x00).ToArray();
+            var cpkStream = new EndianReader<MemoryStream, EndianData>(new MemoryStream(zeroArray), new EndianData(true));
+            cpkStream.BaseStream.Position = 0;
+            newCpk.CopyFrom(cpkStream.BaseStream, cpkStream.BaseStream.Length);
         }
 
         public static ushort GetNextBits(byte[] input, ref int offset_p, ref byte bit_pool_p, ref int bits_left_p, int bit_count)
