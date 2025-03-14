@@ -1,10 +1,12 @@
 ﻿using CriPakInterfaces.Models;
 using CriPakInterfaces.Models.Components;
+using CriPakInterfaces.Models.Components.Enums;
 using CriPakRepository;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 
 namespace CriPakRepository.Helpers
@@ -18,10 +20,65 @@ namespace CriPakRepository.Helpers
         public static void PadEndOfFile(this EndianWriter<FileStream, EndianData> newCpk)
         {
             var length = 2048 - (newCpk.BaseStream.Position % 2048);
-            var zeroArray = Enumerable.Range(0, (int)length).Select(x => (byte)0x00).ToArray();
-            var cpkStream = new EndianReader<MemoryStream, EndianData>(new MemoryStream(zeroArray), new EndianData(true));
+            var padding = RandomData.Padding[0..(int)length].ToArray();
+            var cpkStream = new EndianReader<MemoryStream, EndianData>(new MemoryStream(padding), new EndianData(true));
             cpkStream.BaseStream.Position = 0;
             newCpk.CopyFrom(cpkStream.BaseStream, cpkStream.BaseStream.Length);
+        }
+
+        public static void UpdateSections(this EndianWriter<FileStream, EndianData> newCpk, CriPak package, List<PatchList> modifiedInNewArchive)
+        {
+            var cpkSection = package.Sections.First(x => x.Name.Equals("CPK"));
+            var tocSection = package.Sections.First(x => x.Name.Equals("TOC"));
+            var etocOffset = modifiedInNewArchive.First(x => x.FileName == "ETOC").Offset;
+            var contentTableSize = etocOffset - package.Sections.First(x => x.Name == "CONTENT").Offset;
+            var cpkContentSizeRowOffset = cpkSection.HeaderData.Rows.First(x => x.Name.Equals("ContentSize")).RowOffset;
+            var cpkEtocRowOffset = cpkSection.HeaderData.Rows.First(x => x.Name.Equals("EtocOffset")).RowOffset;
+            var filesToUpdate = modifiedInNewArchive.Where(x => x.Type == ItemType.FILE);
+            var tocPatchedPacket = new PatchedPacket() { PacketBytes = tocSection.Content.PacketBytes };
+            tocPatchedPacket.MakeDecrypted();
+            var tocBytes = tocPatchedPacket.DecryptedBytes.ToArray().Clone() as byte[];
+            foreach (var file in filesToUpdate)
+            {
+                var testFiles = filesToUpdate.Where(x => x.Id == file.Id);
+                var tocRowData = tocSection.HeaderData.Rows.Where(x => x.Id == file.Id);
+                var tocArchiveSizeRowOffset = tocRowData.First(x => x.Name.Equals("FileSize")).RowOffset;
+
+                var bytesToInsert = BitConverter.GetBytes(Convert.ToInt32(file.ArchiveLength)).Reverse().ToList();
+                bytesToInsert.AddRange(BitConverter.GetBytes(file.ExtractedLength).Reverse());
+                bytesToInsert.AddRange(BitConverter.GetBytes(file.Offset).Reverse());
+
+                for(var i = 0; i < bytesToInsert.Count(); i++)
+                {
+                    tocBytes[tocArchiveSizeRowOffset + i] = bytesToInsert[i];
+                }
+                var testing = "";
+            }
+            tocPatchedPacket.DecryptedBytes = tocBytes.Clone() as byte[];
+
+            var patchedPacket = new PatchedPacket() { PacketBytes = cpkSection.Content.PacketBytes };
+            patchedPacket.MakeDecrypted();
+            var packet = patchedPacket.DecryptedBytes.ToList();
+            patchedPacket.DecryptedBytes = packet.Splice(cpkContentSizeRowOffset, BitConverter.GetBytes(contentTableSize).Reverse().ToList())
+                .Splice(cpkEtocRowOffset, BitConverter.GetBytes(etocOffset).Reverse().ToList());
+
+            patchedPacket.Encrypt();
+            var cpkStream = new EndianReader<MemoryStream, EndianData>(new MemoryStream(patchedPacket.PacketBytes.ToArray()), new EndianData(true));
+            newCpk.BaseStream.Position = cpkSection.Offset + 16;
+            cpkStream.BaseStream.Position = 0;
+            newCpk.CopyFrom(cpkStream.BaseStream, cpkStream.BaseStream.Length);
+
+
+            tocPatchedPacket.Encrypt();
+            var tocStream = new EndianReader<MemoryStream, EndianData>(new MemoryStream(tocPatchedPacket.PacketBytes.ToArray()), new EndianData(true));
+            newCpk.BaseStream.Position = tocSection.Offset + 16;
+            tocStream.BaseStream.Position = 0;
+            newCpk.CopyFrom(tocStream.BaseStream, tocStream.BaseStream.Length);
+        }
+
+        public static string ToByteString(this byte[] bytes)
+        {
+            return string.Join(" ", bytes.ToList().Select(x => string.Format("{0:X2}", x)));
         }
 
         public static ushort GetNextBits(byte[] input, ref int offset_p, ref byte bit_pool_p, ref int bits_left_p, int bit_count)

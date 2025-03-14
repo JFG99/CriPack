@@ -16,6 +16,7 @@ namespace SectionRepository.Mappers
             var content = new Section()
             {
                 Name = "CONTENT",
+                Content = packet,
                 Offset = (long)rowValue.GetModifierWhere<IUint64, ulong>(x => x.Name.Contains("Offset")),
                 MetaData = new SectionMeta() { TableSize = (long)rowValue.GetModifierWhere<IUint64, ulong>(x => x.Name.Contains("Size")) }
             };

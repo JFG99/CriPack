@@ -14,6 +14,7 @@ namespace SectionRepository.Mappers
         public Section Map(IPacket packet, IEnumerable<Row> rowValue)
         {
             var section = MapSection(packet, (int)packet.ReadBytesFrom(4, 4, false));
+            section.Content = packet;
             section.Offset = (long)rowValue.GetModifierWhere<IUint64, ulong>(x => x.Name.Contains("Offset"));
             return section;
         }
